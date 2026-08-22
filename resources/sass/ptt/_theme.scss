@@ -1,0 +1,3936 @@
+// =====================================================================
+// PTT — motyw stron po zalogowaniu (nakładka na Galactic)
+//
+// Ładowany z nadpisanego resources/views/ptt/partials/head.blade.php
+// jako public/ptt/theme.css, PO main.scss i po motywie silnika.
+// Galactic zostaje bazą (pokrywa 352 zmienne), my zmieniamy tylko to,
+// co odróżnia PTT: paletę, gęstość i identyfikację.
+// =====================================================================
+
+:root {
+    // barwy serwisu
+    --ptt-red: #d4212e;         // czerwień z flagi — wypełnienia
+    --ptt-red-text: #f0656f;    // jaśniejszy wariant — tekst i obramowania
+    --ptt-blue: #34b5e9;
+    --ptt-green: #6ecf8b;
+    --ptt-warn: #e8b45c;        // błękit z wordmarku
+    --pl-white: #f2f2f2;
+
+    // powierzchnie (spójne z ekranem logowania)
+    --ptt-bg: #191919;
+    --ptt-surface: #1f1f1f;
+    --ptt-surface-2: #232323;
+    --ptt-line: #2e2e2e;
+    --ptt-border: #3a3a3a;
+    --ptt-surface-3: #2b2b2b;  // aktywna zakładka
+    --ptt-line-ui: #6a6a6a;
+    --ptt-accent: #ff6b74;     // akcent listy torrentów (Design)
+    --ptt-accent-on: #1a0d0e;
+    --ptt-fl: #5fd0c4;         // freeleech (Design)
+    --ptt-x2: #b49bff;         // double upload (Design)
+
+    --ptt-fg: #e3e3e3;
+    --ptt-fg-2: #b5b5b5;
+    --ptt-fg-3: #adadad;
+    --ptt-fg-4: #969696;
+
+    --ptt-radius: 3px;
+    --ptt-mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+    --ptt-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    // --- nadpisania zmiennych silnika ---
+    --body-bg: var(--ptt-bg);
+    --panel-bg: var(--ptt-surface);
+    --top-nav-bg: var(--ptt-surface-2);
+}
+
+body {
+    background-color: var(--ptt-bg);
+    font-family: var(--ptt-sans);
+}
+
+// --- identyfikacja w nagłówku ----------------------------------------
+// <img src="/favicon.ico"> zastąpione maską orła w barwach flagi
+.top-nav__branding {
+    column-gap: 9px;
+    flex: 0 0 auto;
+
+    // ukrywamy oryginalny <img src=favicon> — pod maską przebijał
+    img {
+        display: none;
+    }
+
+    // orzeł w barwach flagi jako osobna warstwa (bez bitmapy pod spodem)
+    &::before {
+        content: '';
+        flex: 0 0 auto;
+        width: 36px;
+        height: 34px;
+        background-image: linear-gradient(
+            180deg,
+            var(--pl-white) 0 50%,
+            var(--ptt-red) 50% 100%
+        );
+        -webkit-mask-image: url('/ptt/eagle.png');
+        mask-image: url('/ptt/eagle.png');
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+    }
+}
+
+.top-nav__site-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ptt-fg);
+}
+
+// --- panele ----------------------------------------------------------
+.panelV2,
+.panel {
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    box-shadow: none;
+}
+
+.panel__heading,
+.panel__header {
+    color: var(--ptt-fg);
+    letter-spacing: 0.02em;
+}
+
+// --- strona torrenta -------------------------------------------------
+.page__torrent {
+    .torrent__name,
+    h1 {
+        font-family: var(--ptt-mono);
+        font-size: 1.05rem;
+        line-height: 1.45;
+        color: var(--ptt-fg);
+        overflow-wrap: anywhere;
+    }
+
+    // pasek metadanych pod tytułem — liczby wyrównane, jednolita waga
+    .torrent__meta,
+    .meta {
+        color: var(--ptt-fg-3);
+        font-size: 12.5px;
+    }
+}
+
+// liczby: stała szerokość cyfr wszędzie, gdzie coś się liczy
+.torrent__seeders,
+.torrent__leechers,
+.torrent__completed,
+.torrent__size,
+.data-table td {
+    font-variant-numeric: tabular-nums;
+}
+
+.torrent__seeders {
+    color: #6ecf8b;
+}
+
+.torrent__leechers {
+    color: var(--ptt-red-text);
+}
+
+.torrent__completed {
+    color: var(--ptt-blue);
+}
+
+// --- przyciski -------------------------------------------------------
+.form__button,
+.form__standard-button {
+    border-radius: var(--ptt-radius);
+}
+
+.form__button--filled,
+.form__button--rounded {
+    background-color: var(--ptt-red);
+    border-color: var(--ptt-red);
+    color: #fff;
+
+    &:hover {
+        background-color: #e8323f;
+        border-color: #e8323f;
+    }
+}
+
+// --- MediaInfo i bloki technicznych danych ---------------------------
+.mediainfo,
+.bbcode-rendered pre,
+pre {
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    line-height: 1.55;
+    background-color: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-line);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-2);
+}
+
+// --- odnośniki -------------------------------------------------------
+a {
+    color: var(--ptt-red-text);
+
+    &:hover {
+        color: var(--ptt-fg);
+    }
+}
+
+// =====================================================================
+// Strona pojedynczego torrenta — dopasowanie do projektu Design
+// =====================================================================
+
+// --- meta: górny panel z plakatem i danymi filmu --------------------
+.meta {
+    color: var(--ptt-fg-2);
+}
+
+.meta__poster,
+.meta__poster-link {
+    border-radius: var(--ptt-radius);
+    overflow: hidden;
+}
+
+.meta__poster img {
+    border-radius: var(--ptt-radius);
+    border: 1px solid var(--ptt-line);
+}
+
+.meta__title,
+.meta__heading {
+    color: var(--ptt-red-text);
+    font-weight: 700;
+}
+
+.meta__description,
+.meta__overview {
+    color: var(--ptt-fg-2);
+    line-height: 1.6;
+}
+
+// nagłówki kolumn CAST / CREW / EXTRA INFORMATION
+.meta__chip-container > .meta__heading,
+.meta__credits-heading {
+    color: var(--ptt-fg-4);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+// pojedynczy wpis obsady / ekipy
+.meta-chip {
+    background-color: transparent;
+    border: 0;
+    border-radius: var(--ptt-radius);
+
+    &:hover {
+        background-color: var(--ptt-surface-2);
+    }
+}
+
+.meta-chip__image img {
+    border-radius: 50%;
+    border: 1px solid var(--ptt-line);
+}
+
+.meta-chip__name {
+    color: var(--ptt-fg);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.meta-chip__value {
+    color: var(--ptt-fg-4);
+    font-size: 12px;
+}
+
+// identyfikatory TMDB/IMDB i znaczniki jakości
+.meta-id-tag {
+    border-radius: var(--ptt-radius);
+}
+
+// --- linia releasu (tytuł pliku + statystyki) -----------------------
+.torrent__name {
+    font-family: var(--ptt-mono);
+    color: var(--ptt-fg);
+    overflow-wrap: anywhere;
+}
+
+.torrent__seeder-count,
+.torrent__seeders-link {
+    color: var(--ptt-green, #6ecf8b);
+    font-variant-numeric: tabular-nums;
+}
+
+.torrent__leecher-count,
+.torrent__leechers-link {
+    color: var(--ptt-red-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.torrent__times-completed-count,
+.torrent__completed-link {
+    color: var(--ptt-blue);
+    font-variant-numeric: tabular-nums;
+}
+
+.torrent__size,
+.torrent__size-link {
+    font-variant-numeric: tabular-nums;
+    color: var(--ptt-fg);
+}
+
+.torrent__uploader a,
+.torrent__activity-link {
+    color: var(--ptt-red-text);
+}
+
+// --- przyciski akcji pod releasem -----------------------------------
+.torrent__buttons {
+    gap: 8px;
+}
+
+.form__button--outlined {
+    background-color: transparent;
+    border: 1px solid var(--ptt-border);
+    color: var(--ptt-fg-2);
+    border-radius: var(--ptt-radius);
+
+    &:hover {
+        border-color: var(--ptt-red-text);
+        color: var(--ptt-fg);
+    }
+}
+
+.form__button--centered {
+    justify-content: center;
+}
+
+// --- sekcje panelowe (Audits, Reports, MediaInfo, komentarze...) ----
+.panel__tab {
+    color: var(--ptt-fg-3);
+
+    &[aria-selected='true'],
+    &.is-active {
+        color: var(--ptt-fg);
+        box-shadow: inset 0 -2px 0 0 var(--ptt-red);
+    }
+}
+
+.detail-label {
+    color: var(--ptt-fg-4);
+    font-size: 12px;
+}
+
+.detail-value {
+    color: var(--ptt-fg);
+    font-variant-numeric: tabular-nums;
+}
+
+// --- tabela plików / peerów -----------------------------------------
+.data-table {
+    th {
+        color: var(--ptt-fg-4);
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--ptt-line);
+    }
+
+    td {
+        border-bottom: 1px solid var(--ptt-line);
+        color: var(--ptt-fg-2);
+    }
+
+    tr:hover td {
+        background-color: var(--ptt-surface-2);
+    }
+}
+
+// --- nagłówek: wordmark w barwach serwisu, nie fioletowy Galactic ----
+.top-nav__branding {
+    background: none;
+    -webkit-text-fill-color: initial;
+}
+
+.top-nav__site-logo {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: var(--ptt-fg) !important;
+    color: var(--ptt-fg) !important;
+}
+
+// ostrzejsze rogi na panelach i tabelach (Galactic domyślnie zaokrągla mocniej)
+.panelV2,
+.panel,
+.data-table-wrapper,
+.meta__poster img,
+.form__button {
+    border-radius: var(--ptt-radius) !important;
+}
+
+// --- komentarze -----------------------------------------------------
+.comment {
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-line);
+    border-radius: var(--ptt-radius);
+}
+
+.comment__author,
+.comment__author-title a {
+    color: var(--ptt-red-text) !important;
+    font-weight: 600;
+}
+
+.comment__datetime {
+    color: var(--ptt-fg-4);
+    font-size: 11.5px;
+}
+
+.comment__content {
+    color: var(--ptt-fg);
+    line-height: 1.55;
+}
+
+// --- zakładki relacji (Also Downloaded / Recommendations / ...) -----
+.panel__tab,
+.torrent__tab {
+    color: var(--ptt-fg-3);
+    background-color: transparent;
+
+    &:hover {
+        color: var(--ptt-fg);
+    }
+
+    &[aria-selected='true'],
+    &.is-active,
+    &.active {
+        color: var(--ptt-fg);
+        box-shadow: inset 0 -2px 0 0 var(--ptt-red);
+    }
+}
+
+// --- zrzuty ekranu z opisu ------------------------------------------
+.bbcode-rendered img {
+    border-radius: var(--ptt-radius);
+    border: 1px solid var(--ptt-line);
+    max-width: 100%;
+    height: auto;
+}
+
+// --- stopka ---------------------------------------------------------
+footer .top-nav__site-logo,
+.footer__logo {
+    -webkit-text-fill-color: var(--ptt-fg) !important;
+    color: var(--ptt-fg) !important;
+    background: none !important;
+}
+
+footer a,
+.footer a {
+    color: var(--ptt-fg-3);
+
+    &:hover {
+        color: var(--ptt-red-text);
+    }
+}
+
+// =====================================================================
+// Strona torrenta — układ wg projektu Design (dwie kolumny + sidebar)
+// Zachowuje wszystkie sekcje silnika, tylko przestawia je w siatkę.
+// =====================================================================
+.ptt-t {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 1360px;
+    margin: 0 auto;
+}
+
+.ptt-t__hero {
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    box-shadow: none;
+}
+
+// --- nagłówek: nazwa + akcje ----------------------------------------
+.ptt-t__head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    text-align: left;
+
+    .torrent__name {
+        margin: 0;
+        font-family: var(--ptt-mono);
+        font-size: 1.05rem;
+        line-height: 1.4;
+        text-align: left;
+        color: var(--ptt-fg);
+        overflow-wrap: anywhere;
+    }
+
+    .torrent__buttons {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+// --- pasek statystyk ------------------------------------------------
+.ptt-t__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+    gap: 0;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--ptt-line);
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.ptt-t__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 7px 14px;
+    background: transparent;
+    border-right: 1px solid var(--ptt-line);
+}
+
+.ptt-t__stat-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+}
+
+.ptt-t__stat-value {
+    font-family: var(--ptt-mono);
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ptt-fg);
+
+    &--seed  { color: #6ecf8b; }
+    &--leech { color: var(--ptt-red-text); }
+    &--done  { color: var(--ptt-blue); }
+}
+
+// --- dwie kolumny ---------------------------------------------------
+.ptt-t__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    align-items: start;
+}
+
+.ptt-t__col-main,
+.ptt-t__col-side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+// panele w sidebarze węższe i ciaśniejsze
+.ptt-t__col-side {
+    .panelV2,
+    .panel {
+        font-size: 12.5px;
+    }
+}
+
+// panele moderacji na dole, pełna szerokość
+.ptt-t__admin {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ptt-t__admin:empty {
+    display: none;
+}
+
+// --- responsywnie: sidebar pod spodem -------------------------------
+@media (max-width: 1000px) {
+    .ptt-t__body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ptt-t__stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .ptt-t__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// obsada/ekipa w węższej lewej kolumnie — trzy kolumny zawijają się,
+// zamiast wychodzić pod sidebar
+.ptt-t__col-main {
+    // kontener trzech sekcji CAST/CREW/EXTRA — pozwól zawijać
+    .meta__chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+    }
+
+    .meta__chip-container {
+        flex: 1 1 200px;
+        min-width: 180px;
+        height: auto;
+        max-height: 340px;
+        overflow-y: auto;
+        padding-top: 4px;
+    }
+
+    .meta-chip {
+        min-width: 0;
+    }
+
+    .meta-chip__name,
+    .meta-chip__value {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .meta-chip__image img {
+        width: 30px;
+        height: 30px;
+    }
+}
+// chip-container - ciasniej
+
+// --- sidebar: blok Dane techniczne ----------------------------------
+.ptt-t__tech .panel__heading {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+    padding: 12px 14px 0;
+    margin: 0;
+}
+
+.ptt-t__tech-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+    margin: 8px 0 0;
+    padding: 0 14px 12px;
+
+    dt {
+        padding: 7px 0;
+        font-size: 12.5px;
+        color: var(--ptt-fg-3);
+        border-top: 1px solid var(--ptt-line);
+    }
+
+    dd {
+        margin: 0;
+        padding: 7px 0;
+        font-size: 12.5px;
+        text-align: right;
+        color: var(--ptt-fg);
+        border-top: 1px solid var(--ptt-line);
+        overflow-wrap: anywhere;
+    }
+
+    dt:first-child,
+    dt:first-child + dd {
+        border-top: 0;
+    }
+}
+
+.ptt-t__tech-hash {
+    font-family: var(--ptt-mono);
+    color: var(--ptt-fg-2) !important;
+}
+
+// --- znaczniki jakości jako pigułki (DV / HDR / REMUX / 10 bit) ------
+.torrent__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.torrent__tags a,
+.torrent__tags .torrent__tag,
+.meta__tag {
+    display: inline-block;
+    padding: 3px 9px;
+    background-color: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+
+    &:hover {
+        border-color: var(--ptt-red-text);
+        color: var(--ptt-fg);
+    }
+}
+
+// akcje w rząd, wyrównane do lewej; każdy przycisk auto-szerokości
+.ptt-t__head .torrent__buttons {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: flex-start !important;
+    gap: 8px;
+    margin: 0 !important;
+
+    > * {
+        flex: 0 0 auto;
+        width: auto;
+        margin: 0;
+    }
+
+    .form__button {
+        min-width: 0;
+    }
+}
+
+.ptt-nometa__body {
+    display: flex;
+    gap: 16px;
+    padding: 14px;
+    align-items: flex-start;
+}
+.ptt-nometa__icon {
+    flex: 0 0 auto;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-3);
+    font-size: 30px;
+}
+.ptt-nometa__info { min-width: 0; flex: 1 1 auto; }
+.ptt-nometa__name {
+    font-family: var(--ptt-mono);
+    font-size: 13px;
+    color: var(--ptt-fg);
+    word-break: break-all;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+// --- panel FILM (układ Design: plakat + opis + klucz-wartość) --------// --- panel FILM (układ Design: plakat + opis + klucz-wartość) --------
+.ptt-film {
+    padding: 0;
+}
+
+.ptt-film__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 12px;
+    background: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+
+    .panel__heading {
+        margin: 0;
+        padding: 0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ptt-fg-3);
+    }
+}
+
+.ptt-film__rating {
+    display: flex;
+    gap: 10px;
+    font-family: var(--ptt-mono);
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+
+    a { color: var(--ptt-fg-4); text-decoration: none; }
+    a:hover { color: var(--ptt-fg); }
+}
+
+.ptt-film__body {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 14px;
+    padding: 12px 14px;
+}
+
+.ptt-film__poster img {
+    width: 100%;
+    border-radius: var(--ptt-radius);
+    border: 1px solid var(--ptt-line);
+    display: block;
+}
+
+.ptt-film__poster-empty {
+    aspect-ratio: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-line);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-4);
+    font-size: 12px;
+}
+
+.ptt-film__title {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ptt-red-text);
+}
+
+.ptt-film__year {
+    color: var(--ptt-fg-4);
+    font-weight: 400;
+}
+
+.ptt-film__info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+.ptt-film__overview {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ptt-fg-2);
+    max-width: 78ch;
+}
+
+// siatka klucz-wartość, dwie pary w rzędzie (jak Design)
+.ptt-film__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 20px;
+    margin: 0;
+}
+.ptt-film__fact {
+    display: flex;
+    gap: 10px;
+    font-size: 12.5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--ptt-line);
+    min-width: 0;
+}
+.ptt-film__fact-k {
+    width: 96px;
+    flex: 0 0 auto;
+    color: var(--ptt-fg-4);
+    font-size: 11.5px;
+}
+.ptt-film__fact-v {
+    color: var(--ptt-fg-2);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+    .ptt-film__body {
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 12px;
+    }
+    .ptt-film__facts { grid-template-columns: 1fr; }
+}
+
+
+.ptt-tech__body {
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.ptt-tech__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--ptt-line);
+}
+.ptt-tech__row:last-child { border-bottom: 0; }
+.ptt-tech__k { color: var(--ptt-fg-4); flex: 0 0 auto; }
+.ptt-tech__v {
+    color: var(--ptt-fg-2);
+    font-family: var(--ptt-mono);
+    text-align: right;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ptt-tech__v--hash { color: var(--ptt-fg-3); }
+
+// --- rail: listy w stylu Design (Napisy / Podobne / Peery) --------------
+.ptt-rail-panel { overflow: hidden; }
+.ptt-rail-panel__body { padding: 0; }
+.ptt-rail-panel__link {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    text-decoration: none;
+    &:hover { color: var(--ptt-fg); }
+}
+.ptt-rail-panel__empty {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+}
+
+// Napisy
+.ptt-subs__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+    &:last-child { border-bottom: 0; }
+}
+.ptt-subs__lang {
+    color: var(--ptt-fg-2);
+    font-size: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ptt-subs__note { color: var(--ptt-fg-4); text-transform: none; }
+.ptt-subs__ext {
+    color: var(--ptt-fg-4);
+    font-size: 11px;
+    font-family: var(--ptt-mono);
+    white-space: nowrap;
+}
+.ptt-subs__act {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--ptt-fg-4);
+    font-size: 11px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+.ptt-subs__act:hover { color: var(--ptt-fg); }
+.ptt-subs__act--dl { color: var(--ptt-accent); }
+.ptt-subs__act--dl:hover { color: var(--ptt-fg); }
+.ptt-subs__act--del:hover { color: var(--ptt-red-text); }
+.ptt-subs__acts { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.ptt-subs__dl {
+    color: var(--ptt-accent);
+    font-size: 13px;
+    text-decoration: none;
+    line-height: 1;
+}
+.ptt-subs__icon {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--ptt-fg-4);
+    font-size: 12px;
+    line-height: 1;
+    &:hover { color: var(--ptt-fg); }
+}
+.ptt-subs__icon--del:hover { color: var(--ptt-red-text); }
+
+// Podobne wydania
+.ptt-rel__row {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+    text-decoration: none;
+    &:last-child { border-bottom: 0; }
+    &:hover { background: var(--ptt-surface-2); text-decoration: none; }
+}
+.ptt-rel__title {
+    color: var(--ptt-fg);
+    font-size: 12.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ptt-rel__meta {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+}
+.ptt-rel__seed { color: var(--ptt-green, #6ecf8b); }
+.ptt-rel__dead { color: var(--ptt-warn); }
+
+// Peery
+.ptt-peer__counts {
+    display: flex;
+    gap: 8px;
+    font-size: 11.5px;
+    font-family: var(--ptt-mono);
+}
+.ptt-peer__seed  { color: var(--ptt-green, #6ecf8b); }
+.ptt-peer__leech { color: var(--ptt-warn); }
+.ptt-peer__done  { color: var(--ptt-fg-4); }
+.ptt-peer__row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+    &:last-child { border-bottom: 0; }
+    &:hover { background: var(--ptt-surface-2); }
+}
+.ptt-peer__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 1px;
+    display: block;
+    flex: 0 0 auto;
+    align-self: center;
+}
+.ptt-peer__dot--seed  { background: var(--ptt-green, #6ecf8b); }
+.ptt-peer__dot--leech { background: var(--ptt-warn); }
+.ptt-peer__nick {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    a { color: var(--ptt-fg-2); text-decoration: none; &:hover { color: var(--ptt-fg); } }
+}
+.ptt-peer__prog {
+    font-size: 11.5px;
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.ptt-peer__prog--seed  { color: var(--ptt-green, #6ecf8b); }
+.ptt-peer__prog--leech { color: var(--ptt-warn); }
+.ptt-peer__up {
+    color: var(--ptt-fg-4);
+    font-size: 11.5px;
+    font-family: var(--ptt-mono);
+    white-space: nowrap;
+}
+
+// --- rail: przytnij szerokie widżety silnika do 320px (bez rozjazdu) -----
+.ptt-t__col-side .panelV2 { overflow: hidden; }
+.ptt-t__col-side .data-table-wrapper { overflow-x: auto; }
+.ptt-t__col-side .data-table { font-size: 11px; }
+.ptt-t__col-side .data-table th,
+.ptt-t__col-side .data-table td { padding: 4px 8px; white-space: nowrap; }
+// zakładki Relations w railu — pozwól przewijać poziomo zamiast wychodzić
+.ptt-t__col-side .panel__tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+}
+.ptt-t__col-side .panel__tab { white-space: nowrap; }
+
+// panel__actions (Galactic) ma własne ciemne tło + padding — kasujemy łatkę
+.ptt-t .panelV2 > .panel__header .panel__actions,
+.ptt-t .panelV2 > header.panel__header .panel__actions,
+.ptt-t .panelV2 > .panel__header .panel__action,
+.ptt-t .panelV2 > header.panel__header .panel__action {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+}
+.ptt-t .panelV2 > .panel__header .panel__actions .form__button--text {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+.ptt-t .panelV2 > .panel__header .panel__actions .form__button--text:hover { color: var(--ptt-fg); }
+
+// panel__heading (Galactic) ma własne ciemne tło — kasujemy łatkę w nagłówkach
+.ptt-t .panel__heading,
+.ptt-film__head .panel__heading,
+.ptt-spec__head .panel__heading { background: transparent !important; }
+
+// --- ujednolicenie nagłówków paneli w stronie torrenta (styl Design) --
+.ptt-t .panelV2 > .panel__header,
+.ptt-t .panelV2 > header.panel__header {
+    padding: 6px 12px !important;
+    background: var(--ptt-surface-2) !important;
+    border-bottom: 1px solid var(--ptt-border) !important;
+    min-height: 0;
+    align-items: center;
+}
+.ptt-t .panelV2 > .panel__header .panel__heading,
+.ptt-t .panelV2 > header.panel__header .panel__heading {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--ptt-fg-3) !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+// Design nie ma ikon w nagłówkach paneli głównej kolumny
+.ptt-t__col-main .panelV2 > .panel__header .panel__heading > i,
+.ptt-t__col-main .panelV2 > header.panel__header .panel__heading > i {
+    display: none;
+}
+// przyciski „Copy"/akcje w nagłówku panelu — delikatne
+.ptt-t .panelV2 > .panel__header .panel__actions .form__button,
+.ptt-t .panelV2 > header.panel__header .panel__actions .form__button {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    &:hover { color: var(--ptt-fg); }
+}
+
+// --- nagłówek torrenta wg Design (tytuł + pigułki + relname + akcje) --
+.ptt-t__titleline {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+.ptt-t__title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ptt-fg);
+}
+.ptt-t__title--rel {
+    font-family: var(--ptt-mono);
+    font-size: 15px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+.ptt-t__dist { font-size: 15px; color: var(--ptt-fg-4); }
+.ptt-t__year {
+    font-family: var(--ptt-mono);
+    font-size: 14px;
+    color: var(--ptt-fg-3);
+    font-variant-numeric: tabular-nums;
+}
+.ptt-t__badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 15px;
+    padding: 0 4px;
+    border-radius: 1px;
+    align-self: center;
+}
+.ptt-t__badge--fl  { color: var(--ptt-fl);  border: 1px solid var(--ptt-fl); }
+.ptt-t__badge--up  { color: var(--ptt-x2);  border: 1px solid var(--ptt-x2); }
+.ptt-t__badge--int { color: var(--ptt-warn); border: 1px solid var(--ptt-warn); }
+.ptt-t__badge--new { color: var(--ptt-accent); padding: 0; }
+
+.ptt-t__relname {
+    font-family: var(--ptt-mono);
+    font-size: 12.5px;
+    color: var(--ptt-fg-2);
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.ptt-t__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.ptt-t__uploader {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    white-space: nowrap;
+
+    a { color: var(--ptt-fg-2); text-decoration: none; }
+    a:hover { color: var(--ptt-fg); }
+}
+.ptt-t__anon { color: var(--ptt-fg-3); }
+.ptt-t__dot { color: var(--ptt-line-ui); }
+.ptt-t__ago { font-family: var(--ptt-mono); }
+
+// przyciski akcji — Design: pobieranie czerwone, reszta ghost
+.ptt-t__actions .torrent__buttons {
+    display: flex !important;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    > li { margin: 0 !important; padding: 0 !important; }
+
+    // Design: przyciski bez ikon, ostre rogi, jednolita wysokość
+    .form__button {
+        margin: 0 !important;
+        height: 30px;
+        min-height: 30px;
+        padding: 0 12px;
+        border-radius: 2px;
+        font-size: 12.5px;
+        line-height: 28px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0;
+        width: auto;
+        white-space: nowrap;
+    }
+    .form__button i,
+    .form__button svg { display: none !important; }
+    .form__button--filled {
+        background: var(--ptt-red-solid, #d4212e) !important;
+        border: 1px solid var(--ptt-red-solid, #d4212e) !important;
+        color: #fff !important;
+        font-weight: 600;
+        padding: 0 15px;
+        &:hover { filter: brightness(1.08); }
+    }
+    .form__button--outlined,
+    .form__button--text {
+        background: transparent !important;
+        border: 1px solid var(--ptt-line-ui) !important;
+        color: var(--ptt-fg-2) !important;
+        font-weight: 400;
+        &:hover { color: var(--ptt-fg) !important; background: var(--ptt-surface-3) !important; }
+    }
+}
+
+.ptt-t__col-main .panelV2 .panel__body.bbcode-rendered {
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ptt-fg-2);
+}
+// zrzuty ekranu z opisu jako siatka 3-kolumnowa (styl Design)
+.ptt-t__col-main .bbcode-rendered img {
+    width: calc(33.333% - 5px);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+    margin: 2px 1px;
+    vertical-align: top;
+    cursor: zoom-in;
+    transition: border-color 0.12s ease;
+}
+.ptt-t__col-main .bbcode-rendered img:hover { border-color: var(--ptt-line-ui); }
+@media (max-width: 620px) {
+    .ptt-t__col-main .bbcode-rendered img { width: calc(50% - 5px); }
+}
+
+.ptt-files__count {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+}
+.ptt-files__body { padding: 0; }
+.ptt-files__row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 14px;
+    border-bottom: 1px solid var(--ptt-line);
+}
+.ptt-files__row:last-child { border-bottom: 0; }
+.ptt-files__row:hover { background: var(--ptt-surface-2); }
+.ptt-files__row--folder { background: var(--ptt-surface-2); }
+.ptt-files__tree {
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-size: 11.5px;
+    white-space: nowrap;
+}
+.ptt-files__name {
+    color: var(--ptt-fg-2);
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ptt-files__name--folder { color: var(--ptt-fg-1); }
+.ptt-files__size {
+    color: var(--ptt-fg-3);
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+// =====================================================================
+// UPLOAD — formularz wysyłki w stylu Design (CSS-only, wszystkie pola)
+// =====================================================================
+.page__torrent--create .panelV2 { overflow: visible; }
+// zewnętrzny panel uploadu przezroczysty — treść trzymają boxy .ptt-upbox
+.page__torrent--create .upload.panelV2 {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+.page__torrent--create .upload-title {
+    padding: 0 2px 10px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: var(--ptt-fg) !important;
+}
+.page__torrent--create .upload > .panel__body { padding: 0 !important; }
+.page__torrent--create .upload-form { display: flex; flex-direction: column; gap: 12px; }
+
+// boxy formularza
+.ptt-upbox {
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    overflow: hidden;
+}
+.page__torrent--create .ptt-upbox > .panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+}
+.page__torrent--create .ptt-upbox > .panel__header .panel__heading {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-3);
+}
+.page__torrent--create .ptt-upbox > .panel__body {
+    padding: 12px 14px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+// rail „Informacje" nagłówek jako pasek
+.page__torrent--create .panelV2 > .panel__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px !important;
+    margin: 0 !important;
+    background: var(--ptt-surface-2) !important;
+    border-bottom: 1px solid var(--ptt-border) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--ptt-fg-3) !important;
+}
+.page__torrent--create .panelV2 > .panel__heading > i,
+.page__torrent--create .upload-title > i { display: none !important; }
+.page__torrent--create .panelV2 > .panel__body { padding: 14px !important; }
+
+// pola tekstowe / select / textarea
+.page__torrent--create .form__text,
+.page__torrent--create .form__select,
+.page__torrent--create .form__textarea {
+    background: var(--ptt-surface-2) !important;
+    border: 1px solid var(--ptt-border) !important;
+    border-radius: var(--ptt-radius) !important;
+    color: var(--ptt-fg) !important;
+    font-size: 12.5px !important;
+    box-shadow: none !important;
+    &:focus { border-color: var(--ptt-accent) !important; outline: none !important; }
+}
+.page__torrent--create .form__textarea { min-height: 90px; }
+.page__torrent--create .form__label { color: var(--ptt-fg-4); font-size: 12px; }
+// pływająca etykieta — tło pola (surface-2) + padding, żeby czysto przecinała ramkę
+.page__torrent--create .form__label--floating {
+    color: var(--ptt-fg-4);
+    background: var(--ptt-surface-2) !important;
+    padding: 0 4px !important;
+}
+
+// pliki — przycisk „Choose File" jako ghost
+.page__torrent--create .form__file::file-selector-button,
+.page__torrent--create input[type="file"]::file-selector-button {
+    height: 28px;
+    padding: 0 11px;
+    margin-right: 10px;
+    background: var(--ptt-surface-3) !important;
+    border: 1px solid var(--ptt-line-ui) !important;
+    border-radius: 2px;
+    color: var(--ptt-fg-2) !important;
+    font-size: 12px;
+    cursor: pointer;
+    &:hover { color: var(--ptt-fg); background: var(--ptt-line); }
+}
+
+// checkboxy flag
+.page__torrent--create .form__checkbox { accent-color: var(--ptt-red-solid, #d4212e); }
+
+// przyciski
+.page__torrent--create .form__button {
+    height: 30px;
+    padding: 0 13px;
+    border-radius: 2px;
+    font-size: 12.5px;
+}
+.page__torrent--create .form__button--filled {
+    background: var(--ptt-red-solid, #d4212e) !important;
+    border: 1px solid var(--ptt-red-solid, #d4212e) !important;
+    color: #fff !important;
+    font-weight: 600;
+    &:hover { filter: brightness(1.08); }
+}
+.page__torrent--create .form__button--outlined,
+.page__torrent--create .form__button--text {
+    background: transparent !important;
+    border: 1px solid var(--ptt-line-ui) !important;
+    color: var(--ptt-fg-2) !important;
+    &:hover { color: var(--ptt-fg) !important; background: var(--ptt-surface-3) !important; }
+}
+
+// zakładki Write/Zapowiedź opisu
+.page__torrent--create .panel__tabs,
+.page__torrent--create .form__tabs {
+    border-bottom: 1px solid var(--ptt-line);
+}
+
+// panel Informacje (rail) — tekst
+.page__torrent--create .panelV2:last-of-type .panel__body {
+    font-size: 12.5px;
+    color: var(--ptt-fg-3);
+    line-height: 1.6;
+}
+
+// =====================================================================
+// PANELE ADMINISTRACYJNE (Umiar / Audits / Reports / Pobrania)
+// nagłówek = <h2 class="panel__heading"> bez <header>, więc stylujemy wprost
+// =====================================================================
+.ptt-t__admin .panelV2 > .panel__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px !important;
+    margin: 0 !important;
+    background: var(--ptt-surface-2) !important;
+    border-bottom: 1px solid var(--ptt-border) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--ptt-fg-3) !important;
+}
+// ikona wiodąca sekcji — chowamy (Design bez ikon)
+.ptt-t__admin .panelV2 > .panel__heading > i:first-child { display: none !important; }
+// toggle rozwijania (+/−) na prawo, bez float
+.ptt-t__admin .panelV2 > .panel__heading .fa-pull-right,
+.ptt-t__admin .panelV2 > .panel__heading .fa-plus-circle,
+.ptt-t__admin .panelV2 > .panel__heading .fa-minus-circle {
+    margin-left: auto !important;
+    float: none !important;
+    color: var(--ptt-fg-4);
+    font-size: 12px;
+}
+.ptt-t__admin .panelV2 > .panel__body { padding: 10px 14px; }
+// przyciski moderacji — kompaktowe, ostre rogi
+.ptt-t__admin .form__button {
+    height: 28px;
+    padding: 0 11px;
+    border-radius: 2px;
+    font-size: 12px;
+}
+.ptt-t__admin .form__button--filled {
+    background: var(--ptt-red-solid, #d4212e) !important;
+    border-color: var(--ptt-red-solid, #d4212e) !important;
+    color: #fff !important;
+}
+
+// =====================================================================
+// KOMENTARZE — układ zbliżony do Design (pasek, mały awatar, kompaktowo)
+// =====================================================================
+#comments > .panel__heading {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px !important;
+    margin: 0 !important;
+    background: var(--ptt-surface-2) !important;
+    border-bottom: 1px solid var(--ptt-border) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--ptt-fg-3) !important;
+}
+#comments > .panel__heading > i { display: none !important; }
+
+#comments > .panel__body {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+}
+// formularz nowego komentarza — na dół (Design)
+#comments .new-comment {
+    order: 2;
+    padding: 11px 14px;
+    border-top: 1px solid var(--ptt-line);
+}
+#comments .comment-list {
+    order: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    gap: 0 !important;
+}
+#comments .comment__list-item { list-style: none; margin: 0; }
+
+.ptt-comment {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 11px !important;
+    padding: 8px 14px !important;
+    border-bottom: 1px solid var(--ptt-line);
+    align-items: flex-start;
+}
+.ptt-comment__avatar {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+    border-radius: 2px;
+    border: 1px solid var(--ptt-border);
+    object-fit: cover;
+}
+.ptt-comment__avatar--ini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ptt-surface-3);
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-size: 11px;
+}
+.ptt-comment__main {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.ptt-comment__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ptt-comment__author,
+.ptt-comment__author a,
+.ptt-comment__author span,
+.ptt-comment__author bdi {
+    font-weight: 600 !important;
+    font-size: 12.5px !important;
+}
+.ptt-comment__author .user-tag__link {
+    font-weight: 600 !important;
+    font-size: 12.5px !important;
+    text-decoration: none;
+}
+.ptt-comment__rank {
+    font-size: 10.5px;
+    color: var(--ptt-fg-4);
+    border: 1px solid var(--ptt-border);
+    border-radius: 1px;
+    padding: 0 3px;
+    line-height: 14px;
+}
+.ptt-comment__time {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+}
+.ptt-comment__content {
+    font-size: 13px !important;
+    color: var(--ptt-fg-2);
+    line-height: 1.55 !important;
+}
+.ptt-comment__content p,
+.ptt-comment__content li { font-size: 13px !important; line-height: 1.55 !important; }
+.ptt-comment__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 0;
+}
+.ptt-comment__act {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    &:hover { color: var(--ptt-fg); }
+}
+.ptt-comment__act--del:hover { color: var(--ptt-red-text); }
+.ptt-comment__replies { margin: 0; }
+.ptt-comment__replies .comment__reply-list {
+    list-style: none;
+    margin: 0 0 0 41px;
+    padding: 0;
+    border-left: 1px solid var(--ptt-line);
+}
+.ptt-comment__editform,
+.ptt-comment__replyform { margin-top: 4px; }
+
+.ptt-comments__count {
+    font-family: var(--ptt-mono);
+    font-size: 11px;
+    color: var(--ptt-fg-4);
+    margin-left: auto;
+}
+.ptt-comments__empty {
+    padding: 12px 14px;
+    color: var(--ptt-fg-4);
+    font-size: 12.5px;
+    list-style: none;
+}
+.ptt-comments__more { padding: 8px 14px; }
+.ptt-comment-form {
+    order: 2;
+    padding: 10px 14px !important;
+    border-top: 1px solid var(--ptt-line);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.ptt-comment-form .form__textarea {
+    width: 100%;
+    background: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    padding: 7px 9px;
+    font-size: 12.5px;
+    color: var(--ptt-fg);
+    resize: vertical;
+    min-height: 44px;
+}
+.ptt-comment-form__foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ptt-comment-form__submit {
+    background: var(--ptt-red-solid, #d4212e) !important;
+    border: 1px solid var(--ptt-red-solid, #d4212e) !important;
+    color: #fff !important;
+    height: 28px;
+    padding: 0 12px !important;
+    font-size: 12.5px;
+    font-weight: 600;
+    border-radius: 2px;
+    cursor: pointer;
+    &:hover { filter: brightness(1.08); }
+}
+.ptt-comment-form__anon {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    font-size: 11.5px;
+    color: var(--ptt-fg-3);
+    cursor: pointer;
+}
+.ptt-comment-form__hint {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+
+// =====================================================================
+// SPECYFIKACJA TECHNICZNA — parsowane mediainfo w stylu Design
+// =====================================================================
+.ptt-spec { padding: 0; overflow: hidden; }
+.ptt-spec__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 12px;
+    background: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+
+    .panel__heading {
+        margin: 0;
+        padding: 0;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ptt-fg-3);
+    }
+}
+.ptt-spec__actions { display: flex; align-items: center; gap: 5px; }
+.ptt-spec__btn {
+    height: 21px;
+    padding: 0 8px;
+    background: transparent;
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-3);
+    font-size: 11.5px;
+    cursor: pointer;
+    &:hover { color: var(--ptt-fg); border-color: var(--ptt-line-ui); }
+}
+.ptt-spec__body { padding: 0; }
+.ptt-spec__raw {
+    margin: 0;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--ptt-line);
+    background: var(--ptt-bg, #191919);
+    font-family: var(--ptt-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--ptt-fg-3);
+    max-height: 340px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.ptt-spec__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+}
+.ptt-spec__grid--file {
+    padding: 9px 14px 10px;
+    border-bottom: 1px solid var(--ptt-line);
+}
+.ptt-spec__row {
+    display: flex;
+    gap: 10px;
+    font-size: 12.5px;
+    padding: 2px 0;
+    min-width: 0;
+}
+.ptt-spec__k {
+    width: 104px;
+    flex: 0 0 auto;
+    color: var(--ptt-fg-4);
+    font-size: 11.5px;
+}
+.ptt-spec__v {
+    color: var(--ptt-fg-2);
+    font-family: var(--ptt-mono);
+    min-width: 0;
+}
+.ptt-spec__v--ell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ptt-spec__section {
+    padding: 9px 14px 10px;
+    border-bottom: 1px solid var(--ptt-line);
+}
+.ptt-spec__section--last { border-bottom: 0; }
+.ptt-spec__label {
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+}
+.ptt-spec__section > .ptt-spec__label { display: block; margin-bottom: 6px; }
+.ptt-spec__subhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+.ptt-spec__count {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+}
+.ptt-spec__pills {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.ptt-spec__pill {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 1px 5px;
+    line-height: 14px;
+    border-radius: 1px;
+    border: 1px solid currentColor;
+}
+.ptt-spec__pill--x2  { color: var(--ptt-x2); }
+.ptt-spec__pill--fl  { color: var(--ptt-fl); }
+.ptt-spec__pill--dim { color: var(--ptt-fg-4); }
+
+.ptt-spec__track {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 3px 0;
+    border-top: 1px solid var(--ptt-line);
+    flex-wrap: wrap;
+}
+.ptt-spec__track-lang {
+    width: 96px;
+    flex: 0 0 auto;
+    color: var(--ptt-fg);
+    font-size: 12.5px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+.ptt-spec__track-codec {
+    color: var(--ptt-fg-2);
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    width: 132px;
+    flex: 0 0 auto;
+}
+.ptt-spec__track-det {
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.ptt-spec__track-flag {
+    font-size: 10.5px;
+    padding: 0 4px;
+    line-height: 14px;
+    border-radius: 1px;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+}
+.ptt-spec__track-flag--def { color: var(--ptt-accent); }
+.ptt-spec__track-flag--forced { color: var(--ptt-warn); }
+
+@media (max-width: 700px) {
+    .ptt-spec__grid { grid-template-columns: 1fr; }
+}
+
+
+// =====================================================================
+// Nawigacja — 4 pasy jak w projekcie Design (statystyki / marka /
+// menu / nawigacja wtórna), każdy oddzielony linią 1 px, płaskie menu.
+// =====================================================================
+.top-nav {
+    display: grid !important;
+    grid-template:
+        'stats stats'  30px
+        'brand brand'  56px
+        'menu  menu'   35px
+        / 1fr auto !important;
+    align-items: center;
+    height: auto !important;
+    padding: 0 max(20px, calc((100% - 1360px) / 2)) !important;
+    background-color: var(--ptt-bg);
+    border-bottom: 1px solid var(--ptt-line);
+    column-gap: 20px;
+}
+
+// --- pas 1: statystyki użytkownika (ratio-bar) ----------------------
+.top-nav__right {
+    grid-area: stats;
+    display: flex !important;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    width: 100%;
+    height: 30px;
+    min-width: 0;
+    border-bottom: 1px solid var(--ptt-line);
+}
+
+// nick w górnym pasie — kompaktowy
+.top-nav__right .top-nav__username--highresolution {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+// ikony (poczta/powiadomienia/ustawienia/profil) — rząd, wyśrodkowane
+.top-nav__icon-bar {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li { list-style: none; }
+
+    a { color: var(--ptt-fg-3); font-size: 14px; }
+    a:hover { color: var(--ptt-fg); }
+}
+
+.top-nav__ratio-bar {
+    display: flex !important;
+    align-items: center;
+    gap: 14px;
+    margin-right: auto !important;   /* stats w lewo, user w prawo (Design) */
+    padding: 0;
+    list-style: none;
+
+    li {
+        list-style: none;
+    }
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: var(--ptt-mono);
+        font-size: 12px;
+        color: var(--ptt-fg-2);
+        text-decoration: none;
+
+        &:hover { color: var(--ptt-fg); }
+    }
+
+    // ikony statystyk stonowane, nie kolorowe (jak Design)
+    i {
+        color: var(--ptt-fg-4) !important;
+        font-size: 11px;
+    }
+}
+
+// --- pas 2: marka + szukajka ----------------------------------------
+.top-nav__left {
+    grid-area: brand;
+    display: flex !important;
+    align-items: center;
+    gap: 24px;
+    height: 56px;
+    border-bottom: 1px solid var(--ptt-line);
+}
+
+.top-nav__branding {
+    column-gap: 10px;
+
+    img { display: none; }
+
+    &::before {
+        content: '';
+        flex: 0 0 auto;
+        width: 34px;
+        height: 32px;
+        background-image: linear-gradient(180deg, var(--pl-white) 0 50%, var(--ptt-red) 50% 100%);
+        -webkit-mask-image: url('/ptt/eagle.png');
+        mask-image: url('/ptt/eagle.png');
+        -webkit-mask-size: contain; mask-size: contain;
+        -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+        -webkit-mask-position: center; mask-position: center;
+    }
+}
+
+.top-nav__site-logo {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ptt-fg) !important;
+    -webkit-text-fill-color: var(--ptt-fg) !important;
+    background: none !important;
+    white-space: nowrap;
+}
+
+.quick-search {
+    flex: 1 1 auto;
+    max-width: 520px;
+    display: flex;
+    align-items: center;
+}
+
+.quick-search__input {
+    width: 100%;
+    min-width: 340px;
+    padding: 8px 12px;
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg);
+    font-size: 13px;
+    text-transform: none;
+
+    &::placeholder { color: var(--ptt-fg-4); text-transform: none; }
+    &:focus {
+        outline: 2px solid var(--ptt-red-text);
+        outline-offset: -1px;
+        border-color: var(--ptt-red-text);
+    }
+}
+
+// nick + ikony zostają wewnątrz .top-nav__right (flex) — bez własnego grid-area
+.top-nav__username--highresolution {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ptt-red-text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.top-nav__icon-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li { list-style: none; }
+}
+
+.top-nav__username {
+    color: var(--ptt-red-text);
+}
+
+// --- pas 3: płaskie menu --------------------------------------------
+.ptt-nav {
+    grid-area: menu;
+    display: flex !important;
+    align-items: stretch;
+    gap: 0;
+    height: 35px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ptt-nav__item {
+    list-style: none;
+    display: flex;
+}
+
+.ptt-nav__item--right {
+    margin-left: auto;
+}
+
+.ptt-nav__link {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    color: var(--ptt-fg-2);
+    font-size: 13.5px;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.12s ease, border-color 0.12s ease;
+
+    &:hover { color: var(--ptt-fg); }
+}
+
+.ptt-nav__link--accent {
+    color: #e63946;
+    font-weight: 600;
+}
+
+// aktywna pozycja (po ścieżce URL — dopina JS/aria; fallback :hover)
+.ptt-nav__item.is-active .ptt-nav__link,
+.ptt-nav__link[aria-current='page'] {
+    color: var(--ptt-fg);
+    border-bottom-color: var(--ptt-red);
+}
+
+// mobile
+@media (max-width: 900px) {
+    .top-nav {
+        grid-template:
+            'brand user'
+            'stats stats'
+            'menu menu'
+            / 1fr auto !important;
+        padding: 0 12px !important;
+    }
+
+    .top-nav__right { justify-content: flex-start; overflow-x: auto; }
+    .ptt-nav { overflow-x: auto; }
+}
+
+// =====================================================================
+// Szerokość treści — wycentrowana kolumna 1240 px (jak Design --col).
+// Paski nagłówka zostają pełnej szerokości; treść w nich dosuwana do
+// tej samej kolumny przez symetryczny padding.
+// =====================================================================
+:root {
+    --ptt-col: 1360px;
+}
+
+// główna treść strony
+main[class*='page'],
+main.ptt-torrent {
+    max-width: var(--ptt-col) !important;
+    margin: 0 auto !important;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+// Strona pojedynczego torrenta: treść pełne 1240 (równo z menu nav),
+// bez dodatkowego wcięcia 20px które robiło ją węższą od nawigacji.
+main.ptt-torrent {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+@media (max-width: 1280px) {
+    main.ptt-torrent {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+// nawigacja wtórna (breadcrumb + zakładki) — treść do tej samej kolumny
+.secondary-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px max(20px, calc((100% - var(--ptt-col)) / 2)) !important;
+    border-bottom: 1px solid var(--ptt-line);
+}
+
+// alerty / stopka — też do kolumny
+.alerts,
+footer .footer__content,
+.footer {
+    max-width: var(--ptt-col);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+// =====================================================================
+// GÓRNY PASEK — poprawki (odtworzone po przypadkowym skasowaniu regexem):
+// kolory ikon, nick, płaskie ikony, kwadratowy avatar.
+// =====================================================================
+// ikony statystyk: tylko upload zielony, download bursztyn; reszta stonowana
+.ratio-bar__uploaded i { color: var(--ptt-green, #6ecf8b) !important; }
+.ratio-bar__downloaded i { color: var(--ptt-warn, #e8b45c) !important; }
+.top-nav__ratio-bar a { color: var(--ptt-fg-2) !important; }
+
+// nick — normalny kolor tekstu, nie jaskrawy kolor grupy
+.top-nav__username--highresolution,
+.top-nav__username--highresolution .text-bold,
+.top-nav__right .top-nav__username--highresolution span {
+    color: var(--ptt-fg) !important;
+    background-image: none !important;
+    -webkit-text-fill-color: var(--ptt-fg) !important;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+// ikona grupy przed nickiem — ukryta (gdyby wróciła w markupie)
+.top-nav__username--highresolution .text-bold > i:first-child {
+    display: none !important;
+}
+
+// Galactic robi z <i> prawych ikon okrągłe bąble — spłaszczamy
+.top-nav__icon-bar i,
+.top-nav--right__icon-link i,
+.top-nav__right .top-nav__dropdown > a > i {
+    background: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+    color: var(--ptt-fg-3) !important;
+    line-height: 1 !important;
+}
+
+.top-nav__icon-bar a:hover i,
+.top-nav--right__icon-link:hover i { color: var(--ptt-fg) !important; }
+
+// avatar profilu — ostry kwadrat, wysokość spójna z ikonami
+.top-nav__profile-image {
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 0 !important;
+    object-fit: cover;
+    vertical-align: middle;
+}
+
+// =====================================================================
+// Biało-czerwony pasek flagi na samej górze strony (3 px) — akcent Design.
+// Lewa połowa biała, prawa czerwona; przez ::before na body, bez markupu.
+// =====================================================================
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    z-index: 2000;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        var(--pl-white) 0 50%,
+        var(--ptt-red) 50% 100%
+    );
+    pointer-events: none;
+}
+
+// =====================================================================
+// Rozwijane menu (konto/powiadomienia) — ostre krawędzie, wąskie,
+// ciasne w pionie. Silnik ma padding 6px 90px (ta pusta przestrzeń)
+// i zaokrąglenie — nadpisujemy.
+// =====================================================================
+.top-nav__dropdown > ul {
+    padding: 4px !important;
+    row-gap: 1px !important;
+    min-width: 0 !important;
+    width: max-content !important;
+    background-color: var(--ptt-surface) !important;
+    border: 1px solid var(--ptt-border) !important;
+    border-radius: 0 !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+.top-nav__dropdown > ul > li > a,
+.top-nav__dropdown > ul > li > form > button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 6px 12px 6px 10px !important;
+    font-size: 13px !important;
+    border-radius: 0 !important;
+    color: var(--ptt-fg-2) !important;
+}
+
+.top-nav__dropdown > ul > li > a:hover,
+.top-nav__dropdown > ul > li > form > button:hover {
+    background-color: var(--ptt-surface-2) !important;
+    color: var(--ptt-fg) !important;
+}
+
+// Wiernie jak Design: body = sans (domyślne dla całości), mono TYLKO
+// na tych elementach, które w projekcie mają ui-monospace.
+.torrent__name,
+.ptt-t__stat-value,
+.top-nav__ratio-bar a,
+.ptt-t__tech-list dd,
+.ptt-t__tech-hash,
+.mediainfo,
+.bbcode-rendered pre,
+pre {
+    font-family: var(--ptt-mono) !important;
+}
+
+// pole szukania jak Design (input + przycisk złączone)
+.quick-search__inputs {
+    position: relative !important;   /* silnik daje absolute → pole zwisało w dół */
+    top: auto !important;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+// wyniki live-search pod polem (nakładka), nie w przepływie
+.quick-search__results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.quick-search__input {
+    flex: 1 1 auto;
+    min-width: 200px;
+    height: 30px;
+    padding: 0 10px;
+    background-color: var(--ptt-surface-2) !important;
+    border: 1px solid var(--ptt-border);
+    border-right: 0;
+    border-radius: var(--ptt-radius) 0 0 var(--ptt-radius);
+    color: var(--ptt-fg);
+    font-family: var(--ptt-sans) !important;
+    font-size: 12.5px;
+    text-transform: none;
+
+    &::placeholder { color: var(--ptt-fg-4); text-transform: none; }
+    &:focus {
+        outline: none;
+        border-color: var(--ptt-red-text);
+    }
+}
+
+.quick-search__submit {
+    flex: 0 0 auto;
+    height: 30px;
+    padding: 0 12px;
+    background-color: var(--ptt-surface-3, #2b2b2b);
+    border: 1px solid var(--ptt-border-ui, #6a6a6a);
+    border-radius: 0 var(--ptt-radius) var(--ptt-radius) 0;
+    color: var(--ptt-fg-2);
+    font-family: var(--ptt-sans);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--ptt-fg);
+        background-color: var(--ptt-line);
+    }
+}
+
+// =====================================================================
+// Dropdown konta/powiadomień — pozycja POD triggerem (silnik daje top:48px
+// licząc od całego nagłówka, przez co menu wisiało oderwane nad avatarem).
+// =====================================================================
+.top-nav__right .top-nav__dropdown,
+.top-nav__icon-bar .top-nav__dropdown {
+    position: relative !important;
+}
+
+// pozycja dropdownu konta pod triggerem
+.top-nav__right .top-nav__dropdown > ul,
+.top-nav__icon-bar .top-nav__dropdown > ul {
+    top: calc(100% + 4px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+
+// mostek najechania — wypełnia 6px przerwy między triggerem a menu,
+// żeby dało się przejechać kursorem bez zamknięcia
+.top-nav__right .top-nav__dropdown > ul::before,
+.top-nav__icon-bar .top-nav__dropdown > ul::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    height: 6px;
+}
+
+// otwarte na hover I focus-within (klawiatura/klik)
+.top-nav__right .top-nav__dropdown:hover > ul,
+.top-nav__right .top-nav__dropdown:focus-within > ul,
+.top-nav__icon-bar .top-nav__dropdown:hover > ul,
+.top-nav__icon-bar .top-nav__dropdown:focus-within > ul {
+    display: flex !important;
+}
+
+// silnik po fokusie zmienia szerokość (520→400) i radius (16px u góry) —
+// stały kształt szukajki niezależnie od stanu aktywnego
+.quick-search,
+.quick-search:focus-within {
+    width: 100% !important;
+    max-width: 520px !important;
+}
+
+.quick-search__inputs,
+.quick-search__inputs:focus-within,
+.quick-search:focus-within .quick-search__inputs {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+.quick-search__input,
+.quick-search__input:focus,
+.quick-search:focus-within .quick-search__input {
+    border-radius: var(--ptt-radius) 0 0 var(--ptt-radius) !important;
+    width: auto !important;
+    flex: 1 1 auto !important;
+}
+
+.quick-search__submit,
+.quick-search:focus-within .quick-search__submit {
+    border-radius: 0 var(--ptt-radius) var(--ptt-radius) 0 !important;
+}
+
+// =====================================================================
+// Wyniki wyszukiwania (live-search) — ostre krawędzie, paleta motywu,
+// plakaty bez zaokrągleń.
+// =====================================================================
+.quick-search__results {
+    border-radius: 0 !important;
+    background-color: var(--ptt-surface) !important;
+    border: 1px solid var(--ptt-border) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4) !important;
+}
+
+.quick-search__result {
+    border-top: 1px solid var(--ptt-line) !important;
+}
+
+.quick-search__result-link,
+.quick-search__result--empty,
+.quick-search__result--default {
+    background-color: var(--ptt-surface) !important;
+    color: var(--ptt-fg-2) !important;
+    border-radius: 0 !important;
+}
+
+.quick-search__result-link:hover {
+    background-color: var(--ptt-surface-2) !important;
+    color: var(--ptt-fg) !important;
+}
+
+// plakaty w wynikach — ostre kąty
+.quick-search__image {
+    border-radius: 0 !important;
+    border: 1px solid var(--ptt-line);
+}
+
+.quick-search__result-name { color: var(--ptt-fg) !important; }
+.quick-search__result-type,
+.quick-search__result-year { color: var(--ptt-fg-4) !important; }
+
+// menu drukowanymi (próba) — wersaliki z lekkim rozstrzeleniem
+.ptt-nav__link {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 12.5px;
+    font-weight: 500;
+}
+
+// =====================================================================
+// Dropdowny płaskiego menu (Torrenty / Forum / Społeczność) — ostre,
+// wąskie, pod pozycją, z mostkiem najechania.
+// =====================================================================
+.ptt-nav__has-dd {
+    position: relative;
+}
+
+.ptt-nav__dd {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1500;
+    min-width: 180px;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+
+// mostek najechania (menu jest tuż pod linkiem, ale zabezpieczamy 2px)
+.ptt-nav__dd::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.ptt-nav__has-dd:hover > .ptt-nav__dd,
+.ptt-nav__has-dd:focus-within > .ptt-nav__dd {
+    display: block;
+}
+
+.ptt-nav__dd li {
+    list-style: none;
+}
+
+.ptt-nav__dd a {
+    display: block;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ptt-fg-2);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ptt-nav__dd a:hover {
+    background-color: var(--ptt-surface-2);
+    color: var(--ptt-fg);
+}
+
+// aktywna pozycja z dropdownem — podświetlenie strzałką? bez, tylko underline na hover
+.ptt-nav__has-dd:hover > .ptt-nav__link {
+    color: var(--ptt-fg);
+}
+
+// =====================================================================
+// LISTA TORRENTÓW — panel filtrów i tabela wyników w stylu Design.
+// =====================================================================
+// UNIT3D .page__torrents robi full-bleed (margin:0 -84px) — Design trzyma
+// listę w kolumnie 1360px, więc kasujemy ujemne marginesy (dwuklasowy +important).
+// UNIT3D .page__torrents robi full-bleed (margin:0 -84px). MAIN ma padding 0 20px,
+// przez co treść jest wcięta o 20px względem menu/brandu/breadcrumbu (left=100).
+// Znosimy tylko ten padding (−20px/stronę) → panel w linii z menu głównym, jak Design.
+.ptt-torrents.torrent-search__component {
+    max-width: none !important;
+    width: auto !important;
+    margin-left: -20px !important;
+    margin-right: -20px !important;
+}
+
+// --- panel filtrów ---------------------------------------------------
+.torrent-search__filters,
+.compact-search {
+    display: block;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    margin: 0 0 18px;
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    box-shadow: none;
+}
+
+// pola tekstowe / selecty
+.torrent-search__filters .form__text,
+.torrent-search__filters .form__select,
+.torrent-search__filters input[type='search'],
+.torrent-search__filters textarea {
+    background-color: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg);
+
+    &:focus {
+        outline: none;
+        border-color: var(--ptt-red-text);
+    }
+}
+
+.torrent-search__filters .form__label {
+    color: var(--ptt-fg-3);
+    font-size: 12px;
+}
+
+.torrent-search__filters .form__legend {
+    color: var(--ptt-fg-4);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.torrent-search__filters .form__fieldset {
+    border: 1px solid var(--ptt-line);
+    border-radius: var(--ptt-radius);
+}
+
+.torrent-search__filters .form__checkbox {
+    accent-color: var(--ptt-red);
+}
+
+// przyciski (Filtruj / ikona)
+.torrent-search__filters .form__button {
+    border-radius: var(--ptt-radius);
+}
+
+.torrent-search__filters .form__button--filled {
+    background-color: var(--ptt-red);
+    border-color: var(--ptt-red);
+    color: #fff;
+
+    &:hover { background-color: #e8323f; border-color: #e8323f; }
+}
+
+// --- kompaktowy panel Design (nagłówek + chipy + znaczniki) ----------
+.ptt-torrents__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+    flex-wrap: wrap;
+    margin: -2px 0 2px;
+}
+
+.ptt-torrents__title-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ptt-torrents__title {
+    font-family: var(--ptt-sans);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ptt-fg);
+    margin: 0;
+}
+
+.ptt-tabs {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+}
+
+.ptt-tab {
+    padding: 3px 9px;
+    line-height: 18px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-3);
+    font-family: var(--ptt-sans);
+    font-size: 12.5px;
+    cursor: pointer;
+
+    &:hover { color: var(--ptt-fg); background: var(--ptt-surface-2); }
+    &.is-active { color: var(--ptt-fg); background: var(--ptt-surface-3); }
+}
+
+.ptt-torrents__sep {
+    color: var(--ptt-fg-4);
+    font-size: 16px;
+}
+
+.ptt-torrents__count {
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-search__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px;
+}
+
+.ptt-search__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.ptt-search__row--main .ptt-search__name {
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+.ptt-search__row--main .ptt-search__sort {
+    flex: 0 0 220px;
+    margin: 0;
+}
+
+.ptt-search__chips {
+    align-items: flex-start;
+    gap: 22px;
+}
+
+.ptt-chipset {
+    border: 0 !important;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ptt-chipset .form__legend {
+    padding: 0;
+    margin: 0;
+}
+
+.ptt-chipset__items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ptt-chip {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+
+    .form__checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    span {
+        display: inline-block;
+        padding: 5px 11px;
+        font-family: var(--ptt-sans);
+        font-size: 12.5px;
+        line-height: 1;
+        color: var(--ptt-fg-2);
+        background-color: var(--ptt-surface-2);
+        border: 1px solid var(--ptt-border);
+        border-radius: var(--ptt-radius);
+        transition: border-color 0.12s, color 0.12s, background-color 0.12s;
+    }
+
+    &:hover span {
+        border-color: var(--ptt-fg-4);
+        color: var(--ptt-fg);
+    }
+
+    .form__checkbox:checked + span {
+        color: #fff;
+        background-color: var(--ptt-red);
+        border-color: var(--ptt-red);
+    }
+
+    .form__checkbox:focus-visible + span {
+        outline: 2px solid var(--ptt-red-text);
+        outline-offset: 1px;
+    }
+}
+
+.ptt-search__tags {
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--ptt-line);
+}
+
+.ptt-search__tags-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+    margin-right: 4px;
+}
+
+.ptt-search__more {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    padding: 6px 12px;
+    font-family: var(--ptt-sans);
+    font-size: 12.5px;
+    color: var(--ptt-fg-3);
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s;
+
+    &:hover { border-color: var(--ptt-red-text); color: var(--ptt-fg); }
+    i { font-size: 12px; }
+}
+
+.ptt-search__advanced {
+    padding: 16px 16px 16px;
+    border-top: 1px solid var(--ptt-line);
+    margin-top: 2px;
+}
+
+// --- panel „Filtry" 1:1 z Design (selecty + znaczniki + Filtruj)
+.ptt-filters {
+    display: block;
+    width: 100%;
+    margin: 0 0 14px;
+}
+
+.ptt-filters__panel {
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    box-shadow: none;
+    padding: 0;
+    overflow: hidden;
+}
+
+.ptt-filters__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 12px;
+    background-color: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+}
+
+.ptt-filters__legend {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-3);
+    white-space: nowrap;
+}
+
+.ptt-filters__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ptt-filters__active {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-filters__clear {
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    background: transparent;
+    border: 1px solid var(--ptt-line);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-2);
+    font-size: 11.5px;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover { color: var(--ptt-fg); border-color: var(--ptt-border); }
+}
+
+.ptt-filters__toggle {
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 9px;
+    background: transparent;
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-2);
+    font-size: 11.5px;
+    font-family: var(--ptt-sans);
+    cursor: pointer;
+
+    &:hover { color: var(--ptt-fg); border-color: var(--ptt-red-text); }
+}
+
+.ptt-filters__chevron {
+    font-size: 10px;
+    transition: transform 0.15s ease;
+
+    &.is-open { transform: rotate(180deg); }
+}
+
+.ptt-filters__body {
+    padding: 11px 12px 12px;
+}
+
+.ptt-filters__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 9px 12px;
+}
+
+.ptt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+
+    &--wide { grid-column: span 2; }
+}
+
+.ptt-field__label {
+    font-size: 11px;
+    color: var(--ptt-fg-4);
+    letter-spacing: 0.04em;
+}
+
+.ptt-field__input {
+    height: 26px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    background-color: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    padding: 0 8px;
+    font-size: 12.5px;
+    color: var(--ptt-fg);
+
+    &:focus { outline: none; border-color: var(--ptt-red-text); }
+}
+
+select.ptt-field__input { padding: 0 6px; }
+
+.ptt-filters__tags {
+    border: 0;
+    border-top: 1px solid var(--ptt-line);
+    margin: 11px 0 0;
+    padding: 10px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    align-items: center;
+
+    .ptt-field__label {
+        float: none;
+        padding: 0 6px 0 0;
+    }
+}
+
+.ptt-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--ptt-fg-2);
+    cursor: pointer;
+
+    .form__checkbox {
+        accent-color: var(--ptt-accent);
+        width: 13px;
+        height: 13px;
+        margin: 0;
+    }
+}
+
+.ptt-filters__submit {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+}
+
+.ptt-filters__filtruj {
+    height: 26px;
+    padding: 0 14px;
+    background-color: var(--ptt-red);
+    border: 1px solid var(--ptt-red);
+    border-radius: var(--ptt-radius);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover { background-color: #e02a37; border-color: #e02a37; }
+}
+
+// rozwijany pełny zestaw filtrów — wcięcie i separacja
+.ptt-search__advanced {
+    margin-top: 12px;
+    padding: 14px;
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+}
+
+// --- panel wyników + tabela ------------------------------------------
+.torrent-search__results {
+    background-color: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    box-shadow: none;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.torrent-search__results .panel__heading,
+.torrent-search__results .panel__header {
+    color: var(--ptt-fg);
+}
+
+.torrent-search--list__results .data-table,
+.data-table {
+    width: 100%;
+}
+
+.data-table th,
+.torrent-search--list__results th {
+    color: var(--ptt-fg-4) !important;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--ptt-border);
+    padding: 8px 10px;
+    background-color: var(--ptt-surface-2);
+}
+
+.data-table td,
+.torrent-search--list__results td {
+    border-bottom: 1px solid var(--ptt-line);
+    padding: 8px 10px;
+    color: var(--ptt-fg-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.torrent-search--list__results tr:hover td {
+    background-color: var(--ptt-surface-2);
+}
+
+// nazwa releasu w wierszu — mono
+.torrent-search--list__name,
+.torrent__name {
+    font-family: var(--ptt-mono);
+    color: var(--ptt-fg);
+}
+
+// liczby seed/leech/completed z kolorami semantycznymi
+.torrent-search--list__seeders,
+.torrent__seeders { color: var(--ptt-green, #6ecf8b); }
+.torrent-search--list__leechers,
+.torrent__leechers { color: var(--ptt-red-text); }
+.torrent-search--list__completed,
+.torrent__completed { color: var(--ptt-blue); }
+
+// badge rozdzielczości (2160P/1080P) po lewej wiersza
+.torrent-search--list__format,
+.meta-id-tag {
+    border-radius: var(--ptt-radius);
+    font-family: var(--ptt-mono);
+    font-size: 11px;
+}
+
+// plakat w wierszu — ostry
+.torrent-search--list__poster img,
+.torrent-search--poster__results img {
+    border-radius: var(--ptt-radius);
+    border: 1px solid var(--ptt-line);
+}
+
+// paginacja
+.pagination__link,
+.pagination a {
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-2);
+}
+
+// --- slot reklamowy w top-navie (po prawej od szukajki) --------------
+.ptt-ad-slot {
+    flex: 1 1 360px;
+    min-width: 0;
+    height: 46px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background-color: var(--ptt-surface);
+    border: 1px dashed var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    overflow: hidden;
+}
+
+.ptt-ad-slot__dims {
+    font-family: var(--ptt-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    color: var(--ptt-fg-4);
+    opacity: 0.75;
+}
+
+.ptt-ad-slot__label {
+    font-family: var(--ptt-sans);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+    white-space: nowrap;
+}
+
+// na wąskich ekranach chowamy slot, żeby nie łamał paska
+@media (max-width: 1100px) {
+    .ptt-ad-slot { display: none; }
+}
+
+// Pasek secondary-nav (breadcrumb + Szukaj/Trending/RSS/Przekazać plik)
+// nie istnieje w projekcie Design — ukrywamy w całości.
+.secondary-nav { display: none !important; }
+
+// --- flagi torrenta jako pastylki (styl Design) ---------------
+.ptt-flags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.ptt-flags__comments {
+    font-size: 11px;
+    color: var(--ptt-fg-4);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+
+    &:hover { color: var(--ptt-fg-2); }
+    i { font-size: 11px; }
+}
+
+.ptt-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 16px;
+    padding: 0 5px;
+    font-family: var(--ptt-sans);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    white-space: nowrap;
+
+    i { font-size: 8px; opacity: 0.85; }
+}
+
+.ptt-flag--freeleech  { color: var(--ptt-fl);  border-color: #5fd0c455; background: #5fd0c414; }
+.ptt-flag--doubleup   { color: var(--ptt-x2);  border-color: #b49bff55; background: #b49bff14; }
+.ptt-flag--internal   { color: var(--ptt-blue); border-color: #34b5e955; background: #34b5e914; }
+.ptt-flag--personal   { color: var(--ptt-green); border-color: #6ecf8b55; background: #6ecf8b14; }
+.ptt-flag--highspeed  { color: var(--ptt-red-text); border-color: #f0656f55; background: #f0656f14; }
+.ptt-flag--refundable { color: var(--ptt-warn); border-color: #e8b45c55; background: #e8b45c14; }
+.ptt-flag--sticky     { color: var(--ptt-red-text); border-color: #d4212e66; background: #d4212e1f; }
+
+// --- paginacja w stylu Design (pasek: zakres + kwadratowe przyciski) --
+.ptt-pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 0 2px 5px;
+    margin-top: -22px;
+    margin-bottom: -30px;
+}
+
+.ptt-pagination-range {
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+    font-variant-numeric: tabular-nums;
+
+    b { color: var(--ptt-fg-2); font-family: var(--ptt-mono); font-weight: 400; }
+}
+
+// kompaktowe kwadratowe przyciski
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
+}
+
+.pagination__items {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    line-height: 1;
+    flex-wrap: wrap;
+}
+
+.pagination__pages {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.pagination__items li { list-style: none; }
+
+.pagination__link,
+.pagination__current,
+.pagination__previous,
+.pagination__next {
+    min-width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    background: transparent;
+    border: 1px solid var(--ptt-border);
+    border-radius: var(--ptt-radius);
+    color: var(--ptt-fg-2);
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover { color: var(--ptt-fg); border-color: var(--ptt-line-ui); }
+}
+
+// aktywna strona
+.pagination__current {
+    background: var(--ptt-surface-3);
+    border-color: var(--ptt-line-ui);
+    color: var(--ptt-fg);
+    font-weight: 600;
+}
+
+// prev/next — tylko strzałka (bez słów), jak Design.
+// Klasa jest i na <li> i na <a> — box/strzałkę dajemy TYLKO na <a>
+// (albo na wyłączony <li>, gdy nie ma <a>), a <li>-wrapper czyścimy.
+li.pagination__previous,
+li.pagination__next {
+    border: 0 !important;
+    background: none !important;
+    padding: 0 !important;
+    height: auto;
+    min-width: 0;
+    font-size: 0;
+}
+
+a.pagination__previous,
+a.pagination__next,
+li.pagination__previous--disabled,
+li.pagination__next--disabled {
+    font-size: 0;
+}
+a.pagination__previous::before,
+li.pagination__previous--disabled::before { content: '\2039'; font-size: 13px; }
+a.pagination__next::after,
+li.pagination__next--disabled::after { content: '\203A'; font-size: 13px; }
+
+li.pagination__previous--disabled,
+li.pagination__next--disabled {
+    color: var(--ptt-fg-4);
+    cursor: not-allowed;
+    border: 1px solid var(--ptt-border) !important;
+    &:hover { border-color: var(--ptt-border) !important; color: var(--ptt-fg-4); }
+}
+
+// dopasowanie wysokości paginacji (usun domyslne marginesy ul/li)
+.pagination,
+.pagination__items,
+.pagination__pages,
+.pagination__page-wrapper {
+    height: 24px !important;
+    min-height: 0 !important;
+    align-items: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    overflow: visible !important;   /* koniec mini-suwaków w paginacji */
+}
+.pagination__page-wrapper { display: flex !important; }
+
+// Galactic ma wyzsza specyficznosc — wymuszamy rozmiary Design (24px kwadraty).
+.pagination__current,
+.pagination__link {
+    min-width: 24px !important;
+    width: auto !important;
+    height: 24px !important;
+    padding: 0 6px !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+}
+.pagination__current { font-weight: 600 !important; }
+
+a.pagination__previous,
+a.pagination__next,
+li.pagination__previous--disabled,
+li.pagination__next--disabled {
+    min-width: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+}
+
+li.pagination__previous:not(.pagination__previous--disabled),
+li.pagination__next:not(.pagination__next--disabled) {
+    min-width: 0 !important;
+    width: auto !important;
+    border: 0 !important;
+    background: none !important;
+}
+
+// --- pasek nagłówka wyników: głębia + ostre boxy (Layout/Ilość) -------
+.torrent-search__results > .panel__header {
+    background-color: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+    box-shadow: none;
+    padding-right: 12px !important;   /* prawa krawędź dropdownów równo z FILTRY */
+}
+
+// wrappery akcji (Total/Layout/Ilość) mają własne ciemne tło (#1c1c1c) —
+// przezroczyste, żeby przebijało jednolite tło nagłówka (surface-2).
+.torrent-search__results > .panel__header .panel__heading,
+.torrent-search__results > .panel__header .panel__actions,
+.torrent-search__results > .panel__header .panel__action,
+.torrent-search__results > .panel__header .panel__actions .form__group {
+    background-color: transparent !important;
+}
+
+// nagłówek „Torrenty" — ta sama czcionka co legenda FILTRY
+.torrent-search__results > .panel__header .panel__heading {
+    font-family: var(--ptt-sans);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-3);
+    padding-left: 13px !important;   /* równo z napisem FILTRY */
+}
+
+// tekst statystyk (Total/Alive/Dead) — spójny, przygaszony
+.torrent-search__results > .panel__header .panel__action-text {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+
+// selecty (Layout / Ilość) jako wyraźne boxy z ostrymi rogami
+.torrent-search__results .panel__actions .form__select,
+.torrent-search__results .panel__actions select {
+    height: 30px !important;
+    padding: 0 22px 0 8px !important;   /* staly — bez zmiany na hover */
+    font-size: 12px !important;
+    line-height: 1 !important;
+    border-radius: var(--ptt-radius) !important;
+    background-color: var(--ptt-surface) !important;
+    border: 1px solid var(--ptt-border) !important;
+    color: var(--ptt-fg) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.12s ease !important;   /* bez transition wymiarow */
+}
+
+// etykiety notchowane (Layout/Ilość) — ostre, spójne tło
+.torrent-search__results .panel__actions .form__label {
+    border-radius: 0 !important;
+}
+
+// --- LISTA TORRENTÓW w układzie Design (2-liniowe wiersze) -----
+.torrent-search--list__results .data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+// nagłówek tabeli
+.ptt-list__head {
+    background-color: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+}
+
+.ptt-list__th {
+    padding: 6px 10px !important;
+    text-align: right;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4) !important;
+    white-space: nowrap;
+    cursor: pointer;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.ptt-list__th--name { text-align: left; padding-left: 12px !important; color: var(--ptt-fg-3) !important; }
+.ptt-list__th--format { text-align: left; width: 88px; }
+.ptt-list__th--num { width: 56px; }
+.ptt-list__th--act { width: 70px; }
+
+// wiersze
+.ptt-row {
+    border-bottom: 1px solid var(--ptt-line);
+    vertical-align: top;
+    transition: background-color 0.1s ease;
+}
+.ptt-row:hover { background-color: var(--ptt-surface-2); }
+.ptt-row--sticky,
+.ptt-row--sticky td {
+    background-color: rgba(212, 33, 46, 0.22) !important;
+}
+.ptt-row--sticky td:first-child {
+    box-shadow: inset 3px 0 0 var(--ptt-red-solid, #d4212e);
+}
+.ptt-row--sticky:hover,
+.ptt-row--sticky:hover td { background-color: rgba(212, 33, 46, 0.3) !important; }
+.ptt-row__pin {
+    color: var(--ptt-red-text);
+    font-size: 10px;
+    margin-right: 1px;
+    flex: 0 0 auto;
+}
+
+.ptt-row td {
+    padding: 7px 10px !important;
+    border: 0 !important;
+    color: var(--ptt-fg-2);
+}
+
+// --- kolumna Nazwa (2 linie) ---
+.ptt-row__name { padding: 7px 10px 7px 12px !important; }
+.ptt-row__namewrap { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.ptt-row__lines { min-width: 0; flex: 1 1 auto; }
+.ptt-row__cover {
+    position: relative;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 48px;
+    border-radius: 2px;
+    border: 1px solid var(--ptt-border);
+    overflow: visible;
+    display: block;
+    background: var(--ptt-surface-2);
+    text-decoration: none;
+    // miniatura (bezpośrednie img) — zaokrąglona, przycięta; popup NIE
+    > img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 2px;
+    }
+}
+// powiększenie okładki na hover (jak popup przy tytule)
+.ptt-cover-pop {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    width: 200px;
+    aspect-ratio: 2 / 3;
+    border: 1px solid var(--ptt-line-ui);
+    border-radius: 3px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    display: none;
+    pointer-events: none;
+    z-index: 200;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+.ptt-row__cover:hover .ptt-cover-pop { display: block; }
+.ptt-row__cover-ico {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ptt-fg-4);
+    font-size: 15px;
+}
+
+.ptt-row__line1 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    line-height: 1.3;
+}
+
+.ptt-row__title {
+    font-family: var(--ptt-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--ptt-fg);
+    text-decoration: none;
+
+    &:hover { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+}
+
+.ptt-row__year {
+    font-family: var(--ptt-mono);
+    font-size: 11.5px;
+    color: var(--ptt-fg-3);
+    font-variant-numeric: tabular-nums;
+}
+
+// badge jakości (REMUX/HDR/DV...)
+.ptt-qb {
+    display: inline-flex;
+    align-items: center;
+    height: 15px;
+    padding: 0 4px;
+    font-family: var(--ptt-sans);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ptt-fg-3);
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+    white-space: nowrap;
+}
+
+// linia 2 — metadane (jednoliniowo, przycięcie)
+.ptt-row__line2 {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    line-height: 1.3;
+}
+.ptt-row__line2 > * { flex: 0 0 auto; }
+.ptt-l2--genre {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 180px;
+}
+.ptt-row__line2 a { color: var(--ptt-fg-3); text-decoration: none; }
+.ptt-row__line2 a:hover { color: var(--ptt-fg); }
+.ptt-row__sep { padding: 0 6px; color: var(--ptt-line-ui); }
+.ptt-row__cat:hover { color: var(--ptt-fg); }
+.ptt-row__cat i { font-size: 9px; opacity: 0.65; margin-right: 2px; }
+.ptt-l2 {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    white-space: nowrap;
+}
+.ptt-l2 > i { font-size: 9px; opacity: 0.55; }
+.ptt-l2--genre { color: var(--ptt-fg-4); }
+.ptt-l2--group { color: var(--ptt-blue); font-weight: 600; }
+.ptt-l2--sub { color: var(--ptt-fg-4); font-size: 11px; gap: 3px; }
+.ptt-l2__sublabel { font-size: 9px; opacity: 0.6; letter-spacing: 0.04em; }
+.ptt-lang {
+    font-family: var(--ptt-mono);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+}
+.ptt-lang--pl    { color: var(--ptt-red-text); }
+.ptt-lang--eng   { color: var(--ptt-blue); }
+.ptt-lang--multi { color: var(--ptt-fg-2); }
+.ptt-flag-img {
+    width: 16px;
+    height: 11px;
+    border-radius: 2px;
+    border: 1px solid var(--ptt-border);
+    object-fit: cover;
+    vertical-align: middle;
+    display: inline-block;
+}
+.ptt-flag-img--sm { width: 14px; height: 10px; opacity: 0.9; }
+.ptt-sub-item { display: inline-flex; align-items: center; gap: 3px; }
+.ptt-l2--sub { gap: 4px; }
+.ptt-row__uploader { font-size: 12px !important; }
+
+// --- kolumna Format ---
+.ptt-row__format {
+    white-space: nowrap;
+    font-family: var(--ptt-mono);
+    font-size: 11.5px;
+    line-height: 1.35;
+}
+.ptt-row__res { display: block; color: var(--ptt-fg-2); }
+.ptt-row__type { display: block; color: var(--ptt-fg-4); font-size: 11px; }
+
+// --- kolumny liczbowe (prawe) ---
+.ptt-row__ocena,
+.ptt-row__size,
+.ptt-row__s,
+.ptt-row__l,
+.ptt-row__c,
+.ptt-row__age {
+    text-align: right;
+    white-space: nowrap;
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    vertical-align: middle;
+}
+.ptt-row__ocena span { color: var(--ptt-fg-2); }
+.ptt-row__dim { color: var(--ptt-fg-4); }
+.ptt-row__size { color: var(--ptt-fg-2); }
+.ptt-row__age { color: var(--ptt-fg-4); font-family: var(--ptt-sans); font-size: 11.5px; }
+
+.ptt-num--seed { color: var(--ptt-green) !important; }
+.ptt-num--leech { color: var(--ptt-warn) !important; }
+.ptt-num--done { color: var(--ptt-blue) !important; }
+
+// --- akcje ---
+.ptt-row__act {
+    text-align: right;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.ptt-row__act .form__standard-icon-button {
+    color: var(--ptt-fg-4);
+    padding: 2px 4px;
+    &:hover { color: var(--ptt-fg); }
+}
+
+// --- podgląd plakatu przy najechaniu na nazwę ------------------------
+// tabela nie może przycinać popupu
+.torrent-search--list__results.data-table-wrapper,
+.torrent-search--list__results {
+    overflow-x: clip !important;   /* bez suwaka poziomego */
+    overflow-y: visible !important; /* plakat może wyjść w górę */
+}
+
+.ptt-title-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.ptt-poster-pop {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    z-index: 200;
+    display: none;
+    pointer-events: none;
+}
+
+.ptt-title-wrap:hover .ptt-poster-pop {
+    display: block;
+}
+
+.ptt-poster-pop__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 210px;
+    background: var(--ptt-surface-2);
+    border: 1px solid var(--ptt-line-ui);
+    border-radius: var(--ptt-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+
+    i { font-size: 54px; color: var(--ptt-fg-4); }
+}
+
+.ptt-poster-pop img {
+    display: block;
+    width: 150px;
+    height: auto;
+    border: 1px solid var(--ptt-line-ui);
+    border-radius: var(--ptt-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+    background: var(--ptt-surface);
+}
+
+// fix: natywne <select> filtrów garbliły tekst na hover (długa transition
+// border-color 0.6s trzymała je na warstwie GPU) — krótka transition + stabilny render.
+.torrent-search__filters .form__select,
+.ptt-field__input,
+select.ptt-field__input {
+    transition: none !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: var(--ptt-fg) !important;
+    will-change: auto !important;
+    transform: none !important;
+}
+
+// dolny pasek paginacji — pod tabelą, bez podciągania górnego
+.ptt-pagination-bar--bottom {
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+    padding: 4px 2px 2px !important;
+}
+
+// wyrównanie nagłówków liczbowych z danymi — ikona sortowania w padding
+.ptt-list__th--num {
+    position: relative;
+    text-align: right !important;   /* Galactic wymuszał left */
+    padding-right: 13px !important;
+}
+.ptt-list__th--num i {
+    position: absolute;
+    right: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    opacity: 0.4;
+}
+// dane w tych kolumnach — ta sama prawa krawędź co nagłówek (padding-right 13)
+.ptt-row td.ptt-row__ocena,
+.ptt-row td.ptt-row__size,
+.ptt-row td.ptt-row__s,
+.ptt-row td.ptt-row__l,
+.ptt-row td.ptt-row__c,
+.ptt-row td.ptt-row__age {
+    text-align: right !important;
+    padding-right: 13px !important;
+}
+
+// --- FOOTER w stylu Design ------------------------------------
+.footer {
+    margin: 34px 0 0 !important;   /* pełna szerokość, jak Design (tło edge-to-edge) */
+    max-width: none !important;
+    width: auto !important;
+    background-color: var(--ptt-surface);
+    border-top: 1px solid var(--ptt-border);
+    box-shadow: none;
+}
+
+.footer__wrapper {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 15px 20px 9px;
+    display: grid;
+    grid-template-columns: 1fr repeat(4, max-content);  /* brand lewo, linki zbite prawo */
+    gap: 20px 30px;
+    justify-content: end;
+    align-items: start;
+}
+
+.footer__section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.footer__section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 2px;
+    font-family: var(--ptt-sans);
+    font-size: 10.5px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+}
+
+// pierwsza sekcja = brand (orzeł + POLISH TORRENT + tagline)
+.footer__section:first-child .footer__section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: none;
+    color: var(--ptt-fg);
+}
+.footer__section:first-child .footer__section-title img { display: none; }
+.footer__section:first-child .footer__section-title::before {
+    content: '';
+    width: 22px;
+    height: 21px;
+    flex: 0 0 auto;
+    background-image: linear-gradient(180deg, var(--pl-white) 0 50%, var(--ptt-red) 50% 100%);
+    -webkit-mask-image: url('/ptt/eagle.png');
+    mask-image: url('/ptt/eagle.png');
+    -webkit-mask-size: contain; mask-size: contain;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-position: center; mask-position: center;
+}
+.footer__section:first-child .top-nav__site-logo { font-size: 13px !important; letter-spacing: 0.08em !important; }
+.footer__section:first-child p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+    line-height: 1.55;
+    max-width: 34ch;
+}
+
+.footer__section-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.footer__section-list li { list-style: none; margin: 0; }
+.footer__section-list li:nth-child(n+3) { display: none; }  // max 2 poz./kolumne
+
+// --- PROBA: pozycje w kolumnach linkow do PRAWEJ ---
+.footer__section:not(:first-child) { text-align: right; }
+.footer__section:not(:first-child) .footer__section-title { justify-content: flex-end; }
+.footer__section:not(:first-child) .footer__section-list { align-items: flex-end; }
+.footer__section:not(:first-child) .footer__section-list a,
+.footer__section:not(:first-child) .footer__section-list button { text-align: right; }
+
+.footer__section a,
+.footer__section-list a,
+.footer__section-list button {
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover { color: var(--ptt-fg); }
+}
+
+// pasek dolny (credits) = .footer__sub-footer, pełna szerokość, wyśrodkowany
+.footer__sub-footer {
+    display: flex !important;    /* stats z lewej, credit z prawej — jedna linia */
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    flex-wrap: wrap;
+    max-width: 1360px;
+    margin: 0 auto !important;
+    padding: 11px 20px 16px !important;
+    border-top: 1px solid var(--ptt-line);
+    background: none !important;
+}
+// „Built using: [logotypy]" — Design tego nie ma
+.footer__sub-footer .footer__icons { display: none !important; }
+
+.footer__stats,
+.footer__copyright {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+.footer__stats {
+    display: flex;
+    align-items: center;
+    gap: 6px 14px;
+    flex-wrap: wrap;
+    font-family: var(--ptt-mono);
+
+    strong { color: var(--ptt-fg-3); font-weight: 600; }
+}
+.footer__copyright {
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+
+    a { color: var(--ptt-fg-3); text-decoration: none; }
+    a:hover { color: var(--ptt-fg); }
+}
+.footer__copy-sep { color: var(--ptt-line-ui); margin-right: 8px; }
+.footer__copy-year { color: var(--ptt-fg-3); font-family: var(--ptt-mono); margin-left: 4px; }
+
+// „Esejowsky" — ukryty link; na hover GLITCH RGB (spójny z motywem) → cutty.dev
+.footer__esej {
+    position: relative;
+    display: inline-block;
+    color: inherit !important;
+    text-decoration: none;
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+.footer__esej::before,
+.footer__esej::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, clip-path, opacity;
+}
+.footer__esej:hover {
+    color: #fff !important;
+    text-shadow: 0 0 8px rgba(240, 101, 111, 0.5);
+}
+.footer__esej:hover::before {
+    color: var(--ptt-red);
+    animation: ptt-esej-glitch-r 0.42s steps(2, end) infinite;
+}
+.footer__esej:hover::after {
+    color: #21c8ff;
+    animation: ptt-esej-glitch-b 0.42s steps(2, end) infinite;
+}
+
+@keyframes ptt-esej-glitch-r {
+    0%   { opacity: 0.9; transform: translate(-2px, 0); clip-path: none; }
+    20%  { opacity: 1;   transform: translate(-4px, -1px); clip-path: inset(0 0 58% 0); }
+    40%  { opacity: 0.85; transform: translate(3px, 1px); clip-path: inset(42% 0 22% 0); }
+    60%  { opacity: 1;   transform: translate(-3px, 0); clip-path: inset(68% 0 0 0); }
+    80%  { opacity: 0.85; transform: translate(2px, -1px); clip-path: inset(18% 0 46% 0); }
+    100% { opacity: 0.9; transform: translate(-2px, 0); clip-path: none; }
+}
+@keyframes ptt-esej-glitch-b {
+    0%   { opacity: 0.9; transform: translate(2px, 0); clip-path: none; }
+    20%  { opacity: 1;   transform: translate(4px, 1px); clip-path: inset(50% 0 14% 0); }
+    40%  { opacity: 0.85; transform: translate(-3px, -1px); clip-path: inset(10% 0 58% 0); }
+    60%  { opacity: 1;   transform: translate(3px, 0); clip-path: inset(0 0 70% 0); }
+    80%  { opacity: 0.85; transform: translate(-2px, 1px); clip-path: inset(44% 0 24% 0); }
+    100% { opacity: 0.9; transform: translate(2px, 0); clip-path: none; }
+}
+
+// dekoracyjne SVG UNIT3D w copyrighcie — ukrywamy (Design nie ma)
+.footer__copyright svg,
+.footer p > a > svg { display: none; }
+
+@media (max-width: 900px) {
+    .footer__wrapper { grid-template-columns: 1fr 1fr; }
+}
+
+// „Polish Torrent" w credicie — na hover przelatujące biało-czerwone pasy flagi
+.footer__pt {
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+.footer__pt:hover {
+    background-image: repeating-linear-gradient(100deg,
+        var(--pl-white) 0 11px,
+        var(--ptt-red) 11px 22px);
+    background-repeat: repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    animation: ptt-flag-sweep 0.9s linear infinite;
+}
+// przewijanie: ruch o 2 pełne okresy (44px) = ciągły, wyraźny, bezszwowy przepływ
+@keyframes ptt-flag-sweep {
+    from { background-position: 0 0; }
+    to   { background-position: -44px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -1,0 +1,1099 @@
+// =====================================================================
+// PTT — motyw ekranów wejściowych (logowanie, rejestracja, reset hasła,
+// 2FA, weryfikacja e-mail, podanie o konto)
+//
+// ŹRÓDŁO PRAWDY. Ten plik jest NOWY — `php artisan git:update` go nie
+// dotyka, bo upstream o nim nie wie. Na `pages/_auth.scss` trafia przez
+// skrypt ptt-theme-apply.sh, który uruchamia się po każdej aktualizacji.
+//
+// Zasady: zero plików graficznych, zero gradientów, zero cieni.
+// Wyłącznie klasy, które generuje silnik — żadnych własnych nazw.
+// =====================================================================
+
+:root {
+    --auth-bg: #191919;
+    --auth-card-bg: #1f1f1f;
+    --auth-field-bg: #232323;
+    --auth-field-bg-alt: #2b2b2b;
+
+    --auth-line: #2e2e2e;
+    --auth-border: #3a3a3a;
+    --auth-border-ui: #6a6a6a;
+
+    --auth-fg: #e3e3e3;
+    --auth-fg-2: #b5b5b5;
+    --auth-fg-3: #adadad;
+    --auth-fg-4: #969696;
+
+    --auth-accent: #d4212e;        // wypełnienia: czerwień z flagi
+    --auth-accent-text: #f0656f;   // tekst i obramowania: jaśniejszy, czytelny
+    --auth-accent-dim: #8f1720;
+    --auth-accent-fg: #f7f7f7;
+
+    --auth-ok: #6ecf8b;
+    --auth-warn: #e8b45c;
+    --auth-err: #ff6b74;
+
+    --auth-radius: 3px;
+
+    // barwy flagi — wypełnienie sylwetki orła
+    --pl-white: #f2f2f2;
+    --pl-red: #d4212e;
+
+    --auth-font: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial,
+        sans-serif;
+    --auth-mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono',
+        monospace;
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) {
+        --auth-bg: #f2f2f2;
+        --auth-card-bg: #ffffff;
+        --auth-field-bg: #fafafa;
+        --auth-field-bg-alt: #f0f0f0;
+
+        --auth-line: #e4e4e4;
+        --auth-border: #d0d0d0;
+        --auth-border-ui: #8a8a8a;
+
+        --auth-fg: #1c1c1c;
+        --auth-fg-2: #3d3d3d;
+        --auth-fg-3: #565656;
+        --auth-fg-4: #6e6e6e;
+
+        --auth-accent: #c2323c;
+        --auth-accent-text: #a81f28;
+        --auth-accent-dim: #f0c3c6;
+        --auth-accent-fg: #ffffff;
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: var(--auth-bg);
+    background-image: none; // upstream wstawia tu teksturę
+    color: var(--auth-fg);
+    font-family: var(--auth-font);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+// Delikatna faktura: sylwetka orła jako powtarzana maska, w kolorze
+// obramowania i mocno przygaszona. Nie obrazek tła — jeden plik maski
+// i kolor z tokenów, więc chodzi też w wariancie jasnym.
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: var(--auth-border);
+    -webkit-mask-image: url('/ptt/eagle.png');
+    mask-image: url('/ptt/eagle.png');
+    -webkit-mask-size: 46px auto;
+    mask-size: 46px auto;
+    -webkit-mask-repeat: repeat;
+    mask-repeat: repeat;
+    -webkit-mask-position: center top;
+    mask-position: center top;
+    opacity: 0.4;
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 16px;
+}
+
+// --- karta -----------------------------------------------------------
+// Dwie kolumny: formularz + panel wprowadzający. Panel jest treścią
+// dołożoną w nadpisanym widoku, silnika nie ruszamy.
+.auth-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 262px;
+    grid-template-rows: 1fr auto;
+    width: min(100% - 24px, 760px);
+    margin: 0 auto;
+    background-color: var(--auth-card-bg);
+    background-image: none; // upstream wstawia tu gradient
+    opacity: 1; // upstream przygasza kartę do 0.75
+    border: 1px solid var(--auth-border);
+    border-radius: var(--auth-radius);
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+    animation: ptt-card-filters 30s steps(1, end) infinite,
+        ptt-card-shift 30s cubic-bezier(0.36, 0, 0.66, 1) infinite,
+        ptt-text-split 30s steps(1, end) infinite;
+}
+
+.auth-form::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 26px;
+    pointer-events: none;
+    z-index: 2;
+    background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(240, 101, 111, 0.09) 40%,
+        rgba(52, 181, 233, 0.07) 60%,
+        transparent
+    );
+    animation: ptt-scanline 30s linear infinite;
+}
+
+// --- zakłócenie sygnału ---------------------------------------------
+// Glitch robimy na tekście, bo tam widać go naprawdę: kanały kolorów
+// rozjeżdżają się w czerwień i błękit, a poziome pasy przeskakują.
+// Karta dostaje tylko delikatne drgnięcie i przelot linii skanującej.
+@keyframes ptt-text-glitch {
+    0%,
+    96.991%,
+    99.91%,
+    100% {
+        text-shadow: none;
+        transform: none;
+        clip-path: none;
+    }
+
+    97.198% {
+        text-shadow: -3px 0 var(--pl-red), 3px 0 #34b5e9;
+        transform: translateX(2px) skewX(-6deg);
+        clip-path: inset(0 0 62% 0);
+    }
+
+    97.477% {
+        text-shadow: 4px 0 var(--pl-red), -4px 0 #34b5e9;
+        transform: translateX(-3px);
+        clip-path: inset(44% 0 22% 0);
+    }
+
+    97.755% {
+        text-shadow: -2px 0 var(--pl-red), 2px 0 #34b5e9;
+        transform: translateX(3px) skewX(5deg);
+        clip-path: inset(70% 0 0 0);
+    }
+
+    98.102%,
+    98.936% {
+        text-shadow: none;
+        transform: none;
+        clip-path: none;
+    }
+
+    99.144% {
+        text-shadow: 5px 0 var(--pl-red), -5px 0 #34b5e9;
+        transform: translateX(-4px);
+        clip-path: inset(26% 0 48% 0);
+    }
+
+    99.423% {
+        text-shadow: -2px 0 var(--pl-red), 2px 0 #34b5e9;
+        transform: translateX(1px) skewX(-3deg);
+        clip-path: none;
+    }
+}
+
+@keyframes ptt-card-jolt {
+    0%,
+    95.74%,
+    99.77%,
+    100% {
+        transform: none;
+        filter: none;
+    }
+
+    96.294% {
+        transform: translate(-1.5px, 1px);
+        filter: contrast(1.15) saturate(1.2);
+    }
+
+    97.128% {
+        transform: translate(2px, -1px);
+        filter: contrast(1.05);
+    }
+
+    98.102% {
+        transform: translate(-1px, 0.5px);
+        filter: contrast(1.18) saturate(1.25);
+    }
+
+    99.076% {
+        transform: translate(0.5px, 0);
+        filter: none;
+    }
+}
+
+// linia skanująca — jeden przelot w dół podczas zakłócenia
+@keyframes ptt-scanline {
+    0%,
+    95.6% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    96.017% {
+        opacity: 0.9;
+    }
+
+    99.353% {
+        opacity: 0.9;
+        transform: translateY(560px);
+    }
+
+    99.77%,
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+// --- zakłócenie sygnału ----------------------------------------------
+// Technika: dwie kopie napisu (content: attr(data-text)) leżą na oryginale,
+// każda w innym kanale koloru. Podczas zakłócenia są przycinane clip-path
+// w różnych miejscach i przesuwane — napis rozpada się na pasy, zamiast
+// tylko drgać. Przez 93% cyklu warstwy są niewidoczne.
+@keyframes ptt-glitch-red {
+    0%,
+    95.74%,
+    99.77%,
+    100% {
+        opacity: 0;
+        transform: none;
+        clip-path: inset(50% 0 50% 0);
+        filter: none;
+    }
+
+    96.017% {
+        opacity: 0.45;
+        clip-path: inset(8% 0 66% 0);
+        transform: translate(-2px, -1px);
+    }
+
+    96.434% {
+        opacity: 1;
+        clip-path: inset(22% 0 52% 0);
+        transform: translate(-5px, 0) skewX(-6deg);
+        filter: blur(0.3px);
+    }
+
+    96.991% {
+        opacity: 1;
+        clip-path: inset(56% 0 20% 0);
+        transform: translate(5px, 1px) skewX(4deg);
+        filter: none;
+    }
+
+    97.545% {
+        opacity: 0.9;
+        clip-path: inset(34% 0 42% 0);
+        transform: translate(-6px, 2px);
+        filter: blur(0.4px);
+    }
+
+    98.102% {
+        opacity: 1;
+        clip-path: inset(72% 0 6% 0);
+        transform: translate(4px, -2px) skewX(5deg);
+        filter: none;
+    }
+
+    98.659% {
+        opacity: 0.75;
+        clip-path: inset(18% 0 58% 0);
+        transform: translate(-3px, 1px);
+    }
+
+    99.213% {
+        opacity: 0.35;
+        clip-path: inset(46% 0 30% 0);
+        transform: translate(2px, 0);
+    }
+}
+
+@keyframes ptt-glitch-blue {
+    0%,
+    95.74%,
+    99.77%,
+    100% {
+        opacity: 0;
+        transform: none;
+        clip-path: inset(50% 0 50% 0);
+        filter: none;
+    }
+
+    96.017% {
+        opacity: 0.45;
+        clip-path: inset(62% 0 12% 0);
+        transform: translate(2px, 1px);
+    }
+
+    96.434% {
+        opacity: 1;
+        clip-path: inset(48% 0 26% 0);
+        transform: translate(6px, 1px) skewX(6deg);
+        filter: blur(0.3px);
+    }
+
+    96.991% {
+        opacity: 1;
+        clip-path: inset(12% 0 64% 0);
+        transform: translate(-5px, -2px) skewX(-5deg);
+        filter: none;
+    }
+
+    97.545% {
+        opacity: 0.9;
+        clip-path: inset(40% 0 34% 0);
+        transform: translate(6px, -1px);
+        filter: blur(0.4px);
+    }
+
+    98.102% {
+        opacity: 1;
+        clip-path: inset(4% 0 78% 0);
+        transform: translate(-4px, 2px) skewX(-4deg);
+        filter: none;
+    }
+
+    98.659% {
+        opacity: 0.75;
+        clip-path: inset(58% 0 18% 0);
+        transform: translate(3px, -1px);
+    }
+
+    99.213% {
+        opacity: 0.35;
+        clip-path: inset(28% 0 48% 0);
+        transform: translate(-2px, 0);
+    }
+}
+
+// Filtry w duchu sekwencji bootowania esej.space, ale utrzymane w palecie
+// serwisu i BEZ contrastu — ten podbijał ciemne tło karty do czystej czerni,
+// przez co panel zapadał się przy każdym zakłóceniu. Zostaje nasycenie,
+// drobna odchyłka odcienia (±10°) i minimalne rozjaśnienie.
+// Rozjazd kanałów na WSZYSTKICH napisach karty naraz. text-shadow jest
+// dziedziczony, więc wystarczy animować go na kontenerze — etykiety, opisy,
+// liczby i przyciski rozjeżdżają się razem, bez duplikowania markupu.
+@keyframes ptt-text-split {
+    0%,
+    95.74%,
+    99.77%,
+    100% {
+        text-shadow: none;
+    }
+
+    96.017% {
+        text-shadow: -1px 0 var(--pl-red), 1px 0 #34b5e9;
+    }
+
+    96.434% {
+        text-shadow: 2px 0 var(--pl-red), -2px 0 #34b5e9;
+    }
+
+    96.851% {
+        text-shadow: -2px 1px var(--pl-red), 2px -1px #34b5e9;
+    }
+
+    97.268% {
+        text-shadow: 1px 0 var(--pl-red), -1px 0 #34b5e9;
+    }
+
+    97.825% {
+        text-shadow: -3px 0 var(--pl-red), 3px 0 #34b5e9;
+    }
+
+    98.242% {
+        text-shadow: 2px -1px var(--pl-red), -2px 1px #34b5e9;
+    }
+
+    98.659% {
+        text-shadow: -1px 0 var(--pl-red), 2px 0 #34b5e9;
+    }
+
+    99.076% {
+        text-shadow: 1px 1px var(--pl-red), -1px -1px #34b5e9;
+    }
+
+    99.493% {
+        text-shadow: -1px 0 var(--pl-red), 1px 0 #34b5e9;
+    }
+}
+
+@keyframes ptt-card-filters {
+    0%,
+    95.74%,
+    99.77%,
+    100% {
+        filter: none;
+    }
+
+    96.017% {
+        filter: saturate(1.35) brightness(1.03);
+    }
+
+    96.434% {
+        filter: saturate(1.6) hue-rotate(-8deg) brightness(1.05);
+    }
+
+    96.851% {
+        filter: saturate(1.25) hue-rotate(6deg);
+    }
+
+    97.268% {
+        filter: saturate(1.5) brightness(1.06);
+    }
+
+    97.825% {
+        filter: saturate(1.3) hue-rotate(-10deg) brightness(1.02);
+    }
+
+    98.242% {
+        filter: saturate(1.55) hue-rotate(8deg) brightness(1.04);
+    }
+
+    98.659% {
+        filter: saturate(1.35) brightness(1.03);
+    }
+
+    99.076% {
+        filter: saturate(1.45) hue-rotate(-5deg);
+    }
+
+    99.493% {
+        filter: saturate(1.2);
+    }
+}
+
+// przesunięcia osobno, płynnie — żeby karta nie „skakała" klatkami
+@keyframes ptt-card-shift {
+    0%,
+    95.74%,
+    99.77%,
+    100% {
+        transform: none;
+    }
+
+    96.157% {
+        transform: translate(-1px, 0.5px);
+    }
+
+    96.711% {
+        transform: translate(1px, -0.5px);
+    }
+
+    97.338% {
+        transform: translate(-0.5px, 1px);
+    }
+
+    97.962% {
+        transform: translate(1.5px, 0);
+    }
+
+    98.519% {
+        transform: translate(-1px, -0.5px);
+    }
+
+    99.144% {
+        transform: translate(0.5px, 0.5px);
+    }
+}
+
+// pojedynczy przelot linii skanującej w dół karty
+@keyframes ptt-scanline {
+    0%,
+    96.574% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    96.711% {
+        opacity: 1;
+    }
+
+    98.796% {
+        opacity: 1;
+        transform: translateY(560px);
+    }
+
+    98.866%,
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.auth-form__form {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 28px 26px 24px;
+    margin: 0;
+}
+
+// --- nagłówek marki --------------------------------------------------
+.auth-form__branding {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 13px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--auth-line);
+    color: var(--auth-fg);
+    text-decoration: none;
+
+    // Znacznik <i> w oryginale niesie ikonę Font Awesome, którego ten
+    // ekran w ogóle nie ładuje — renderuje się jako nic. Zamiast go
+    // ukrywać, robimy z niego nośnik logo: sylwetka orła jako maska,
+    // pod spodem dwa pasy bieli i czerwieni.
+    i {
+        grid-row: 1 / 3;
+        display: block;
+        width: 42px;
+        height: 42px;
+        background-image: linear-gradient(
+            180deg,
+            var(--pl-white) 0 50%,
+            var(--pl-red) 50% 100%
+        );
+        -webkit-mask-image: url('/ptt/eagle.png');
+        mask-image: url('/ptt/eagle.png');
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+    }
+}
+
+.auth-form__site-logo {
+    position: relative;
+    display: block;
+    align-self: end;
+
+    &::before,
+    &::after {
+        content: attr(data-text);
+        position: absolute;
+        inset: 0;
+        background-color: var(--auth-card-bg);
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    &::before {
+        color: var(--pl-red);
+        animation: ptt-glitch-red 30s cubic-bezier(0.36, 0, 0.66, 1) infinite;
+    }
+
+    &::after {
+        color: #34b5e9;
+        animation: ptt-glitch-blue 30s cubic-bezier(0.36, 0, 0.66, 1) infinite;
+    }
+    animation: ptt-text-glitch 30s steps(1, end) infinite;
+    font-family: var(--auth-font);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--auth-fg);
+}
+
+.auth-form__branding::after {
+    content: 'polishtorrent.top';
+    display: block;
+    align-self: start;
+    margin-top: 3px;
+    font-family: var(--auth-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+    color: var(--auth-fg-4);
+}
+
+// --- pola ------------------------------------------------------------
+.auth-form__text-input-group,
+.auth-form__select-group,
+.auth-form__textarea-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 0;
+}
+
+.auth-form__label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--auth-fg-3);
+
+    // etykieta z linkiem obok (np. „nie pamiętam hasła" przy haśle)
+    .auth-form__footer-item {
+        font-size: 11.5px;
+        font-weight: 400;
+    }
+}
+
+// podpowiedź pod polem (wymagania nazwy i hasła — widoczne PRZED wysłaniem)
+.auth-form__hint {
+    display: block;
+    margin-top: 1px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--auth-fg-4);
+}
+
+// komunikat walidacji pokazywany bezpośrednio pod polem
+.auth-form__text-input-group .auth-form__error {
+    display: block;
+    margin-top: 1px;
+}
+
+.auth-form__text-input,
+.auth-form__select,
+.auth-form__textarea {
+    width: 100%;
+    padding: 9px 11px;
+    background-color: var(--auth-field-bg);
+    border: 1px solid var(--auth-border);
+    border-radius: var(--auth-radius);
+    color: var(--auth-fg);
+    font-family: var(--auth-mono);
+    font-size: 13px;
+    transition: border-color 0.12s ease, background-color 0.12s ease;
+
+    &::placeholder {
+        color: var(--auth-fg-4);
+    }
+
+    &:hover {
+        border-color: var(--auth-border-ui);
+    }
+
+    &:focus {
+        outline: 2px solid var(--auth-accent-text);
+        outline-offset: -1px;
+        border-color: var(--auth-accent-text);
+        background-color: var(--auth-field-bg-alt);
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+}
+
+.auth-form__textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+// autouzupełnianie przeglądarki potrafi wstawić białe tło pod ciemny motyw
+.auth-form__text-input:-webkit-autofill,
+.auth-form__text-input:-webkit-autofill:hover,
+.auth-form__text-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--auth-fg);
+    -webkit-box-shadow: 0 0 0 1000px var(--auth-field-bg-alt) inset;
+    caret-color: var(--auth-fg);
+}
+
+// --- checkbox --------------------------------------------------------
+.auth-form__checkbox-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+
+    .auth-form__label {
+        font-size: 12.5px;
+        color: var(--auth-fg-2);
+        cursor: pointer;
+    }
+}
+
+.auth-form__checkbox-input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: var(--auth-accent);
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid var(--auth-accent);
+        outline-offset: 2px;
+    }
+}
+
+// --- fieldset (podanie o konto) --------------------------------------
+.auth-form__fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    margin: 0;
+    border: 1px solid var(--auth-line);
+    border-radius: var(--auth-radius);
+}
+
+.auth-form__legend {
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--auth-fg-4);
+}
+
+// --- przyciski -------------------------------------------------------
+.auth-form__primary-button {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: var(--auth-accent);
+    border: 1px solid var(--auth-accent);
+    border-radius: var(--auth-radius);
+    color: var(--auth-accent-fg);
+    font-family: var(--auth-font);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+        background-color: #e8323f;
+        border-color: #e8323f;
+    }
+
+    &:active {
+        background-color: var(--auth-accent-dim);
+        border-color: var(--auth-accent-dim);
+        color: var(--auth-fg);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--auth-fg);
+        outline-offset: 2px;
+    }
+}
+
+.auth-form__button-container {
+    display: flex;
+    gap: 10px;
+}
+
+.auth-form__button--text {
+    padding: 8px 10px;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--auth-radius);
+    color: var(--auth-fg-3);
+    font-size: 12.5px;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--auth-fg);
+        border-color: var(--auth-border);
+    }
+}
+
+// --- komunikaty ------------------------------------------------------
+.auth-form__important-infos,
+.auth-form__errors {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.auth-form__important-info,
+.auth-form__error {
+    padding: 8px 11px;
+    border-radius: var(--auth-radius);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.auth-form__important-info {
+    border-left: 2px solid var(--auth-warn);
+    background-color: var(--auth-field-bg);
+    color: var(--auth-fg-2);
+}
+
+.auth-form__error {
+    border-left: 2px solid var(--auth-err);
+    background-color: var(--auth-field-bg);
+    color: var(--auth-fg);
+}
+
+// --- stopka ----------------------------------------------------------
+.auth-form__footer {
+    grid-column: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    padding: 14px 26px 20px;
+    border-top: 1px solid var(--auth-line);
+}
+
+// hasło serwisu w stopce — nie jest odnośnikiem, więc bez podkreśleń
+span.auth-form__footer-item {
+    color: var(--auth-fg-4);
+    font-style: italic;
+}
+
+.auth-form__footer-item {
+    color: var(--auth-fg-3);
+    font-size: 12.5px;
+    text-decoration: none;
+
+    &:hover {
+        color: var(--auth-accent-text);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--auth-accent);
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+}
+
+
+// --- panel wprowadzający ---------------------------------------------
+.auth-form__aside {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    // sekcje trzymają się razem u góry; statystyki spycha na dół dopiero
+    // margin-top: auto — dzięki temu przy wysokiej karcie (rejestracja)
+    // nie robią się dziury między blokami
+    gap: 16px;
+    padding: 28px 22px 26px;
+    border-left: 1px solid var(--auth-line);
+    background-color: var(--auth-field-bg);
+}
+
+.auth-form__aside-heading {
+    margin: 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--auth-fg-4);
+}
+
+.auth-form__aside-list {
+    margin: -6px 0 0;
+
+    dt {
+        margin-top: 12px;
+        font-family: var(--auth-mono);
+        font-size: 11.5px;
+        color: var(--auth-accent-text);
+    }
+
+    dd {
+        margin: 3px 0 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--auth-fg-2);
+    }
+
+    a {
+        color: var(--auth-accent-text);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+
+        &:hover {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    }
+}
+
+.auth-form__aside-stats {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 9px 12px;
+
+    dt {
+        font-size: 12.5px;
+        color: var(--auth-fg-3);
+    }
+
+    dd {
+        margin: 0;
+        font-family: var(--auth-mono);
+        font-size: 12.5px;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        color: var(--auth-fg);
+    }
+}
+
+.auth-form__aside-links {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 0;
+    margin: auto 0 0;
+    list-style: none;
+
+    a {
+        font-size: 12.5px;
+        color: var(--auth-fg-3);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--auth-accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    }
+}
+
+@media (max-width: 680px) {
+    .auth-form {
+        grid-template-columns: minmax(0, 1fr);
+        width: min(100% - 24px, 420px);
+    }
+
+    .auth-form__aside {
+        grid-column: 1;
+        grid-row: auto;
+        border-left: 0;
+        border-top: 1px solid var(--auth-line);
+    }
+}
+
+
+
+
+
+// Kontakt: przycisk odsłania adres. mailto: bywa martwy (brak domyślnego
+// klienta poczty), więc adres musi dać się po prostu skopiować.
+.auth-form__contact {
+    summary {
+        display: inline-block;
+        padding: 7px 12px;
+        border: 1px solid var(--auth-border);
+        border-radius: var(--auth-radius);
+        background-color: var(--auth-field-bg-alt);
+        color: var(--auth-fg-2);
+        font-size: 12px;
+        cursor: pointer;
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &:hover {
+            border-color: var(--auth-accent-text);
+            color: var(--auth-fg);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--auth-accent-text);
+            outline-offset: 2px;
+        }
+    }
+
+    &[open] summary {
+        margin-bottom: 7px;
+        border-color: var(--auth-accent-text);
+        color: var(--auth-fg);
+    }
+
+    a {
+        display: block;
+        font-family: var(--auth-mono);
+        font-size: 12px;
+        color: var(--auth-accent-text);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+        user-select: all;
+
+        &:hover {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+    }
+}
+
+// --- nagłówek zakładek (część widoków go używa) ----------------------
+.auth-form__header {
+    display: flex;
+    border-bottom: 1px solid var(--auth-line);
+}
+
+.auth-form__header-item {
+    flex: 1;
+    padding: 13px 12px;
+    background-color: transparent;
+    color: var(--auth-fg-4);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.12s ease, box-shadow 0.12s ease;
+
+    &:hover {
+        color: var(--auth-fg);
+    }
+
+    &[aria-current='page'],
+    &.is-active {
+        color: var(--auth-fg);
+        box-shadow: inset 0 -2px 0 0 var(--auth-accent);
+    }
+}
+
+// --- drobne ----------------------------------------------------------
+@media (max-width: 420px) {
+    .auth-form__form {
+        padding: 22px 18px 20px;
+    }
+
+    .auth-form__footer {
+        padding: 12px 18px 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

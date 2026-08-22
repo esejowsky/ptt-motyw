@@ -1,0 +1,58 @@
+// =====================================================================
+// PTT — identyfikacja w nagłówku serwisu (strony po zalogowaniu)
+//
+// Ładowane z nadpisanego resources/views/ptt/partials/head.blade.php
+// jako public/ptt/brand.css. Plik nowy — updater silnika go nie rusza.
+// =====================================================================
+
+:root {
+    --pl-white: #f2f2f2;
+    --pl-red: #d4212e;
+}
+
+// Orzeł: sylwetka jako maska, pod nią dwa pasy barw flagi.
+// W oryginale w tym miejscu jest <img src="/favicon.ico"> — czarna
+// bitmapa, która na ciemnym tle nagłówka niemal znika.
+.top-nav__eagle {
+    display: block;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 36px;
+    background-image: linear-gradient(
+        180deg,
+        var(--pl-white) 0 50%,
+        var(--pl-red) 50% 100%
+    );
+    -webkit-mask-image: url('/ptt/eagle.png');
+    mask-image: url('/ptt/eagle.png');
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
+.top-nav__branding {
+    column-gap: 10px;
+}
+
+.top-nav__site-logo {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .top-nav__eagle {
+        width: 30px;
+        height: 28px;
+    }
+
+    .top-nav__site-logo {
+        font-size: 1.1rem;
+        letter-spacing: 0.1em;
+    }
+}
