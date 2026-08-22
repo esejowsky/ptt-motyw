@@ -35,15 +35,30 @@
     foreach (['HEVC'=>'/x?265|HEVC/i','H.264'=>'/x?264|\bAVC\b/i','AV1'=>'/AV1/i','MPEG-2'=>'/MPEG-?2/i','VC-1'=>'/VC-?1/i','XviD'=>'/XviD|DivX/i'] as $ptt_cc=>$ptt_re) {
         if (preg_match($ptt_re, $torrent->name)) { $ptt_codec = $ptt_cc; break; }
     }
-    $ptt_hasPL = (bool) preg_match('/\bPL\b|Lektor|Dubbing|Napisy|PLDUB|PLSUB/i', $torrent->name);
-    $ptt_audio = preg_match('/MULTI/i', $torrent->name) ? 'MULTI'
-               : (preg_match('/Lektor|Dubbing|Dubb|PLDUB/i', $torrent->name) ? 'PL' : 'ENG');
-    $ptt_subs = [];
-    if ($ptt_hasPL) $ptt_subs[] = 'PL';
-    if (preg_match('/SDH|MULTiSUB|MULTISUB|ENGSUB|ENG\.?SUB/i', $torrent->name) || empty($ptt_subs)) $ptt_subs[] = 'ENG';
     $ptt_group = str($torrent->name)->afterLast('-')->trim()->value() ?: null;
-    $ptt_flagMap = ['ENG' => 'gb', 'PL' => 'pl', 'MULTI' => null, 'DE' => 'de', 'FR' => 'fr', 'ES' => 'es', 'JP' => 'jp', 'IT' => 'it'];
-    $ptt_flag = fn ($code) => ($ptt_flagMap[$code] ?? null) ? asset('img/flags/'.$ptt_flagMap[$code].'.png') : null;
+    // języki audio/napisów — DOKŁADNIE z mediainfo (kolumna, bez extra query), fallback: nazwa
+    $ptt_langCode = ['Polish'=>'PL','English'=>'EN','German'=>'DE','French'=>'FR','Spanish'=>'ES','Japanese'=>'JP','Italian'=>'IT','Russian'=>'RU','Czech'=>'CS','Ukrainian'=>'UK','Korean'=>'KO','Chinese'=>'ZH','Portuguese'=>'PT','Dutch'=>'NL','Hungarian'=>'HU'];
+    $ptt_toCode = fn ($name) => $ptt_langCode[$name] ?? strtoupper(mb_substr((string) $name, 0, 3));
+    $ptt_flagUrl = fn ($name) => language_flag($name);
+    $ptt_audioLangs = [];
+    $ptt_subLangs = [];
+    if (!empty($torrent->mediainfo)) {
+        $ptt_mi = (new \App\Helpers\MediaInfo())->parse($torrent->mediainfo);
+        foreach ($ptt_mi['audio'] ?? [] as $ptt_a) { if (!empty($ptt_a['language'])) $ptt_audioLangs[$ptt_a['language']] = true; }
+        foreach ($ptt_mi['text'] ?? [] as $ptt_tt) { if (!empty($ptt_tt['language'])) $ptt_subLangs[$ptt_tt['language']] = true; }
+        $ptt_audioLangs = array_keys($ptt_audioLangs);
+        $ptt_subLangs = array_keys($ptt_subLangs);
+    }
+    if (empty($ptt_audioLangs)) {
+        $ptt_audioLangs = preg_match('/Lektor|Dubbing|PLDUB/i', $torrent->name) ? ['Polish']
+                        : (preg_match('/MULTI/i', $torrent->name) ? ['English', 'Polish'] : ['English']);
+    }
+    if (empty($ptt_subLangs)) {
+        if (preg_match('/\bPL\b|Napisy|PLSUB|Lektor/i', $torrent->name)) $ptt_subLangs[] = 'Polish';
+        if (preg_match('/SDH|MULTiSUB|ENGSUB/i', $torrent->name) || empty($ptt_subLangs)) $ptt_subLangs[] = 'English';
+    }
+    $ptt_audioLangs = array_slice(array_unique($ptt_audioLangs), 0, 3);
+    $ptt_subLangs = array_slice(array_unique($ptt_subLangs), 0, 3);
 
     $canEditTorrent = auth()->user()->group->is_editor || auth()->user()->group->is_modo || auth()->id() === $torrent->user_id;
 @endphp
@@ -92,8 +107,8 @@
             @if ($ptt_codec)<span class="ptt-row__sep">·</span><span class="ptt-l2"><i class="fas fa-microchip"></i> {{ $ptt_codec }}</span>@endif
             @if ($year)<span class="ptt-row__sep">·</span><span class="ptt-l2"><i class="far fa-calendar-alt"></i> {{ $year }}</span>@endif
             @if ($ptt_genre)<span class="ptt-row__sep">·</span><span class="ptt-l2 ptt-l2--genre">{{ $ptt_genre }}</span>@endif
-            <span class="ptt-row__sep">·</span><span class="ptt-l2"><i class="fas fa-volume-up"></i> @if ($ptt_flag($ptt_audio))<img class="ptt-flag-img" src="{{ $ptt_flag($ptt_audio) }}" alt="" loading="lazy" />@endif<span class="ptt-lang ptt-lang--{{ strtolower($ptt_audio) }}">{{ $ptt_audio }}</span></span>
-            @if (count($ptt_subs))<span class="ptt-row__sep">·</span><span class="ptt-l2 ptt-l2--sub"><span class="ptt-l2__sublabel">SUB</span>@foreach ($ptt_subs as $sl)<span class="ptt-sub-item">@if ($ptt_flag($sl))<img class="ptt-flag-img ptt-flag-img--sm" src="{{ $ptt_flag($sl) }}" alt="" loading="lazy" />@endif<span class="ptt-lang ptt-lang--{{ strtolower($sl) }}">{{ $sl }}</span></span>@endforeach</span>@endif
+            <span class="ptt-row__sep">·</span><span class="ptt-l2"><i class="fas fa-volume-up"></i> @foreach ($ptt_audioLangs as $ptt_al)<span class="ptt-sub-item">@if ($ptt_flagUrl($ptt_al))<img class="ptt-flag-img" src="{{ $ptt_flagUrl($ptt_al) }}" alt="" title="{{ $ptt_al }}" loading="lazy" />@endif<span class="ptt-lang ptt-lang--{{ strtolower($ptt_toCode($ptt_al)) }}">{{ $ptt_toCode($ptt_al) }}</span></span>@endforeach</span>
+            @if (count($ptt_subLangs))<span class="ptt-row__sep">·</span><span class="ptt-l2 ptt-l2--sub"><span class="ptt-l2__sublabel">SUB</span>@foreach ($ptt_subLangs as $ptt_sl)<span class="ptt-sub-item">@if ($ptt_flagUrl($ptt_sl))<img class="ptt-flag-img ptt-flag-img--sm" src="{{ $ptt_flagUrl($ptt_sl) }}" alt="" title="{{ $ptt_sl }}" loading="lazy" />@endif<span class="ptt-lang ptt-lang--{{ strtolower($ptt_toCode($ptt_sl)) }}">{{ $ptt_toCode($ptt_sl) }}</span></span>@endforeach</span>@endif
             @if ($ptt_group)<span class="ptt-row__sep">·</span><span class="ptt-l2 ptt-l2--group"><i class="fas fa-users"></i> {{ $ptt_group }}</span>@endif
             <span class="ptt-row__sep">·</span>
             <span class="ptt-l2"><i class="fas fa-cloud-upload-alt"></i> <x-user-tag class="ptt-row__uploader" :user="$torrent->user" :anon="$torrent->anon" /></span>
