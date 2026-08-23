@@ -1311,19 +1311,11 @@ footer a,
     border: 0 !important;
     box-shadow: none !important;
 }
-.page__torrent--create .upload-title {
-    padding: 0 2px 10px !important;
-    margin: 0 !important;
-    background: transparent !important;
-    border: 0 !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0 !important;
-    text-transform: none !important;
-    color: var(--ptt-fg) !important;
-}
-.page__torrent--create .upload > .panel__body { padding: 0 !important; }
-.page__torrent--create .upload-form { display: flex; flex-direction: column; gap: 12px; }
+// zewnetrzny box (naglowek TORRENT) usuniety — formularz na pelna szerokosc kolumny
+.page__torrent--create .upload-title { display: none !important; }
+.page__torrent--create .upload > .panel__body { padding: 0 !important; margin: 0 !important; }
+.page__torrent--create .upload.panelV2 > .panel__body { padding: 0 !important; }
+.page__torrent--create .upload-form { display: flex; flex-direction: column; gap: 12px; margin: 0 !important; padding: 0 !important; width: 100% !important; }
 
 // boxy formularza
 .ptt-upbox {
@@ -1347,12 +1339,194 @@ footer a,
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ptt-fg-3);
+    background: transparent !important;
 }
+// Galactic gotcha: h2.panel__heading ma wlasne ciemne tlo (#1c1c1c) -> przebija w naglowkach boxow uploadu/railu
+.page__torrent--create .panel__heading,
+.ptt-uprail .panel__heading { background: transparent !important; }
+.ptt-upctrl__count {
+    font-size: 11.5px;
+    font-family: var(--ptt-mono);
+    color: var(--ptt-warn);
+}
+.ptt-upctrl__count--ok { color: var(--ptt-green, #6ecf8b); }
+.ptt-upctrl__count--err { color: var(--ptt-red); }
+.ptt-upctrl__body { padding: 0 !important; }
+.ptt-upctrl__row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+    font-size: 12.5px;
+}
+.ptt-upctrl__row:last-child { border-bottom: 0; }
+.ptt-upctrl__mark {
+    width: 11px;
+    flex: 0 0 auto;
+    text-align: center;
+    font-size: 11px;
+}
+// trzy stany znaku (jak w Design): ok=zielony ptaszek, err=czerwony krzyzyk, brak=pomaranczowa kropka
+.ptt-upctrl__mark.is-ok { color: var(--ptt-green, #6ecf8b); }
+.ptt-upctrl__mark.is-err { color: var(--ptt-red); }
+.ptt-upctrl__mark.is-brak { color: var(--ptt-warn); }
+// tekst pozycji — jasnosc wg stanu (err najjasniejszy, jak w Design)
+.ptt-upctrl__label { color: var(--ptt-fg-2); }
+.ptt-upctrl__label.is-ok { color: var(--ptt-fg-3); }
+.ptt-upctrl__label.is-err { color: var(--ptt-fg); }
+.ptt-upctrl__label.is-brak { color: var(--ptt-fg-2); }
+// przycisk Wyślij wyłączony dopóki lista Kontrola niekompletna
+.page__torrent--create .ptt-submit--off,
+.page__torrent--create .ptt-submit:disabled {
+    background: var(--ptt-surface-3) !important;
+    border-color: var(--ptt-border) !important;
+    color: var(--ptt-fg-4) !important;
+    cursor: not-allowed !important;
+    filter: none !important;
+    opacity: 0.85;
+}
+// Rail uploadu — Kontrola + Wyslij + Info przyklejone przy scrollu (jak w Design)
+.page__torrent--create .sidebar2 > aside { align-self: stretch; }
+.ptt-uprail {
+    position: sticky;
+    top: 134px; // pod przyklejonym paskiem nav (header 122px + luz)
+    max-height: calc(100vh - 146px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.page__torrent--create .ptt-upsend > .panel__body {
+    padding: 12px 14px !important;
+    display: flex;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+}
+.ptt-uprail .ptt-submit { width: 100%; }
+// przycisk Wyslij torrent — czerwony akcent gdy aktywny (jak w Design)
+.ptt-uprail .ptt-submit {
+    width: 100%;
+    height: 34px;
+    background: var(--ptt-red) !important;
+    border: 1px solid var(--ptt-red) !important;
+    color: #fff !important;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--ptt-radius);
+    cursor: pointer;
+}
+.ptt-uprail .ptt-submit:hover:not(:disabled) { filter: brightness(1.08); }
+// wyzeruj domyslny margines .form__button — przyciski byly przesuniete w prawo (asymetria 20/8px)
+.ptt-uprail .ptt-submit,
+.ptt-uprail .ptt-draft { margin: 0 !important; align-self: stretch; }
+.ptt-upsend__note { margin: 8px 0 0; font-size: 11.5px; color: var(--ptt-fg-4); line-height: 1.5; }
+// przycisk "Zapisz szkic" — outline (jak w Design)
+.ptt-uprail .ptt-draft {
+    width: 100%;
+    height: 30px;
+    margin-top: 7px;
+    background: transparent !important;
+    border: 1px solid var(--ptt-line-ui) !important;
+    color: var(--ptt-fg-2) !important;
+    font-size: 12.5px;
+    border-radius: var(--ptt-radius);
+    cursor: pointer;
+}
+.ptt-uprail .ptt-draft:hover { color: var(--ptt-fg) !important; background: var(--ptt-surface-3) !important; }
+// box "Zanim wyslesz" — pomaranczowy lewy pasek jak w Design
+.ptt-upnote { border-left: 2px solid var(--ptt-warn); }
+.page__torrent--create .ptt-upnote > .panel__header .panel__heading { color: var(--ptt-warn); }
+.ptt-upnote__list { margin: 0; padding-left: 16px; font-size: 12px; color: var(--ptt-fg-3); line-height: 1.6; }
+.ptt-upnote__list li { margin: 0 0 2px; }
+// box adresu announce
+.ptt-uprail__announce {
+    display: block;
+    font-family: var(--ptt-mono);
+    font-size: 12px;
+    color: var(--ptt-red) !important;
+    word-break: break-all;
+    text-decoration: none;
+    cursor: pointer;
+}
+.ptt-uprail__announce:hover { text-decoration: underline; }
+
+.page__torrent--create .ptt-up-grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 12px;
+}
+.page__torrent--create .form__group--horizontal {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+}
+@media (max-width: 700px) {
+    .page__torrent--create .ptt-up-grid3,
+    .page__torrent--create .form__group--horizontal { grid-template-columns: 1fr; }
+}
+/* edytor BBCode opisu ma wlasne jasniejsze tlo Galactic (#272727) -> ujednolic z boxem */
+.page__torrent--create .bbcode-input,
+.page__torrent--create .bbcode-input__tab-pane,
+.page__torrent--create .bbcode-input__tab-pane > .form__group { background: transparent !important; }
 .page__torrent--create .ptt-upbox > .panel__body {
     padding: 12px 14px !important;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+}
+// pola niższe, floating-label ciaśniej
+.page__torrent--create .form__text,
+.page__torrent--create .form__select,
+.page__torrent--create .form__textarea {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 9px !important;
+    font-size: 13px !important;
+    background: var(--ptt-surface-2) !important;
+    background-image: none !important;
+    border: 1px solid var(--ptt-line-ui) !important;
+    border-radius: var(--ptt-radius) !important;
+    box-shadow: none !important;
+    color: var(--ptt-fg) !important;
+}
+.page__torrent--create .form__textarea {
+    height: auto !important;
+    min-height: 78px !important;
+    padding: 7px 9px !important;
+    line-height: 1.5 !important;
+}
+.page__torrent--create .form__text:focus,
+.page__torrent--create .form__select:focus,
+.page__torrent--create .form__textarea:focus {
+    border-color: var(--ptt-accent) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.page__torrent--create .form__group { margin-bottom: 0 !important; }
+// Design: etykieta STATYCZNA nad polem (nie floating)
+.page__torrent--create .form__group:has(> .form__label--floating),
+.page__torrent--create .form__group:has(.form__label--floating) {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.page__torrent--create .form__label--floating {
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    order: -1;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    letter-spacing: 0.04em;
+    color: var(--ptt-fg-4) !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    pointer-events: auto;
+    max-width: none;
 }
 // rail „Informacje" nagłówek jako pasek
 .page__torrent--create .panelV2 > .panel__heading {
@@ -1387,11 +1561,11 @@ footer a,
 }
 .page__torrent--create .form__textarea { min-height: 90px; }
 .page__torrent--create .form__label { color: var(--ptt-fg-4); font-size: 12px; }
-// pływająca etykieta — tło pola (surface-2) + padding, żeby czysto przecinała ramkę
+// etykieta statyczna nad polem — tło przezroczyste (dziedziczy box), bez plam surface-2
 .page__torrent--create .form__label--floating {
     color: var(--ptt-fg-4);
-    background: var(--ptt-surface-2) !important;
-    padding: 0 4px !important;
+    background: transparent !important;
+    padding: 0 !important;
 }
 
 // pliki — przycisk „Choose File" jako ghost
@@ -2113,8 +2287,15 @@ main[class*='page'],
 main.ptt-torrent {
     max-width: var(--ptt-col) !important;
     margin: 0 auto !important;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+// wąskie ekrany — margines żeby treść nie dotykała krawędzi
+@media (max-width: 1280px) {
+    main[class*='page'] {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
 }
 
 // Strona pojedynczego torrenta: treść pełne 1240 (równo z menu nav),
@@ -2125,6 +2306,18 @@ main.ptt-torrent {
 }
 @media (max-width: 1280px) {
     main.ptt-torrent {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+// Upload: pełna szerokość kolumny (jak lista/show), bez wcięcia 20px
+main.page__torrent--create {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+@media (max-width: 1280px) {
+    main.page__torrent--create {
         padding-left: 16px !important;
         padding-right: 16px !important;
     }
@@ -2512,8 +2705,8 @@ pre {
 .ptt-torrents.torrent-search__component {
     max-width: none !important;
     width: auto !important;
-    margin-left: -20px !important;
-    margin-right: -20px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 // --- panel filtrów ---------------------------------------------------
@@ -2975,7 +3168,21 @@ select.ptt-field__input { padding: 0 6px; }
     box-shadow: none;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    overflow-x: clip;
+    overflow-y: visible;
 }
+// tabela dopasowana do panelu (nie wystaje); kolumna Nazwa kurczy się z klipem
+.torrent-search__results .data-table-wrapper { overflow-x: clip; overflow-y: visible; }
+.torrent-search__results .data-table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto;
+}
+.ptt-row__name { max-width: 0; }
+.ptt-row__namewrap,
+.ptt-row__lines,
+.ptt-row__line1,
+.ptt-row__line2 { min-width: 0; }
 
 .torrent-search__results .panel__heading,
 .torrent-search__results .panel__header {
@@ -3435,13 +3642,14 @@ li.pagination__next:not(.pagination__next--disabled) {
 // powiększenie okładki na hover (jak popup przy tytule)
 .ptt-cover-pop {
     position: absolute;
-    left: 0;
-    bottom: calc(100% + 8px);
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
     width: 200px;
     aspect-ratio: 2 / 3;
     border: 1px solid var(--ptt-line-ui);
     border-radius: 3px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
     overflow: hidden;
     display: none;
     pointer-events: none;
@@ -3904,6 +4112,28 @@ select.ptt-field__input {
 
 @media (max-width: 900px) {
     .footer__wrapper { grid-template-columns: 1fr 1fr; }
+}
+// ===== Efekt glitcha na nicku „esejowsky" (jak w stopce) — na calym serwisie =====
+.ptt-nick { position: relative; display: inline-block; }
+.user-tag__link[href$="/users/esejowsky"] .ptt-nick {
+    color: #fff;
+    text-shadow: 0 0 7px rgba(240, 101, 111, 0.5);
+}
+.user-tag__link[href$="/users/esejowsky"] .ptt-nick::before,
+.user-tag__link[href$="/users/esejowsky"] .ptt-nick::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    will-change: transform, clip-path, opacity;
+}
+.user-tag__link[href$="/users/esejowsky"] .ptt-nick::before {
+    color: var(--ptt-red);
+    animation: ptt-esej-glitch-r 0.42s steps(2, end) infinite;
+}
+.user-tag__link[href$="/users/esejowsky"] .ptt-nick::after {
+    color: #21c8ff;
+    animation: ptt-esej-glitch-b 0.42s steps(2, end) infinite;
 }
 
 // „Polish Torrent" w credicie — na hover przelatujące biało-czerwone pasy flagi

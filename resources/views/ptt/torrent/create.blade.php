@@ -134,6 +134,7 @@
                         {{ __('torrent.title') }}
                     </label>
                 </p>
+                <div class="ptt-up-grid3">
                 <p class="form__group">
                     <select
                         x-ref="catId"
@@ -195,6 +196,7 @@
                         {{ __('torrent.resolution') }}
                     </label>
                 </p>
+                </div>
                 <div
                     class="form__group--horizontal"
                     x-show="cats[cat].type === 'movie' || cats[cat].type === 'tv'"
@@ -665,19 +667,6 @@
                 @endif
 
                 </div></div>
-                <div class="panelV2 ptt-upbox"><header class="panel__header"><h2 class="panel__heading">5 &middot; Kontrola</h2></header><div class="panel__body">
-                <p class="form__group">
-                    <button
-                        type="submit"
-                        class="form__button form__button--filled"
-                        name="post"
-                        value="true"
-                        id="post"
-                    >
-                        {{ __('common.submit') }}
-                    </button>
-                </p>
-                </div></div>
             </form>
         </div>
     </section>
@@ -685,39 +674,157 @@
 
 @if ($user->can_upload ?? $user->group->can_upload)
     @section('sidebar')
-        <section class="panelV2">
-            <h2 class="panel__heading">
-                <i class="{{ config('other.font-awesome') }} fa-info"></i>
-                {{ __('common.info') }}
-            </h2>
-            <div class="panel__body">
-                <p>
-                    {{ __('torrent.announce-url') }}:
+        <div class="ptt-uprail"
+            x-data="{
+                checks: [],
+                pl(n, one, few, many) {
+                    const d = n % 10, h = n % 100;
+                    if (n === 1) return one;
+                    if (d >= 2 && d <= 4 && !(h >= 12 && h <= 14)) return few;
+                    return many;
+                },
+                recompute() {
+                    const v = (id) => (document.getElementById(id)?.value || '').trim();
+                    const fileOk = !!(document.getElementById('torrent')?.files?.length);
+                    const desc = (document.querySelector('#upload-form [name=description]')?.value || '').trim();
+                    const miEl = document.getElementById('upload-form-mediainfo');
+                    const miVisible = miEl && miEl.offsetParent !== null;
+                    const mi = (miEl?.value || '').trim();
+                    const title = v('title');
+                    const badCodes = [44, 92, 42, 63, 34, 39, 60, 62, 124, 40, 41, 123, 125];
+                    const badName = title.length > 0 && [...title].some(ch => badCodes.includes(ch.charCodeAt(0)));
+                    const catOk = v('autocat').length > 0 && v('autotype').length > 0 && v('autores').length > 0;
+                    const list = [];
+                    list.push(fileOk
+                        ? {s: 'ok', l: 'Plik .torrent wczytany'}
+                        : {s: 'brak', l: 'Wczytaj plik .torrent'});
+                    list.push(title.length === 0
+                        ? {s: 'brak', l: 'Uzupe\u0142nij tytu\u0142 wydania'}
+                        : (badName
+                            ? {s: 'err', l: 'Usu\u0144 z nazwy: , ( ) { } * ? | \u005c \u0022 \u0027 \u003c \u003e'}
+                            : (title.length < 3
+                                ? {s: 'err', l: 'Tytu\u0142 zbyt kr\u00f3tki'}
+                                : {s: 'ok', l: 'Tytu\u0142 wydania uzupe\u0142niony'})));
+                    list.push(catOk
+                        ? {s: 'ok', l: 'Kategoria, typ i rozdzielczo\u015b\u0107'}
+                        : {s: 'brak', l: 'Wybierz kategori\u0119, typ i rozdzielczo\u015b\u0107'});
+                    list.push(desc.length === 0
+                        ? {s: 'brak', l: 'Dodaj opis wydania'}
+                        : (desc.length < 20
+                            ? {s: 'err', l: 'Opis zbyt kr\u00f3tki'}
+                            : {s: 'ok', l: 'Opis wydania dodany'}));
+                    if (miVisible) {
+                        list.push(mi.length === 0
+                            ? {s: 'brak', l: 'Wklej MediaInfo'}
+                            : (mi.length < 40
+                                ? {s: 'err', l: 'MediaInfo niekompletne'}
+                                : {s: 'ok', l: 'MediaInfo wklejone'}));
+                    }
+                    this.checks = list;
+                },
+                get errCount() { return this.checks.filter(c => c.s === 'err').length; },
+                get brakCount() { return this.checks.filter(c => c.s === 'brak').length; },
+                get missing() { return this.errCount + this.brakCount; },
+                get countLabel() {
+                    if (this.missing === 0) return 'wszystko gotowe';
+                    const parts = [];
+                    if (this.errCount > 0) parts.push(this.errCount + ' ' + this.pl(this.errCount, 'b\u0142\u0105d', 'b\u0142\u0119dy', 'b\u0142\u0119d\u00f3w'));
+                    if (this.brakCount > 0) parts.push(this.brakCount + ' ' + this.pl(this.brakCount, 'brak', 'braki', 'brak\u00f3w'));
+                    return parts.join(' \u00b7 ');
+                },
+                mark(s) { return s === 'ok' ? '\u2713' : (s === 'err' ? '\u00d7' : '\u00b7'); },
+                draftKey: 'ptt-upload-draft',
+                draftMsg: 'Zapisz szkic',
+                saveDraft() {
+                    const data = {};
+                    document.querySelectorAll('#upload-form input, #upload-form textarea').forEach(el => {
+                        if (el.name && el.type !== 'file' && el.type !== 'checkbox' && el.type !== 'radio' && el.value) data[el.name] = el.value;
+                    });
+                    try { localStorage.setItem(this.draftKey, JSON.stringify(data)); this.draftMsg = 'Zapisano \u2713'; setTimeout(() => this.draftMsg = 'Zapisz szkic', 2000); } catch (e) {}
+                },
+                restoreDraft() {
+                    try {
+                        const raw = localStorage.getItem(this.draftKey);
+                        if (!raw) return;
+                        Object.entries(JSON.parse(raw)).forEach(([n, v]) => {
+                            const el = document.querySelector('#upload-form [name=' + n + ']');
+                            if (el && !el.value) el.value = v;
+                        });
+                    } catch (e) {}
+                }
+            }"
+            x-init="restoreDraft(); recompute(); const frm = document.getElementById('upload-form'); if (frm) { frm.addEventListener('input', () => recompute()); frm.addEventListener('change', () => recompute()); }"
+        >
+            <section class="panelV2 ptt-upbox ptt-upctrl-box">
+                <header class="panel__header">
+                    <h2 class="panel__heading">Kontrola</h2>
+                    <span class="ptt-upctrl__count" :class="missing === 0 ? 'ptt-upctrl__count--ok' : (errCount > 0 && 'ptt-upctrl__count--err')" x-text="countLabel"></span>
+                </header>
+                <div class="panel__body ptt-upctrl__body">
+                    <template x-for="(c, i) in checks" :key="i">
+                        <div class="ptt-upctrl__row">
+                            <span class="ptt-upctrl__mark" :class="'is-' + c.s" x-text="mark(c.s)"></span>
+                            <span class="ptt-upctrl__label" :class="'is-' + c.s" x-text="c.l"></span>
+                        </div>
+                    </template>
+                </div>
+            </section>
+            <section class="panelV2 ptt-upbox ptt-upsend">
+                <div class="panel__body">
+                    <button
+                        type="submit"
+                        form="upload-form"
+                        class="form__button ptt-submit"
+                        :disabled="missing > 0"
+                        :class="missing > 0 && 'ptt-submit--off'"
+                        :title="missing > 0 ? 'Uzupe\u0142nij wszystkie pozycje z listy Kontrola' : ''"
+                        name="post"
+                        value="true"
+                        id="post"
+                    >
+                        Wyślij torrent
+                    </button>
+                    <button type="button" class="form__button ptt-draft" @click="saveDraft()" x-text="draftMsg">Zapisz szkic</button>
+                    <p class="ptt-upsend__note">Po wysłaniu masz 15 minut na poprawki opisu bez zgody staffu. Nazwy wydania nie da się zmienić.</p>
+                </div>
+            </section>
+            <section class="panelV2 ptt-upbox ptt-upnote">
+                <header class="panel__header">
+                    <h2 class="panel__heading">Zanim wyślesz</h2>
+                </header>
+                <div class="panel__body">
+                    <ul class="ptt-upnote__list">
+                        <li>Sprawdź, czy wydanie nie jest już na PTT</li>
+                        <li>Nazwa musi zgadzać się z plikiem w torrencie</li>
+                        <li>Duplikat bez lepszego źródła kończy się usunięciem</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="panelV2 ptt-upbox ptt-uprail__info">
+                <header class="panel__header">
+                    <h2 class="panel__heading">Adres announce</h2>
+                </header>
+                <div class="panel__body">
                     <a
+                        class="ptt-uprail__announce"
                         x-data="upload"
                         data-announce-url="{{ route('announce', ['passkey' => $user->passkey]) }}"
                         x-on:click.prevent="copy"
                         href="{{ route('announce', ['passkey' => $user->passkey]) }}"
-                    >
-                        {{ route('announce', ['passkey' => $user->passkey]) }}
-                    </a>
-                </p>
-                <p>
-                    {{ __('torrent.announce-url-desc', ['source' => config('torrent.source')]) }}
-                </p>
-                <a href="{{ config('other.upload-guide_url') }}">
-                    {{ __('torrent.announce-url-desc-url') }}
-                </a>
-            </div>
-        </section>
+                    >{{ route('announce', ['passkey' => $user->passkey]) }}</a>
+                    <p class="ptt-upsend__note">{{ __('torrent.announce-url-desc', ['source' => config('torrent.source')]) }}</p>
+                </div>
+            </section>
+            </section>
+        </div>
     @endsection
 @endif
 
 @section('javascripts')
-    <script src="{{ asset('build/unit3d/tmdb.js') }}" crossorigin="anonymous"></script>
-    <script src="{{ asset('build/unit3d/parser.js') }}" crossorigin="anonymous"></script>
-    <script src="{{ asset('build/unit3d/helper.js') }}" crossorigin="anonymous"></script>
-    <script src="{{ asset('build/unit3d/imgbb.js') }}" crossorigin="anonymous"></script>
+    <script src="{{ asset('build/unit3d/tmdb.js') }}?v={{ @filemtime(public_path('build/unit3d/tmdb.js')) }}" crossorigin="anonymous"></script>
+    <script src="{{ asset('build/unit3d/parser.js') }}?v={{ @filemtime(public_path('build/unit3d/parser.js')) }}" crossorigin="anonymous"></script>
+    <script src="{{ asset('build/unit3d/helper.js') }}?v={{ @filemtime(public_path('build/unit3d/helper.js')) }}" crossorigin="anonymous"></script>
+    <script src="{{ asset('build/unit3d/imgbb.js') }}?v={{ @filemtime(public_path('build/unit3d/imgbb.js')) }}" crossorigin="anonymous"></script>
     <script nonce="{{ HDVinnie\SecureHeaders\SecureHeaders::nonce('script') }}">
         document.addEventListener('alpine:init', () => {
             Alpine.data('upload', () => ({
