@@ -4116,12 +4116,14 @@ select.ptt-field__input {
 // ===== Efekt glitcha na nicku „esejowsky" (jak w stopce) — na calym serwisie =====
 .ptt-nick { position: relative; display: inline-block; }
 .user-tag__link[href$="/users/esejowsky"] .ptt-nick {
+    text-transform: capitalize;
     color: #fff;
     text-shadow: 0 0 7px rgba(240, 101, 111, 0.5);
 }
 .user-tag__link[href$="/users/esejowsky"] .ptt-nick::before,
 .user-tag__link[href$="/users/esejowsky"] .ptt-nick::after {
     content: attr(data-text);
+    text-transform: capitalize;
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -4164,3 +4166,305 @@ select.ptt-field__input {
         animation: none !important;
     }
 }
+
+// ===================================================================
+// PROFIL UŻYTKOWNIKA — hero user-card (Design 06)
+// ===================================================================
+.page__user-profile--show .ptt-uc {
+    display: flex; gap: 16px; align-items: flex-start; padding: 14px !important;
+}
+.ptt-uc__avatar {
+    width: 74px; height: 74px; flex: 0 0 auto; object-fit: cover;
+    border-radius: var(--ptt-radius); border: 1px solid var(--ptt-border);
+    background: var(--ptt-surface-2);
+}
+.ptt-uc__main { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 7px; }
+.ptt-uc__idline { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.ptt-uc__nick { display: inline-flex; align-items: baseline; }
+.ptt-uc__nick .user-tag__link { font-size: 19px; font-weight: 600; letter-spacing: -.01em; text-decoration: none; }
+.ptt-uc__group {
+    font-size: 11px; font-weight: 600; letter-spacing: .04em;
+    border: 1px solid; border-radius: 2px; padding: 0 5px; line-height: 16px; white-space: nowrap;
+}
+.ptt-uc__flag {
+    font-size: 11px; color: var(--ptt-fg-4); border: 1px solid var(--ptt-line-ui);
+    border-radius: 2px; padding: 0 5px; line-height: 16px; white-space: nowrap;
+}
+.ptt-uc__flag--warn { color: var(--ptt-warn); border-color: var(--ptt-warn); }
+.ptt-uc__status {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px;
+    color: var(--ptt-fg-4); font-family: var(--ptt-mono);
+}
+.ptt-uc__dot { width: 7px; height: 7px; border-radius: 2px; background: var(--ptt-green); display: block; }
+.ptt-uc__dot--off { background: var(--ptt-fg-4); }
+.ptt-uc__meta {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    font-size: 11.5px; color: var(--ptt-fg-4); font-family: var(--ptt-mono);
+}
+.ptt-uc__meta time { color: inherit; }
+.ptt-uc__sep { color: var(--ptt-line-ui); }
+.ptt-uc__about { font-size: 12.5px; color: var(--ptt-fg-3); line-height: 1.55; max-width: 76ch; }
+.ptt-uc__about .bbcode-rendered { font-size: 12.5px; }
+.ptt-uc__actions { display: flex; gap: 6px; flex: 0 0 auto; flex-wrap: wrap; }
+.ptt-uc__btn {
+    height: 28px; padding: 0 12px; display: inline-flex; align-items: center;
+    background: var(--ptt-accent) !important; border: 1px solid var(--ptt-accent) !important;
+    color: var(--ptt-accent-on) !important; font-size: 12.5px; font-weight: 600;
+    border-radius: var(--ptt-radius); text-decoration: none; white-space: nowrap;
+}
+@media (max-width: 640px) { .page__user-profile--show .ptt-uc { flex-wrap: wrap; } }
+
+// pasek statystyk pod hero (Design: grid 8 kolumn)
+.ptt-uc__stats {
+    border-top: 1px solid var(--ptt-line);
+    display: grid; grid-template-columns: repeat(8, 1fr);
+}
+.ptt-uc__stat {
+    padding: 8px 14px; border-right: 1px solid var(--ptt-line);
+    display: flex; flex-direction: column; gap: 1px; min-width: 0;
+}
+.ptt-uc__stat:last-child { border-right: 0; }
+.ptt-uc__stat-l {
+    font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--ptt-fg-4); white-space: nowrap;
+}
+.ptt-uc__stat-v {
+    font-size: 14px; font-weight: 600; color: var(--ptt-fg);
+    font-family: var(--ptt-mono); font-variant-numeric: tabular-nums;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ptt-uc__stat-v.ok { color: var(--ptt-green); }
+@media (max-width: 900px) { .ptt-uc__stats { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 500px) { .ptt-uc__stats { grid-template-columns: repeat(2, 1fr); } }
+
+// hero: bez naglowka "Uzytkownik Informacje" (Design ma czysty user-card), zostaw akcje
+.ptt-uc-section > .panel__header { display: none !important; }
+.ptt-uc-section { padding-bottom: 0 !important; }
+
+// ===================================================================
+// PROFIL — panele (main + rail) w stylu Design (paski naglowkow + key-value)
+// ===================================================================
+// naglowek panelu jako pasek (dotyczy i <h2.panel__heading> i <header.panel__header>)
+.page__user-profile--show .panelV2:not(.ptt-uc-section) > .panel__heading,
+.page__user-profile--show .panelV2:not(.ptt-uc-section) > .panel__header {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0 !important; padding: 6px 12px !important;
+    background: var(--ptt-surface-2); border-bottom: 1px solid var(--ptt-border);
+    font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ptt-fg-3);
+}
+.page__user-profile--show .panelV2 > .panel__header .panel__heading {
+    margin: 0; padding: 0; font-size: 11px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ptt-fg-3); background: transparent;
+}
+.page__user-profile--show .panelV2 > .panel__body { padding: 12px 14px; }
+// key-value (dl) — Design rows: etykieta lewo (fg-4), wartosc prawo (mono)
+.page__user-profile--show .key-value { margin: 0; display: flex; flex-direction: column; }
+.page__user-profile--show .key-value__group {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding: 5px 14px; border-bottom: 1px solid var(--ptt-line); font-size: 12.5px;
+}
+.page__user-profile--show .key-value__group:last-child { border-bottom: 0; }
+.page__user-profile--show .key-value dt { color: var(--ptt-fg-3); margin: 0; }
+.page__user-profile--show .key-value dt a { color: var(--ptt-fg-3); text-decoration: none; }
+.page__user-profile--show .key-value dt a:hover { color: var(--ptt-accent); }
+.page__user-profile--show .key-value dd {
+    margin: 0; color: var(--ptt-fg); font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+// panele w profilu: przezroczyste tlo body (dziedziczy box), spacja miedzy panelami
+.page__user-profile--show .panelV2 { margin-bottom: 12px; }
+// tabele w profilu
+.page__user-profile--show .data-table th {
+    font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--ptt-fg-4); padding: 6px 12px; background: transparent;
+}
+.page__user-profile--show .data-table td { padding: 6px 12px; font-size: 13px; }
+
+// profil: linki w statystykach spojne (fg-3, hover accent) — nie domyslna czerwien
+.page__user-profile--show .key-value dt a,
+.page__user-profile--show .key-value a { color: var(--ptt-fg-3) !important; text-decoration: none; }
+.page__user-profile--show .key-value dt a:hover,
+.page__user-profile--show .key-value a:hover { color: var(--ptt-accent) !important; }
+// wartosci "0"/puste subtelniejsze
+.page__user-profile--show .key-value dd { color: var(--ptt-fg-2); }
+
+// ===================================================================
+// PROFIL — Historia pobrań + Wymagają seedowania (H&R)
+// ===================================================================
+.ptt-hist__count { font-size: 11.5px; color: var(--ptt-fg-4); font-family: var(--ptt-mono); }
+.page__user-profile--show .ptt-hist__table { width: 100%; font-size: 13px; }
+.page__user-profile--show .ptt-hist__table td,
+.page__user-profile--show .ptt-hist__table th { border-bottom: 1px solid var(--ptt-line); }
+.page__user-profile--show .ptt-hist__table tbody tr:hover { background: var(--ptt-surface-2); }
+.ptt-hist__name { max-width: 0; width: 100%; }
+.ptt-hist__name a {
+    color: var(--ptt-fg); text-decoration: none; display: block;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ptt-hist__name a:hover { color: var(--ptt-accent); }
+.ptt-hist__num { text-align: right; font-family: var(--ptt-mono); font-variant-numeric: tabular-nums; color: var(--ptt-fg-2); white-space: nowrap; }
+.page__user-profile--show th.ptt-hist__num { text-align: right; }
+.ptt-hist__st { text-align: right; white-space: nowrap; }
+.ptt-hist__empty { text-align: center; color: var(--ptt-fg-4); padding: 16px !important; }
+// tagi stanu
+.ptt-tag {
+    display: inline-block; font-size: 10.5px; font-weight: 600; letter-spacing: .03em;
+    padding: 1px 6px; border-radius: 2px; border: 1px solid; line-height: 15px;
+}
+.ptt-tag--seed { color: var(--ptt-green); border-color: #6ecf8b55; background: #6ecf8b14; }
+.ptt-tag--done { color: var(--ptt-fg-3); border-color: var(--ptt-line-ui); }
+.ptt-tag--dl   { color: var(--ptt-fg-4); border-color: var(--ptt-line-ui); }
+.ptt-tag--hnr  { color: var(--ptt-red); border-color: #d4212e55; background: #d4212e18; }
+.ptt-tag--warn { color: var(--ptt-warn); border-color: #e8b45c55; background: #e8b45c14; }
+// pasek postepu seedowania
+.ptt-seed__bar { display: flex; align-items: center; gap: 8px; white-space: nowrap; width: 180px; }
+.ptt-seed__track { flex: 1 1 auto; height: 6px; border-radius: 3px; background: var(--ptt-surface-3); overflow: hidden; }
+.ptt-seed__fill { display: block; height: 100%; background: var(--ptt-warn); border-radius: 3px; }
+.ptt-seed__fill.is-ok { background: var(--ptt-green); }
+.ptt-seed__fill.is-hnr { background: var(--ptt-red); }
+.ptt-seed__pct { font-size: 11px; font-family: var(--ptt-mono); color: var(--ptt-fg-4); min-width: 30px; text-align: right; }
+
+// profil — osiagniecia jako zwarty grid badge'ow
+.ptt-ach__grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ptt-ach__grid img { width: 48px; height: 48px; object-fit: contain; }
+// rail — kompaktowe key-value (ciasniej, spojnie)
+.page__user-profile--show .sidebar2 > aside .key-value__group { padding: 4px 12px; font-size: 12px; }
+.page__user-profile--show .sidebar2 > aside .panelV2 { margin-bottom: 10px; }
+// puste stany paneli subtelniej
+.page__user-profile--show .panel__body > p:only-child,
+.page__user-profile--show td[colspan] { color: var(--ptt-fg-4); }
+// "No recent achievements." / "No recent followers" / "No clients" subtelniej
+.page__user-profile--show .panel__body { color: var(--ptt-fg-2); }
+
+// profil — zakladki pod hero (Design)
+.ptt-uc__tabs { border-top: 1px solid var(--ptt-line); padding: 0 8px; display: flex; flex-wrap: wrap; }
+.ptt-uc__tab {
+    padding: 8px 12px; font-size: 12.5px; color: var(--ptt-fg-3);
+    border-bottom: 2px solid transparent; display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none; white-space: nowrap;
+}
+.ptt-uc__tab:hover { color: var(--ptt-fg); }
+.ptt-uc__tab.is-active { color: var(--ptt-fg); font-weight: 600; border-bottom-color: var(--ptt-accent); }
+.ptt-uc__tab span { font-size: 11px; color: var(--ptt-fg-4); font-family: var(--ptt-mono); }
+
+// profil — panel Ustawienia-wyglad (skrot, wlasny profil)
+.ptt-set { display: flex; flex-direction: column; gap: 2px; padding: 8px !important; }
+.ptt-set__item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--ptt-radius); color: var(--ptt-fg-2); text-decoration: none; font-size: 13px; }
+.ptt-set__item:hover { background: var(--ptt-surface-2); color: var(--ptt-fg); }
+.ptt-set__item i { color: var(--ptt-fg-4); width: 16px; text-align: center; }
+.ptt-set__lbl { flex: 1 1 auto; }
+.ptt-set__hint { font-size: 11.5px; color: var(--ptt-fg-4); font-family: var(--ptt-mono); }
+.ptt-set__btn { margin-top: 6px; display: block; text-align: center; height: 32px; line-height: 32px; background: var(--ptt-surface-2); border: 1px solid var(--ptt-border); border-radius: var(--ptt-radius); color: var(--ptt-fg-2); text-decoration: none; font-size: 12.5px; }
+.ptt-set__btn:hover { color: var(--ptt-fg); background: var(--ptt-surface-3); }
+
+// profil — rail: kompaktowe listy (Aktywne transfery / Ostatnie uploady) — Design
+.ptt-rl { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--ptt-line); text-decoration: none; }
+.ptt-rl:hover { background: var(--ptt-surface-2); }
+.ptt-rl:last-child { border-bottom: 0; }
+.ptt-rl__dot { width: 7px; height: 7px; border-radius: 2px; flex: 0 0 auto; }
+.ptt-rl__dot.is-seed { background: var(--ptt-green); }
+.ptt-rl__dot.is-dl { background: var(--ptt-warn); }
+.ptt-rl__name { flex: 1 1 auto; font-size: 12.5px; color: var(--ptt-fg-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ptt-rl:hover .ptt-rl__name { color: var(--ptt-fg); }
+.ptt-rl__pct { font-size: 11px; font-family: var(--ptt-mono); color: var(--ptt-fg-4); flex: 0 0 auto; }
+.ptt-rl--up { flex-direction: column; align-items: flex-start; gap: 2px; }
+.ptt-rl--up .ptt-rl__name { width: 100%; }
+.ptt-rl__meta { font-size: 11px; font-family: var(--ptt-mono); color: var(--ptt-fg-4); }
+.ptt-rl__s { color: var(--ptt-green); margin-left: 4px; }
+.ptt-rl__empty { padding: 12px; text-align: center; color: var(--ptt-fg-4); font-size: 12.5px; }
+
+// profil — rozwlekle sekcje staff (obserwujacy/klienci/notatki/helpdesk/bany/ostrzezenia/watchlist)
+// ukryte na przegladzie (Design ich nie pokazuje). Odwracalne.
+.page__user-profile--show .ptt-extra { display: none; }
+
+// profil — nadmiar paneli railu (Donations/Traffic/BON/etc) ukryty (Design ma tylko Konto+Aktywne+Uploady)
+.page__user-profile--show .ptt-extra-rail { display: none; }
+
+// profil — osiagniecia jako kafle z paskami postepu (Design)
+.ptt-ach2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px; padding: 14px !important; }
+.ptt-ach2__card { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ptt-ach2__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ptt-ach2__name { font-size: 12.5px; color: var(--ptt-fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ptt-ach2__name.is-done { color: var(--ptt-green); }
+.ptt-ach2__cnt { font-size: 11px; font-family: var(--ptt-mono); color: var(--ptt-fg-4); flex: 0 0 auto; }
+.ptt-ach2__track { height: 3px; border-radius: 2px; background: var(--ptt-surface-3); overflow: hidden; }
+.ptt-ach2__fill { height: 100%; background: var(--ptt-accent); border-radius: 2px; }
+.ptt-ach2__fill.is-done { background: var(--ptt-green); }
+.ptt-ach2__desc { font-size: 11.5px; color: var(--ptt-fg-4); line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 700px) { .ptt-ach2 { grid-template-columns: repeat(2, 1fr); } }
+
+// profil — przycisk ghost (Dodaj do znajomych) + stat warn
+.ptt-uc__actions form { margin: 0; }
+.ptt-uc__btn--ghost { background: transparent !important; border: 1px solid var(--ptt-line-ui) !important; color: var(--ptt-fg-2) !important; cursor: pointer; }
+.ptt-uc__btn--ghost:hover { color: var(--ptt-fg) !important; background: var(--ptt-surface-2) !important; }
+.ptt-uc__stat-v.warn { color: var(--ptt-warn); }
+
+// profil — avatar placeholder z inicjalami (Design)
+.ptt-uc__avatar--ph {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--ptt-mono); font-size: 22px; color: var(--ptt-fg-4);
+    background: var(--ptt-surface-3); letter-spacing: .02em;
+}
+
+// osiagniecia — kolorowe nazwy naprzemienne (Design), tylko gdy nie odblokowane (done=zielone)
+.ptt-ach2__card:nth-child(3n+1) .ptt-ach2__name:not(.is-done) { color: var(--ptt-green); }
+.ptt-ach2__card:nth-child(3n+2) .ptt-ach2__name:not(.is-done) { color: var(--ptt-blue); }
+.ptt-ach2__card:nth-child(3n+3) .ptt-ach2__name:not(.is-done) { color: var(--ptt-accent); }
+.ptt-ach2__card:nth-child(3n+1) .ptt-ach2__fill:not(.is-done) { background: var(--ptt-green); }
+.ptt-ach2__card:nth-child(3n+2) .ptt-ach2__fill:not(.is-done) { background: var(--ptt-blue); }
+.ptt-ach2__card:nth-child(3n+3) .ptt-ach2__fill:not(.is-done) { background: var(--ptt-accent); }
+
+// profil — Ustawienia-wyglad jako forma (Design: selecty + checkboxy)
+.ptt-set2 { display: flex; flex-direction: column; gap: 14px; padding: 14px !important; }
+.ptt-set2__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ptt-set2__field { display: flex; flex-direction: column; gap: 5px; }
+.ptt-set2__field .form__label { font-size: 12px; color: var(--ptt-fg-3); }
+.page__user-profile--show .ptt-set2 .form__select {
+    height: 30px !important; padding: 0 8px !important; font-size: 13px !important;
+    background: var(--ptt-surface-2) !important; border: 1px solid var(--ptt-line-ui) !important;
+    border-radius: var(--ptt-radius); color: var(--ptt-fg) !important; box-shadow: none !important;
+}
+.page__user-profile--show .ptt-set2 .form__select:focus { border-color: var(--ptt-accent) !important; }
+.ptt-set2__fs { border: 0; padding: 0; margin: 0; }
+.ptt-set2__fs .form__legend { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ptt-fg-4); padding: 0; margin-bottom: 7px; }
+.ptt-set2__fs { display: flex; flex-direction: column; }
+.ptt-set2__fs .form__legend { width: 100%; }
+.ptt-set2__checks { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.ptt-set2__chk { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ptt-fg-2); padding: 3px 0; cursor: pointer; }
+.ptt-set2__chk input { accent-color: var(--ptt-accent); width: 15px; height: 15px; }
+@media (max-width: 700px) { .ptt-set2__grid { grid-template-columns: 1fr; } }
+
+.ptt-set2__link { align-self: flex-start; font-size: 12px; color: var(--ptt-accent); text-decoration: none; }
+.ptt-set2__link:hover { text-decoration: underline; }
+
+// profil — forma ustawien: przycisk Zastosuj + stopka + pola disabled (podglad)
+.ptt-set2__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; }
+.ptt-set2__save {
+    height: 32px; padding: 0 18px; background: var(--ptt-accent) !important;
+    border: 1px solid var(--ptt-accent) !important; border-radius: var(--ptt-radius);
+    color: var(--ptt-accent-on) !important; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.ptt-set2__save:hover { filter: brightness(1.08); }
+.page__user-profile--show .ptt-set2 select[disabled] { opacity: .55; cursor: default; }
+.ptt-set2__chk input[disabled] { opacity: .55; }
+
+// profil — badge motywu serwisu (Tylko PT)
+.ptt-set2__theme { display: flex; align-items: center; gap: 9px; height: 36px; padding: 0 12px; background: var(--ptt-surface-2); border: 1px solid var(--ptt-border); border-radius: var(--ptt-radius); }
+.ptt-set2__swatch { width: 16px; height: 16px; border-radius: 50%; background: var(--ptt-accent); box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset; flex: none; }
+.ptt-set2__theme-name { font-size: 13px; font-weight: 600; color: var(--ptt-fg); white-space: nowrap; }
+.ptt-set2__theme-tag { font-size: 11px; color: var(--ptt-fg-4); margin-left: auto; text-transform: uppercase; letter-spacing: .04em; }
+
+// profil — read-only wartosc ustawienia (widok listy / jezyk)
+.ptt-set2__value { display: flex; align-items: center; height: 36px; padding: 0 12px; background: var(--ptt-surface-2); border: 1px solid var(--ptt-border); border-radius: var(--ptt-radius); font-size: 13px; color: var(--ptt-fg); }
+.ptt-set2__value-note { color: var(--ptt-fg-4); font-size: 11px; margin-left: 4px; }
+
+// profil — ustawienia: floating label zawsze u góry (spójnie z panelem Ustawień)
+.ptt-set2 .form__group { margin-top: 4px; }
+.ptt-set2 .form__label--pinned { top: -6px; font-size: 11px; padding: 0 4px; color: var(--ptt-fg-4); border-radius: 0; }
+.ptt-set2 .form__select {
+    background-color: var(--ptt-surface-2);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23adadad' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: calc(100% - 8px) center; background-size: 14px; padding-right: 30px;
+}
+.ptt-set2 .form__select:disabled { opacity: .75; }

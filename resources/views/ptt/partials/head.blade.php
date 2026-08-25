@@ -102,6 +102,7 @@
 {{-- motyw PTT: nakładka na Galactic, ładowana PO stylach silnika --}}
 <link rel="stylesheet" href="{{ asset('ptt/theme.css') }}?v={{ @filemtime(public_path('ptt/theme.css')) }}" />
 
+
 @livewireStyles
 
 @yield('stylesheets')
