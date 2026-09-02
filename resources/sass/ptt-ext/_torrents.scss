@@ -413,3 +413,57 @@
    PT opakowuje listę we własny kontener z poziomym paddingiem, przez co
    tabela jest węższa od panelu nad nią i wygląda na przesuniętą. */
 .search-portal-box { padding-left: 0 !important; padding-right: 0 !important; }
+
+
+// --- wyszukiwarka i paginacja (korekty z produkcji) ---
+/* ---- wyszukiwarka nad listą -------------------------------------------
+   Pole ma 30 px, ale etykieta jest ustawiona statycznie i dokłada się pod
+   nim (flex-column + gap), przez co pasek rośnie do 47 px i rozbija rytm.
+   Kładziemy etykietę na polu, jak w motywie PT. */
+.compact-search { padding: 8px 10px !important; }
+
+.compact-search__visible-default { align-items: center; gap: 8px; }
+.compact-search__visible-default > .form__group { margin: 0 !important; position: relative; }
+
+.compact-search .form__text,
+.compact-search .form__select {
+    height: 30px !important;
+    padding: 0 9px !important;
+    font-size: 12.5px !important;
+}
+
+.compact-search .form__label--floating {
+    position: absolute;
+    top: 50%;
+    left: 7px;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+    pointer-events: none;
+    background: transparent;
+    transition: none;
+}
+
+.compact-search .form__text:focus ~ .form__label--floating,
+.compact-search .form__text:not(:placeholder-shown) ~ .form__label--floating {
+    top: 0;
+    font-size: 10px;
+    color: var(--pt-red-fg);
+    background: var(--pt-surface);
+}
+
+/* paginacja: zwarte kwadraty w rytmie tabeli */
+.pagination { gap: 3px; }
+
+.pagination__link,
+.pagination__current,
+.pagination__previous,
+.pagination__next {
+    min-width: 24px;
+    height: 24px;
+    border-radius: var(--pt-radius);
+    font-size: 12px;
+    font-family: var(--pt-mono);
+}
