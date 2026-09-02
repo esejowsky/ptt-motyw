@@ -1,0 +1,412 @@
+// =====================================================================
+// 01 · TOKENY PT + remap zmiennych silnika
+//
+// Arkusz jest nakładką (pole „External CSS"), ładowaną PO motywie silnika.
+// Żeby wygląd nie zależał od tego, jaki motyw bazowy ma ustawiony użytkownik,
+// wypełniamy komplet zmiennych, z których silnik faktycznie korzysta.
+// =====================================================================
+
+:root {
+    // --- paleta PT ---------------------------------------------------
+    --pt-red: #d4212e;        // wypełnienia, CTA, aktywna pozycja
+    --pt-red-fg: #f0656f;     // tekst, obramowania aktywne, linki
+    --pt-white: #f2f2f2;      // pas flagi, górna połowa orła
+
+    --pt-bg: #191919;         // tło strony
+    --pt-surface: #1f1f1f;    // panel, wiersz, pole
+    --pt-surface-2: #232323;  // nagłówek panelu, górny pas, hover
+    --pt-surface-3: #2b2b2b;  // aktywna zakładka, chip
+
+    --pt-line: #2e2e2e;       // linie wewnętrzne
+    --pt-border: #3a3a3a;     // ramki paneli i pól
+    --pt-line-ui: #6a6a6a;    // ramka pola na hover
+
+    --pt-fg: #e3e3e3;
+    --pt-fg-2: #b5b5b5;
+    --pt-fg-3: #adadad;
+    --pt-fg-4: #969696;
+
+    --pt-ok: #6ecf8b;         // seedy
+    --pt-warn: #e8b45c;       // leecze, ostrzeżenia
+    --pt-fl: #5fd0c4;         // freeleech
+    --pt-x2: #b49bff;         // podwójny upload
+    --pt-info: #34b5e9;
+
+    --pt-radius: 3px;
+    --pt-col: 1360px;         // szerokość kolumny treści
+    --pt-mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+    --pt-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    // --- szkielet ----------------------------------------------------
+    --body-bg: var(--pt-bg);
+    --body-fg: var(--pt-fg);
+    --text-color: var(--pt-fg);
+    --scrollbar-color: var(--pt-line-ui) var(--pt-surface);
+    --notification-read: var(--pt-surface);
+    --notification-unread: var(--pt-surface-2);
+
+    // --- panele ------------------------------------------------------
+    --panel-bg: var(--pt-surface);
+    --panel-fg: var(--pt-fg);
+    --panel-border: 1px solid var(--pt-border);
+    --panel-border-radius: var(--pt-radius);
+    --panel-body-border-radius: 0 0 var(--pt-radius) var(--pt-radius);
+    --panel-box-shadow: none;
+    --panel-head-bg: var(--pt-surface-2);
+    --panel-head-fg: var(--pt-fg);
+    --panel-head-border-radius: var(--pt-radius) var(--pt-radius) 0 0;
+    --panel-action-fg: var(--pt-fg-2);
+    --panel-group-fg: var(--pt-fg-3);
+
+    // --- dialogi i fieldsety ----------------------------------------
+    --dialog-bg: var(--pt-surface);
+    --dialog-fg: var(--pt-fg);
+    --dialog-border: 1px solid var(--pt-border);
+    --dialog-border-radius: var(--pt-radius);
+    --dialog-box-shadow: 0 8px 28px rgb(0 0 0 / 55%);
+    --dialog-head-bg: var(--pt-surface-2);
+    --dialog-head-fg: var(--pt-fg);
+    --fieldset-bg: transparent;
+    --fieldset-fg: var(--pt-fg-2);
+    --fieldset-border: 1px solid var(--pt-border);
+    --fieldset-border-radius: var(--pt-radius);
+    --legend-bg: transparent;
+    --legend-fg: var(--pt-fg-4);
+    --legend-border: 0;
+    --legend-border-radius: 0;
+
+    // --- tabele i listy klucz-wartość -------------------------------
+    --data-table-fg: var(--pt-fg);
+    --data-table-padding: 7px 10px;
+    --data-table-border-radius: var(--pt-radius);
+    --data-table-th-bg: var(--pt-surface-2);
+    --data-table-th-fg: var(--pt-fg-4);
+    --data-table-thead-border: 1px solid var(--pt-border);
+    --data-table-tfoot-border: 1px solid var(--pt-border);
+    --data-table-tr-border: 1px solid var(--pt-line);
+    --data-table-tr-odd-bg: var(--pt-surface);
+    --data-table-tr-even-bg: var(--pt-surface);   // PT nie używa zebry
+    --data-table-tr-hover-bg: var(--pt-surface-2);
+
+    --key-value-odd-bg: var(--pt-surface);
+    --key-value-even-bg: var(--pt-surface);
+    --key-value-padding: 6px 12px;
+    --key-value-border-radius: 0;
+
+    // --- paginacja ---------------------------------------------------
+    --paginate-bg: transparent;
+    --paginate-bg-current: var(--pt-surface-3);
+    --paginate-bg-hover: var(--pt-surface-2);
+    --paginate-fg: var(--pt-fg-2);
+    --paginate-fg-disabled: var(--pt-fg-4);
+    --paginate-border-radius: var(--pt-radius);
+    --paginate-divider: var(--pt-border);
+
+    // --- przyciski ---------------------------------------------------
+    --button-filled-bg: var(--pt-red);
+    --button-filled-fg: #fff;
+    --button-filled-border: 1px solid var(--pt-red);
+    --button-filled-border-radius: var(--pt-radius);
+    --button-outlined-bg: transparent;
+    --button-outlined-fg: var(--pt-fg);
+    --button-outlined-border: 1px solid var(--pt-border);
+    --button-outlined-border-radius: var(--pt-radius);
+    --button-text-bg: transparent;
+    --button-text-fg: var(--pt-red-fg);
+    --button-text-border: 0;
+    --button-text-border-radius: var(--pt-radius);
+    --icon-button-bg: transparent;
+    --icon-button-fg: var(--pt-fg-3);
+    --icon-button-border: 1px solid var(--pt-border);
+    --icon-button-border-radius: var(--pt-radius);
+    --icon-button-filled-bg: var(--pt-surface-3);
+    --icon-button-filled-fg: var(--pt-fg);
+    --icon-button-filled-border: 1px solid var(--pt-border);
+
+    // --- pola formularza --------------------------------------------
+    --input-text-fg: var(--pt-fg);
+    --input-text-border: 1px solid var(--pt-border);
+    --input-text-border-hover: 1px solid var(--pt-line-ui);
+    --input-text-border-active: 1px solid var(--pt-red-fg);
+    --input-text-border-error: 1px solid var(--pt-red);
+    --input-text-border-radius: var(--pt-radius);
+    --input-text-padding: 6px 9px;
+    --input-text-padding-hover: 6px 9px;
+    --input-text-padding-active: 6px 9px;
+
+    --select-fg: var(--pt-fg);
+    --select-border: 1px solid var(--pt-border);
+    --select-border-hover: 1px solid var(--pt-line-ui);
+    --select-border-active: 1px solid var(--pt-red-fg);
+    --select-border-error: 1px solid var(--pt-red);
+    --select-border-radius: var(--pt-radius);
+    --select-padding: 6px 9px;
+    --select-padding-hover: 6px 9px;
+    --select-padding-active: 6px 9px;
+    --option-bg: var(--pt-surface);
+
+    --textarea-fg: var(--pt-fg);
+    --textarea-border: 1px solid var(--pt-border);
+    --textarea-border-hover: 1px solid var(--pt-line-ui);
+    --textarea-border-active: 1px solid var(--pt-red-fg);
+    --textarea-border-error: 1px solid var(--pt-red);
+    --textarea-border-radius: var(--pt-radius);
+    --textarea-padding: 7px 9px;
+    --textarea-padding-hover: 7px 9px;
+    --textarea-padding-active: 7px 9px;
+
+    --label-fg: var(--pt-fg-4);
+    --label-fg-active: var(--pt-red-fg);
+    --label-fg-error: var(--pt-red);
+    --meter-bg: var(--pt-surface-3);
+    --meter-fg: var(--pt-red);
+
+    // --- wiersz torrenta --------------------------------------------
+    --torrent-row-fg: var(--pt-fg);
+    --torrent-row-visited-fg: var(--pt-fg-2);
+    --torrent-row-seeders-fg: var(--pt-ok);
+    --torrent-row-leechers-fg: var(--pt-warn);
+    --torrent-row-completed-fg: var(--pt-fg-3);
+    --torrent-row-freeleech-fg: var(--pt-fl);
+    --torrent-row-double-upload-fg: var(--pt-x2);
+    --torrent-row-internal-fg: var(--pt-warn);
+    --torrent-row-personal-fg: var(--pt-info);
+    --torrent-row-highspeed-fg: var(--pt-red-fg);
+    --torrent-row-featured-fg: var(--pt-warn);
+    --torrent-row-bumped-fg: var(--pt-warn);
+    --torrent-row-sticky-bg: var(--pt-surface-2);
+    --torrent-row-sticky-fg: var(--pt-fg);
+    --torrent-row-format-bg: var(--pt-surface-3);
+    --torrent-row-format-fg: var(--pt-fg-2);
+    --torrent-row-buttons-fg: var(--pt-fg-3);
+    --torrent-row-comments-fg: var(--pt-fg-4);
+    --torrent-tag-fg: var(--pt-fg-3);
+    --torrent-tag-hover-bg: var(--pt-surface-3);
+    --torrent-tag-hover-fg: var(--pt-fg);
+
+    // --- karty i grupowanie torrentów -------------------------------
+    --torrent-card-bg: var(--pt-surface);
+    --torrent-card-fg: var(--pt-fg);
+    --torrent-card-border: 1px solid var(--pt-border);
+    --torrent-card-head-bg: var(--pt-surface-2);
+    --torrent-card-head-fg: var(--pt-fg-2);
+    --torrent-card-link-fg: var(--pt-fg);
+    --torrent-card-genre-fg: var(--pt-fg-4);
+    --torrent-group-bg: var(--pt-surface);
+    --torrent-group-header-bg: var(--pt-surface-2);
+    --torrent-group-text: var(--pt-fg);
+    --torrent-group-text-muted: var(--pt-fg-4);
+    --torrent-group-chip-border: var(--pt-border);
+    --torrent-group-table-stripe-odd: var(--pt-surface);
+    --torrent-group-table-stripe-even: var(--pt-surface);
+    --torrent-group-hover-brightness-emphasis: 1.08;
+
+    // --- nawigacja ---------------------------------------------------
+    --top-nav-bg: var(--pt-surface-2);
+    --top-nav-box-shadow: none;
+    --top-nav-toggle-fg: var(--pt-fg-2);
+    --top-nav-ratio-bar-fg: var(--pt-fg-2);
+    --top-nav-icon-bar-icon-bg: transparent;
+    --top-nav-icon-bar-icon-fg: var(--pt-fg-2);
+    --top-nav-icon-bar-icon-hover-bg: transparent;
+    --top-nav-icon-bar-icon-hover-fg: var(--pt-red-fg);
+    --top-nav-icon-bar-icon-border-radius: 0;
+    --top-nav-dropdown-fg: var(--pt-fg-2);
+    --top-nav-dropdown-hover-bg: var(--pt-surface-3);
+    --top-nav-dropdown-hover-fg: var(--pt-fg);
+    --top-nav-dropdown-hover-text-decoration: none;
+    --top-nav-dropdown-menu-bg: var(--pt-surface);
+    --top-nav-dropdown-menu-border: 1px solid var(--pt-border);
+    --top-nav-dropdown-menu-border-radius: 0;
+    --top-nav-dropdown-menu-box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+    --top-nav-dropdown-menu-item-bg: transparent;
+    --top-nav-dropdown-menu-item-fg: var(--pt-fg-2);
+    --top-nav-dropdown-menu-item-hover-bg: var(--pt-surface-3);
+    --top-nav-dropdown-menu-item-hover-text-decoration: none;
+    --top-nav-dropdown-menu-item-icon-bg: transparent;
+    --top-nav-dropdown-menu-item-icon-fg: var(--pt-fg-4);
+
+    --secondary-nav-bg: var(--pt-surface-2);
+    --secondary-nav-box-shadow: none;
+    --secondary-nav-tab-bg: transparent;
+    --secondary-nav-tab-fg: var(--pt-fg-2);
+    --secondary-nav-tab-hover-bg: var(--pt-surface-3);
+    --secondary-nav-tab-hover-fg: var(--pt-fg);
+    --secondary-nav-tab-hover-text-decoration: none;
+    --secondary-nav-tab-active-text-decoration: none;
+    --secondary-nav-tab-menu-bg: var(--pt-surface);
+    --secondary-nav-tab-menu-border: 1px solid var(--pt-border);
+    --secondary-nav-tab-menu-border-radius: 0;
+    --secondary-nav-tab-menu-box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+
+    --breadcrumb-fg: var(--pt-fg-4);
+    --breadcrumb-active-fg: var(--pt-fg-2);
+    --breadcrumb-hover-fg: var(--pt-fg);
+    --breadcrumb-inactive-text-decoration: none;
+
+    --footer-bg: var(--pt-bg);
+    --footer-hr-fg: var(--pt-line);
+
+    // --- wyszukiwarki -------------------------------------------------
+    --compact-search-bg: var(--pt-surface);
+    --compact-search-fg: var(--pt-fg);
+    --compact-search-border-radius: var(--pt-radius);
+    --compact-search-box-shadow: none;
+    --compact-search-padding: 12px;
+    --quick-search-bg: var(--pt-surface);
+    --quick-search-fg: var(--pt-fg);
+    --quick-search-border: 1px solid var(--pt-border);
+    --quick-search-border-radius: var(--pt-radius);
+    --quick-search-box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+    --quick-search-result-border: 1px solid var(--pt-line);
+    --quick-search-result-hover-bg: var(--pt-surface-2);
+    --quick-search-result-hover-fg: var(--pt-fg);
+    --quick-search-result-image-border-radius: 0;
+    --quick-search-result-year-fg: var(--pt-fg-4);
+
+    // --- forum --------------------------------------------------------
+    --post-bg: var(--pt-surface);
+    --post-fg: var(--pt-fg);
+    --post-shadow: none;
+    --post-head-bg: transparent;
+    --post-head-fg: var(--pt-fg-4);
+    --post-aside-bg: transparent;
+    --post-aside-fg: var(--pt-fg-2);
+    --post-footer-fg: var(--pt-fg-4);
+    --post-toolbar-bg: transparent;
+    --post-toolbar-fg: var(--pt-fg-4);
+    --post-toolbar-hover-bg: var(--pt-surface-3);
+    --post-toolbar-hover-fg: var(--pt-fg);
+    --post-like-fg: var(--pt-ok);
+    --post-dislike-fg: var(--pt-red-fg);
+    --subforum-listing-odd-bg: var(--pt-surface);
+    --subforum-listing-even-bg: var(--pt-surface);
+    --subforum-listing-border: 1px solid var(--pt-line);
+
+    // --- bbcode i chat -------------------------------------------------
+    --bbcode-rendered-canvas-default: var(--pt-surface);
+    --bbcode-rendered-canvas-subtle: var(--pt-surface-2);
+    --bbcode-rendered-fg-default: var(--pt-fg-2);
+    --bbcode-rendered-fg-muted: var(--pt-fg-3);
+    --bbcode-rendered-text-primary: var(--pt-fg);
+    --bbcode-rendered-border-default: var(--pt-border);
+    --bbcode-rendered-border-muted: var(--pt-line);
+    --bbcode-rendered-quote-bg: var(--pt-surface-2);
+    --bbcode-rendered-quote-border: var(--pt-red);
+    --bbcode-rendered-accent-fg: var(--pt-red-fg);
+    --bbcode-rendered-accent-emphasis: var(--pt-red);
+    --bbcode-rendered-danger-fg: var(--pt-red);
+    --bbcode-rendered-attention-subtle: var(--pt-surface-2);
+    --bbcode-rendered-neutral-muted: var(--pt-surface-2);
+    --bbcode-input-bg: var(--pt-surface);
+    --bbcode-input-body-bg: var(--pt-surface);
+    --bbcode-input-header-bg: var(--pt-surface-2);
+    --bbcode-input-border: 1px solid var(--pt-border);
+    --bbcode-input-border-radius: var(--pt-radius);
+    --chatbox-message-bg: var(--pt-surface);
+    --chatbox-users-bg: var(--pt-surface-2);
+    --chatbox-button-fg: var(--pt-fg-3);
+    --chatbox-button-hover-fg: var(--pt-fg);
+    --chatbox-tab-delete-bg: var(--pt-surface-3);
+    --chatbox-tab-delete-fg: var(--pt-fg-3);
+
+    // --- karty i widgety ------------------------------------------------
+    --achievement-bg: var(--pt-surface);
+    --achievement-fg: var(--pt-fg);
+    --achievement-box-shadow: none;
+    --achievement-progress-bg: var(--pt-surface-3);
+    --alert-bg: var(--pt-surface-2);
+    --alert-fg: var(--pt-fg);
+    --alert-gap-color: var(--pt-red);
+    --alert-gap-width: 3px;
+    --article-card-bg: var(--pt-surface);
+    --article-card-fg: var(--pt-fg-2);
+    --article-card-head-fg: var(--pt-fg);
+    --article-card-time-fg: var(--pt-fg-4);
+    --article-box-shadow: none;
+    --collection-fg: var(--pt-fg);
+    --comparison-button-fg: var(--pt-fg-2);
+    --comparison-divider-fg: var(--pt-line);
+    --mediahub-card-bg: var(--pt-surface);
+    --mediahub-card-fg: var(--pt-fg);
+    --mediahub-card-hover-fg: var(--pt-red-fg);
+    --mediahub-card-border: 1px solid var(--pt-border);
+    --mediahub-card-border-radius: var(--pt-radius);
+    --mediahub-card-box-shadow: none;
+    --playlist-card-bg: var(--pt-surface);
+    --playlist-card-fg: var(--pt-fg);
+    --playlist-card-border: 1px solid var(--pt-border);
+    --playlist-card-border-radius: var(--pt-radius);
+    --playlist-card-box-shadow: none;
+    --playlist-card-missing-image-bg: var(--pt-surface-3);
+    --playlist-card-missing-image-fg: var(--pt-fg-4);
+    --prize-bg: var(--pt-surface);
+    --prize-fg: var(--pt-fg);
+    --prize-heading-fg: var(--pt-fg-2);
+    --prize-border: 1px solid var(--pt-border);
+    --prize-border-radius: var(--pt-radius);
+    --prize-box-shadow: none;
+    --prize-icon-primary-color: var(--pt-red);
+    --prize-icon-secondary-color: var(--pt-warn);
+    --user-stat-card-bg: var(--pt-surface);
+    --user-stat-card-border: 1px solid var(--pt-border);
+    --user-stat-card-border-radius: var(--pt-radius);
+    --user-stat-card-box-shadow: none;
+    --donation-background-color: var(--pt-surface);
+    --donation-border-color: var(--pt-border);
+    --donation-box-shadow-color: transparent;
+    --donation-primary-text-color: var(--pt-fg);
+    --donation-secondary-text-color: var(--pt-fg-3);
+    --donation-price-days-color: var(--pt-fg-4);
+
+    // --- meta (strona torrenta) -----------------------------------------
+    --meta-backdrop-filter: blur(2px) brightness(0.35);
+    --meta-description-fg: var(--pt-fg-2);
+    --meta-chips-heading-fg: var(--pt-fg-4);
+    --meta-chip-hover-bg: var(--pt-surface-2);
+    --meta-chip-backdrop-filter-hover: none;
+    --meta-chip-icon-bg: var(--pt-surface-3);
+    --meta-chip-icon-fg: var(--pt-fg-3);
+    --meta-chip-icon-hover-bg: var(--pt-surface-3);
+    --meta-chip-name-fg: var(--pt-fg);
+    --meta-chip-value-fg: var(--pt-fg-4);
+    --meta-chip-value-hover-fg: var(--pt-fg-2);
+    --meta-dropdown-bg: var(--pt-surface);
+    --meta-dropdown-fg: var(--pt-fg-2);
+    --meta-dropdown-hover-bg: var(--pt-surface-3);
+    --meta-dropdown-hover-fg: var(--pt-fg);
+    --meta-dropdown-backdrop-filter: none;
+    --meta-dropdown-backdrop-filter-hover: none;
+    --meta-id-tag-bg: var(--pt-surface-3);
+    --meta-id-tag-fg: var(--pt-fg-2);
+    --meta-id-tag-hover-bg: var(--pt-surface-2);
+    --meta-id-tag-hover-fg: var(--pt-fg);
+    --meta-popup-bg: var(--pt-surface);
+    --meta-popup-fg: var(--pt-fg-2);
+
+    // --- tagi wątków forum ------------------------------------------------
+    // W motywie PT tagi są obramowane, nie wypełnione — stąd przezroczyste tła
+    // i kolor niosący znaczenie (zielony = załatwione, czerwony = odrzucone itd.)
+    --forum-tag-approved-bg: transparent;
+    --forum-tag-approved-fg: var(--pt-ok);
+    --forum-tag-solved-bg: transparent;
+    --forum-tag-solved-fg: var(--pt-ok);
+    --forum-tag-implemented-bg: transparent;
+    --forum-tag-implemented-fg: var(--pt-ok);
+    --forum-tag-denied-bg: transparent;
+    --forum-tag-denied-fg: var(--pt-red-fg);
+    --forum-tag-invalid-bg: transparent;
+    --forum-tag-invalid-fg: var(--pt-red-fg);
+    --forum-tag-bug-bg: transparent;
+    --forum-tag-bug-fg: var(--pt-warn);
+    --forum-tag-suggestion-bg: transparent;
+    --forum-tag-suggestion-fg: var(--pt-fl);
+    --forum-tag-pinned-bg: transparent;
+    --forum-tag-pinned-fg: var(--pt-red-fg);
+    --forum-tag-closed-bg: transparent;
+    --forum-tag-closed-fg: var(--pt-fg-4);
+
+    // strzałka rozwijania w <select> — silnikowe motywy jej nie definiują,
+    // więc bez tego pola wyboru zostają bez wskaźnika
+    --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23969696' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+}

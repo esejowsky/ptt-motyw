@@ -1,0 +1,296 @@
+// =====================================================================
+// 08 · LISTA TORRENTÓW
+//   Cel:     wiersz dwuliniowy w rytmie PT (plakat · nazwa+meta · format · liczby)
+//   Kotwica: .torrent-search--list__row — silnik renderuje go jako CSS Grid
+//            z grid-area na każdej komórce, więc wystarczy przestawić siatkę
+//   🔴 Zasada: każda zmiana grid-template-areas na wierszu MUSI mieć
+//            bliźniaczą na __headers, inaczej etykiety kolumn wylądują
+//            nad złymi danymi (nagłówki mają własne komórki w tym samym gridzie)
+//   Ubytki:  kodek, gatunki, rok, grupa release, flagi języków, badge'e jakości
+//            — tych danych nie ma w markupie silnika, CSS ich nie wytworzy
+// =====================================================================
+
+// Silnik rozpycha wyszukiwarkę poza kolumnę treści ujemnymi marginesami
+// wyliczanymi z vw („magic numbers" w _torrents.scss) — w motywie PT
+// wszystko ma się mieścić w tej samej kolumnie co nawigacja i stopka.
+.page__torrents.torrent-search__component,
+.torrent-search__filters,
+.torrent-search__results {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+// --- kontener tabeli ---------------------------------------------------
+// Wiersze są gridami, ale <table> nadal liczy szerokość z treści komórek
+// i rozpycha panel poza kolumnę treści. Przestawiamy tabelę na blok —
+// wtedy wiersz-grid dostaje dokładnie szerokość kontenera.
+.torrent-search__results {
+    margin: 12px 0;
+    overflow: hidden;
+}
+
+.torrent-search__results .data-table-wrapper,
+.torrent-search__results table.data-table,
+.torrent-search__results table.data-table > thead,
+.torrent-search__results table.data-table > tbody {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+// --- siatka wiersza: wariant z plakatem ------------------------------
+.torrent-search--list__headers,
+.torrent-search--list__row {
+    grid-template-columns: 44px minmax(0, 1fr) 84px 58px 84px 50px 50px 56px 132px 96px;
+    grid-template-areas: 'poster overview format rating size seeders leechers completed age buttons';
+    align-items: center;
+}
+
+// nagłówki mają własne klasy — przypisujemy im obszary jawnie
+.torrent-search--list__poster-header { grid-area: poster; }
+.torrent-search--list__name-header { grid-area: overview; }
+.torrent-search--list__format-header { grid-area: format; }
+.torrent-search--list__ratings-header { grid-area: rating; }
+.torrent-search--list__size-header { grid-area: size; }
+.torrent-search--list__seeders-header { grid-area: seeders; }
+.torrent-search--list__leechers-header { grid-area: leechers; }
+.torrent-search--list__completed-header { grid-area: completed; }
+.torrent-search--list__age-header { grid-area: age; }
+.torrent-search--list__actions-header { grid-area: buttons; }
+
+// --- wariant bez plakatów (ustawienie użytkownika) -------------------
+.torrent-search--list__no-poster-headers,
+.torrent-search--list__no-poster-row {
+    grid-template-columns: minmax(0, 1fr) 84px 58px 84px 50px 50px 56px 132px 96px;
+    grid-template-areas: 'overview format rating size seeders leechers completed age buttons';
+    align-items: center;
+}
+
+// nagłówek kolumny z plakatem zostaje pusty — etykieta „Poster" zabierałaby
+// miejsce nazwie, a kolumna i tak jest oczywista
+.torrent-search--list__poster-header,
+.torrent-search--list__no-poster-header {
+    font-size: 0 !important;   // etykieta zabierałaby miejsce kolumnie nazwy
+    overflow: hidden;
+}
+
+// --- nagłówek tabeli --------------------------------------------------
+.torrent-search--list__headers,
+.torrent-search--list__no-poster-headers {
+    th {
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--pt-fg-4);
+        background: var(--pt-surface-2);
+        border: 0;
+    }
+}
+
+// --- wiersz ------------------------------------------------------------
+.torrent-search--list__row,
+.torrent-search--list__no-poster-row {
+    border-bottom: 1px solid var(--pt-line);
+    transition: background-color 0.1s ease;
+
+    &:hover {
+        background-color: var(--pt-surface-2);
+    }
+
+    > td {
+        padding: 7px 10px;
+        border: 0;
+        vertical-align: middle;
+        background: transparent;
+    }
+}
+
+// Przypięte wiersze: czerwonawa poświata i pasek z lewej, jak we wzorcu.
+// Silnik ustawia tu tło z !important, więc przebijamy tym samym.
+// tło trzymamy na wierszu; komórki muszą być przezroczyste, inaczej ich
+// tła nakładają się na siebie i zostawiają paski poza siatką
+.torrent-search--list__sticky-row {
+    background-color: rgb(212 33 46 / 18%);
+}
+
+.torrent-search--list__sticky-row:hover {
+    background-color: rgb(212 33 46 / 26%);
+}
+
+.torrent-search--list__sticky-row td {
+    background-color: transparent !important;
+}
+
+.torrent-search--list__sticky-row td:first-child {
+    box-shadow: inset 3px 0 0 var(--pt-red);
+}
+
+// --- plakat ------------------------------------------------------------
+.torrent-search--list__poster {
+    padding: 5px 0 5px 10px !important;
+}
+
+.torrent-search--list__poster-img {
+    width: 34px;
+    height: 48px;
+    border-radius: 0;
+    object-fit: cover;
+    display: block;
+}
+
+// --- nazwa + druga linia ----------------------------------------------
+.torrent-search--list__overview > div {
+    display: grid;
+    grid-template-areas: 'name name' 'uploader icons';
+    grid-template-columns: max-content minmax(0, 1fr);
+    row-gap: 2px;
+    column-gap: 8px;
+    align-items: center;
+}
+
+.torrent-search--list__name {
+    grid-area: name;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--pt-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+        color: var(--pt-red-fg);
+        text-decoration: none;
+    }
+}
+
+// uploader w drugiej linii — stonowany, bez ikony rangi
+.torrent-search--list__uploader {
+    grid-area: uploader;
+    font-size: 12px;
+    line-height: 1.3;
+
+    .user-tag__link {
+        color: var(--pt-fg-4) !important;
+        font-size: 12px;
+    }
+
+    .user-tag__link::before {
+        display: none;
+    }
+}
+
+// znaczniki (freeleech, 2×, internal, komentarze) w drugiej linii
+.torrent-icons {
+    grid-area: icons;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+// Kolory niosą znaczenie tak samo jak we wzorcu: turkus = freeleech,
+// fiolet = podwójna wysyłka, bursztyn = wewnętrzne, czerwień = przypięte.
+.torrent-icons__freeleech { color: var(--pt-fl); }
+.torrent-icons__double-upload { color: var(--pt-x2); }
+.torrent-icons__internal { color: var(--pt-warn); }
+.torrent-icons__personal-release { color: var(--pt-info); }
+.torrent-icons__featured,
+.torrent-icons__bumped { color: var(--pt-warn); }
+.torrent-icons__highspeed { color: var(--pt-red-fg); }
+.torrent-icons__sticky { color: var(--pt-red-fg); }
+.torrent-icons__comments { color: var(--pt-fg-4); }
+.torrent-icons__torrent-trump { color: var(--pt-fg-4); }
+
+// --- format: kategoria, rozdzielczość, typ ----------------------------
+.torrent-search--list__format > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.torrent-search--list__resolution,
+.torrent-search--list__type {
+    font-size: 11px;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-3);
+    line-height: 1.25;
+}
+
+.torrent-search--list__category img,
+.torrent-search--list__category i {
+    max-height: 16px;
+    opacity: 0.85;
+}
+
+// --- liczby -------------------------------------------------------------
+.torrent-search--list__rating,
+.torrent-search--list__size,
+.torrent-search--list__seeders,
+.torrent-search--list__leechers,
+.torrent-search--list__completed,
+.torrent-search--list__age {
+    text-align: right;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.torrent-search--list__size { color: var(--pt-fg-2); }
+.torrent-search--list__rating { color: var(--pt-fg-3); }
+.torrent-search--list__age {
+    color: var(--pt-fg-3);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+// silnik dokłada wielowarstwowy text-shadow na wskaźnikach aktywności —
+// w gęstym wierszu wygląda to jak artefakt rozmycia
+.torrent-activity-indicator--seeding,
+.torrent-activity-indicator--leeching,
+.torrent-activity-indicator--completed {
+    text-shadow: none;
+}
+
+// --- przyciski akcji ----------------------------------------------------
+.torrent-search--list__buttons > div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.torrent-search--list__buttons .form__standard-icon-button {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pt-fg-4);
+    border-radius: var(--pt-radius);
+
+    &:hover {
+        color: var(--pt-fg);
+        background: var(--pt-surface-3);
+    }
+}
+
+// --- panel wyników i filtrów -------------------------------------------
+.torrent-search__results .panel__header {
+    padding: 6px 12px;
+}
+
+.torrent-search__filters {
+    background: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}

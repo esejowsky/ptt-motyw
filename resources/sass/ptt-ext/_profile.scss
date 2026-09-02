@@ -1,0 +1,502 @@
+/* ==== PROFIL UŻYTKOWNIKA ====
+   Cel:     spłaszczyć /users/{nick} do rytmu PT — hero z kwadratowym awatarem
+            i gęstym blokiem meta, obok wąski rail (280px) z kafelkami statystyk.
+   Kotwice: .page__user-profile--show, .sidebar2 (> div, > aside), .profileV2,
+            .profile__avatar/__username/__registration/__title/__about,
+            .panelV2, .panel__header, .panel__heading, .panel__actions, .panel__body,
+            .key-value, .key-value__group, .data-table, .data-table-wrapper,
+            .data-table__actions, .user-search__avatar, .application--*.
+   Ubytki:  1) Statystyki (ratio, upload, bufor, seedtime) siedzą w @yield('sidebar'),
+               czyli w gałęzi <aside>, a hero w @yield('main') — CSS nie przenosi węzłów
+               między gałęziami, więc paska statystyk POD hero (jak we wzorcu) nie ma.
+               Rekompensata: rail zwężony do 280px i zagęszczony, żeby liczby stały
+               czytelnie obok treści.
+            2) Wiersze .key-value nie mają klas per-metryka (dt to goły tekst), więc nie da
+               się semantycznie pokolorować ratio/bufora ani wyróżnić wartości ujemnych.
+            3) Nagłówek panelu hero („User Information") zostaje — w nim siedzą akcje
+               Edit/Delete/Report (.panel__actions); ukrycie header ukryłoby też je.
+            4) x-user-tag wstawia inline background-image (efekt grupy/donora) pod nick —
+               to celowy perk silnika, zostawiony bez zmian.
+            5) Brak w markupie chipa grupy, flagi kraju i liczników (osiągnięcia,
+               obserwujący) — grupa jest tylko jako inline color linku + title.
+            6) Zakładki (nav-tabs) renderują się w layoucie, poza tą stroną, i mają własne
+               reguły w _nav.scss — tutaj świadomie nie duplikowane.
+   ==================================================== */
+
+// =====================================================================
+// 01 · UKŁAD STRONY — treść + wąski rail
+// =====================================================================
+
+// Silnik daje rail 300px i gap 1rem. PT chce ciaśniej: 280px + 12px odstępu,
+// żeby kolumna treści (tabele klientów, historia) miała więcej miejsca.
+.page__user-profile--show .sidebar2 {
+    gap: 12px;
+}
+
+.page__user-profile--show .sidebar2 > aside {
+    width: 280px;
+    gap: 10px;
+}
+
+// min-width: 0 — bez tego szeroka tabela w treści rozpycha flex-item
+// ponad max-width i rail ucieka poza ekran.
+.page__user-profile--show .sidebar2 > div {
+    max-width: calc(100% - 292px);
+    min-width: 0;
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .page__user-profile--show .sidebar2 {
+        flex-direction: column;
+    }
+
+    .page__user-profile--show .sidebar2 > div,
+    .page__user-profile--show .sidebar2 > aside {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+// =====================================================================
+// 02 · HERO — user-card
+// =====================================================================
+
+// Silnik trzyma kolumnę awatara na 200px (awatar 180px) i centruje wiersze.
+// PT chce zwartej wizytówki: mały kwadrat + ciasny blok tekstu przy górnej krawędzi.
+.page__user-profile--show .profileV2 {
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-areas:
+        'avatar username'
+        'avatar registration'
+        'avatar title'
+        'avatar about';
+    align-items: start;
+    align-content: start;
+    row-gap: 5px;
+    column-gap: 16px;
+}
+
+.page__user-profile--show .profile__avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 0;
+    border: 1px solid var(--pt-border);
+    background-color: var(--pt-surface-2);
+    object-fit: cover;
+}
+
+// nick: rozmiar i waga nasze, kolor NIE — niesie go inline style grupy z x-user-tag
+.page__user-profile--show .profile__username {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.page__user-profile--show .profile__username .user-tag__link {
+    font-size: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+}
+
+// ikony doklejane do nicka (online/offline, koperta, ostrzeżenie, gwiazdka donora)
+// są w hero za duże i krzyczą kolorem silnika — sprowadzone do rangi meta.
+.page__user-profile--show .profile__username .fa-circle {
+    font-size: 8px;
+    vertical-align: middle;
+}
+
+.page__user-profile--show .profile__username .fa-circle.text-green {
+    color: var(--pt-ok);
+}
+
+// offline to brak informacji, nie alarm — stąd szarość zamiast czerwieni
+.page__user-profile--show .profile__username .fa-circle.text-red {
+    color: var(--pt-fg-4);
+}
+
+.page__user-profile--show .profile__username .fa-envelope.text-info {
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+.page__user-profile--show .profile__username a:hover .fa-envelope.text-info {
+    color: var(--pt-red-fg);
+}
+
+.page__user-profile--show .profile__username .fa-exclamation-circle.text-orange {
+    font-size: 12px;
+    color: var(--pt-warn);
+}
+
+.page__user-profile--show .profile__username .fa-star,
+.page__user-profile--show .profile__username .fa-star.text-gold {
+    font-size: 11px;
+    color: var(--pt-warn);
+}
+
+// data rejestracji = liczby, więc mono + tabular-nums
+.page__user-profile--show .profile__registration {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.page__user-profile--show .profile__title {
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// min-width: 0 — opis bywa jednym długim słowem/URL-em i rozpycha grid
+.page__user-profile--show .profile__about {
+    min-width: 0;
+    max-width: 76ch;
+    margin-top: 3px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--pt-fg-3);
+}
+
+.page__user-profile--show .profile__about .bbcode-rendered {
+    margin-top: 4px;
+    font-size: 12.5px;
+    line-height: 1.55;
+}
+
+// awatar nad tekstem — poniżej ~640px kolumna 88px zjada połowę szerokości
+@media (max-width: 640px) {
+    .page__user-profile--show .profileV2 {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'avatar'
+            'username'
+            'registration'
+            'title'
+            'about';
+    }
+
+    .page__user-profile--show .profile__avatar {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+// =====================================================================
+// 03 · PANELE — pasek nagłówka i akcje
+// =====================================================================
+
+// nagłówek panelu jako wąski pas: dotyczy obu wariantów markupu —
+// <header class="panel__header"> (z akcjami) i gołego <h2 class="panel__heading">
+.page__user-profile--show .panelV2 > .panel__header,
+.page__user-profile--show .panelV2 > .panel__heading {
+    padding: 6px 12px;
+    margin: 0;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius) var(--pt-radius) 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+// heading w środku header nie może dokładać drugiego tła ani paddingu
+.page__user-profile--show .panelV2 > .panel__header > .panel__heading {
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+.page__user-profile--show .panel__actions {
+    padding: 0;
+    gap: 4px;
+    background-color: transparent;
+}
+
+// silnikowy przycisk to pigułka 13px z marginesem 6px — w pasie 24px się nie mieści
+.page__user-profile--show .panel__actions .form__button,
+.page__user-profile--show .data-table__actions .form__button {
+    margin: 0;
+    padding: 3px 8px;
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--pt-fg-3);
+    background-color: transparent;
+}
+
+.page__user-profile--show .panel__actions .form__button:hover,
+.page__user-profile--show .data-table__actions .form__button:hover {
+    color: var(--pt-red-fg);
+    background-color: var(--pt-surface-3);
+    filter: none;
+}
+
+.page__user-profile--show .panelV2 > .panel__body {
+    padding: 12px;
+    font-size: 12.5px;
+    color: var(--pt-fg-2);
+}
+
+// puste stany („No recent achievements.", „No clients") mają być ciche
+.page__user-profile--show .panel__body:not(:has(.profileV2)) {
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// 04 · OSIĄGNIĘCIA I OBSERWUJĄCY — pasy miniatur
+// =====================================================================
+
+// odznaki są bezpośrednimi dziećmi body, awatary obserwujących siedzą w <a> —
+// :has() rozróżnia oba panele bez dokładania klas do markupu
+.page__user-profile--show .panel__body:has(> img),
+.page__user-profile--show .panel__body:has(> a > .user-search__avatar) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.page__user-profile--show .panel__body > img {
+    height: 44px;
+    width: auto;
+}
+
+.page__user-profile--show .user-search__avatar {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 0;
+    border: 1px solid var(--pt-border);
+    object-fit: cover;
+}
+
+.page__user-profile--show .panel__body > a:hover .user-search__avatar {
+    border-color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// 05 · KEY-VALUE — wiersze etykieta/wartość w panelach i w railu
+// =====================================================================
+
+// Silnik maluje zebrę z !important, więc jedyne czyste wyjście to podmiana
+// tokenów, z których ta reguła czyta kolor.
+.page__user-profile--show .key-value {
+    --key-value-odd-bg: transparent;
+    --key-value-even-bg: transparent;
+
+    margin: 0;
+    color: var(--pt-fg-2);
+}
+
+.page__user-profile--show .key-value > .key-value__group {
+    align-items: baseline;
+    gap: 12px;
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.page__user-profile--show .key-value > .key-value__group:last-child {
+    border-bottom: 0;
+}
+
+// hover po całym wierszu — znowu przez token, bo tło ma !important
+.page__user-profile--show .key-value > .key-value__group:hover {
+    --key-value-odd-bg: var(--pt-surface-2);
+    --key-value-even-bg: var(--pt-surface-2);
+}
+
+// dt musi móc się zawinąć w wąskim railu, stąd min-width: 0 i line-height > 1
+.page__user-profile--show .key-value dt {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--pt-fg-4);
+}
+
+.page__user-profile--show .key-value dd {
+    flex: 0 0 auto;
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--pt-fg);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// abbr w etykietach (seedtime) — podkreślenie silnika psuje cienką linię wiersza
+.page__user-profile--show .key-value dt abbr {
+    text-decoration: none;
+    border-bottom: 1px dotted var(--pt-line-ui);
+    cursor: help;
+}
+
+// linki w wierszach nie mogą krzyczeć czerwienią — to nie są akcje, tylko wartości
+.page__user-profile--show .key-value a {
+    color: var(--pt-fg-2);
+    text-decoration: none;
+}
+
+.page__user-profile--show .key-value a:hover {
+    color: var(--pt-red-fg);
+}
+
+// znaczniki tak/nie (donor, konto potwierdzone) — kolor tylko na glifie
+.page__user-profile--show .key-value dd .fa-check.text-green,
+.page__user-profile--show .key-value dd .fa-lock.text-green {
+    color: var(--pt-ok);
+}
+
+.page__user-profile--show .key-value dd .fa-times.text-red,
+.page__user-profile--show .key-value dd .fa-lock-open.text-red {
+    color: var(--pt-fg-4);
+}
+
+.page__user-profile--show .key-value dd .fa-star {
+    color: var(--pt-warn);
+}
+
+.page__user-profile--show .key-value .text-red {
+    color: var(--pt-red-fg);
+}
+
+// rail: te same wiersze, tylko ciaśniej i z mocniejszą wartością —
+// to jedyne miejsce, gdzie użytkownik czyta ratio i bufor
+.page__user-profile--show .sidebar2 > aside .key-value > .key-value__group {
+    padding: 4px 10px;
+}
+
+.page__user-profile--show .sidebar2 > aside .key-value dt {
+    font-size: 11.5px;
+}
+
+.page__user-profile--show .sidebar2 > aside .key-value dd {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+// =====================================================================
+// 06 · TABELE — klienci, historia, notatki, watchlist
+// =====================================================================
+
+// Zamiast walczyć z regułami zebry (nth-child + !important w key-value,
+// wysoka specyficzność w data-table) podmieniamy tokeny u źródła.
+.page__user-profile--show .data-table {
+    --data-table-padding: 6px 10px;
+    --data-table-th-bg: var(--pt-surface-2);
+    --data-table-thead-border: 1px solid var(--pt-border);
+    --data-table-tr-border: 1px solid var(--pt-line);
+    --data-table-tr-odd-bg: transparent;
+    --data-table-tr-even-bg: transparent;
+    --data-table-tr-hover-bg: var(--pt-surface-2);
+    --data-table-fg: var(--pt-fg-2);
+}
+
+.page__user-profile--show .data-table > thead > tr > th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__user-profile--show .data-table > tbody > tr > td {
+    font-size: 12.5px;
+    vertical-align: middle;
+}
+
+// daty i godziny to liczby — mono, żeby kolumna się nie chwiała
+.page__user-profile--show .data-table time,
+.page__user-profile--show .profile__registration time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// puste stany w tabelach (colspan) — wyśrodkowane i wyciszone
+.page__user-profile--show .data-table > tbody > tr > td[colspan] {
+    text-align: center;
+    padding: 14px 10px;
+    color: var(--pt-fg-4);
+}
+
+// stopka listy klientów to przypis, nie dane — bez pogrubienia
+.page__user-profile--show .data-table > tfoot > tr > td {
+    border-top: 1px solid var(--pt-border);
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--pt-fg-4);
+}
+
+.page__user-profile--show .data-table__actions {
+    gap: 8px;
+}
+
+// stan podania o konto — jedyne miejsce z gotową klasą semantyczną w markupie
+.page__user-profile--show .application--pending {
+    color: var(--pt-warn);
+}
+
+.page__user-profile--show .application--approved {
+    color: var(--pt-ok);
+}
+
+.page__user-profile--show .application--rejected,
+.page__user-profile--show .application--unknown {
+    color: var(--pt-fg-4);
+}
+
+// kropki stanu w helpdesku
+.page__user-profile--show .data-table .fa-circle.text-success {
+    color: var(--pt-ok);
+}
+
+.page__user-profile--show .data-table .fa-circle.text-danger {
+    color: var(--pt-red-fg);
+}
+
+// Tabele „external tracker" wiszą bezpośrednio w <dl>, bez .data-table-wrapper,
+// więc w railu 280px nie miałyby czym się przewinąć — stąd własny kontener.
+// display: block na <table> odcina liczenie szerokości z treści komórek.
+.page__user-profile--show .sidebar2 > aside .key-value > table.data-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.page__user-profile--show .sidebar2 > aside .key-value > table.data-table > thead,
+.page__user-profile--show .sidebar2 > aside .key-value > table.data-table > tbody {
+    display: table;
+    width: 100%;
+}
+
+// wszystkie komórki tych tabel to liczby (count, window, max, lists/h)
+.page__user-profile--show .key-value > table.data-table > tbody > tr > td {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.page__user-profile--show .key-value > table.data-table > tbody > tr > td:first-child {
+    text-align: left;
+}

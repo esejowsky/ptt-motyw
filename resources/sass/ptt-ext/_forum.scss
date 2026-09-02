@@ -1,0 +1,822 @@
+/* ==== FORUM: DZIAŁY, WĄTKI, POSTY ====
+   Cel:     spłaszczyć forum silnika do rytmu PT — gęste wiersze działów i wątków
+            z licznikami mono oraz post w układzie „kolumna autora | treść".
+   Kotwice: .subforum-listings/.subforum-listing__*, .topic-listings/.topic-listing__*,
+            .topic-tags/.topic-tag--*, .topic-posts, .post + .post__* (aside, header,
+            content, footer, toolbar, avatar, author*), .bbcode-rendered.
+   Ubytki:  brak w markupie danych na „kropkę stanu" działu (nowe/przeczytane) — kropka
+            jest zawsze neutralna; brak klasy na wierszu wątku dla przypięcia/zamknięcia
+            (silnik daje tylko ikonę w figure), więc wyróżnienie idzie przez :has() na
+            .fa-thumbtack/.fa-lock; brak licznika odpowiedzi w bloku „ostatni post" działu;
+            komponent x-user-tag wstawia inline background-image efektu grupy — zostaje.
+   ==================================================== */
+
+// =====================================================================
+// 09 · LISTA DZIAŁÓW (forum.index)
+// =====================================================================
+
+// Silnik maluje zebrę (nth-child odd/even) — w PT wiersze mają jedno tło,
+// a rozdziela je wyłącznie cienka linia. Ta sama specyficzność, więc
+// decyduje kolejność arkuszy.
+.subforum-listings__item:nth-child(odd),
+.subforum-listings__item:nth-child(even),
+.topic-listings__item:nth-child(odd),
+.topic-listings__item:nth-child(even) {
+    background-color: var(--pt-surface);
+    list-style-type: none;
+}
+
+.subforum-listings__item:not(:last-of-type),
+.topic-listings__item:not(:last-of-type) {
+    border-bottom: 1px solid var(--pt-line);
+}
+
+// hover po całym wierszu, nie po samej treści — musi stać PO regułach zebry
+.subforum-listings__item:hover,
+.topic-listings__item:hover {
+    background-color: var(--pt-surface-2);
+}
+
+.subforum-listing {
+    grid-template-columns: 18px minmax(0, 1fr) 64px 64px 300px;
+    grid-template-areas: 'figure header topics posts latest';
+    align-items: center;
+    gap: 0 12px;
+    padding: 8px 12px;
+    color: var(--pt-fg-2);
+}
+
+// Ikona działu to zawsze ten sam dymek — w PT niesie zero informacji,
+// więc zeruje się glif (font-size: 0 gasi ::before Font Awesome)
+// i zostaje sam kwadracik stanu.
+.subforum-listing__figure {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.subforum-listing__icon {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    font-size: 0;
+    border-radius: 1px;
+    background-color: var(--pt-line-ui);
+}
+
+.subforum-listing__header {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: 13px;
+}
+
+.subforum-listing__heading {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.subforum-listing__link {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pt-fg);
+
+    &:hover {
+        color: var(--pt-red-fg);
+        text-decoration: none;
+    }
+}
+
+.subforum-listing__description {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Liczniki: liczba na wierzchu, etykieta pod spodem (DOM ma dt przed dd,
+// stąd column-reverse). Silnik dokleja „:" po dt w swoim media query —
+// przy układzie pionowym dwukropek jest zbędny.
+.subforum-listing__topic-stats,
+.subforum-listing__post-stats,
+.topic-listing__post-stats,
+.topic-listing__view-stats {
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 1px;
+    margin: 0;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.subforum-listing__topic-stats dd,
+.subforum-listing__post-stats dd,
+.topic-listing__post-stats dd,
+.topic-listing__view-stats dd {
+    margin: 0;
+    font-size: 12px;
+    color: var(--pt-fg-2);
+    line-height: 1.2;
+}
+
+.subforum-listing__topic-stats dt,
+.subforum-listing__post-stats dt,
+.topic-listing__post-stats dt,
+.topic-listing__view-stats dt {
+    font-family: var(--pt-sans);
+    font-size: 9.5px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+    line-height: 1.2;
+}
+
+.subforum-listing__topic-stats dt::after,
+.subforum-listing__post-stats dt::after,
+.topic-listing__post-stats dt::after {
+    content: '';
+    margin-right: 0;
+}
+
+// Ostatni post odcięty od reszty wiersza pionową kreską — jak w makiecie.
+.subforum-listing__latest-topic {
+    min-width: 0;
+    padding-left: 12px;
+    border-left: 1px solid var(--pt-line);
+    row-gap: 1px;
+}
+
+.subforum-listing__latest-heading {
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.subforum-listing__latest-link {
+    color: var(--pt-fg-2);
+
+    &:hover {
+        color: var(--pt-red-fg);
+        text-decoration: none;
+    }
+}
+
+.subforum-listing__latest-datetime,
+.subforum-listing__latest-author {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.subforum-listing__latest-datetime a,
+.subforum-listing__latest-author a {
+    color: var(--pt-fg-4);
+
+    &:hover {
+        color: var(--pt-fg-2);
+        text-decoration: none;
+    }
+}
+
+.subforum-listing__latest-author::before {
+    content: '\00B7';
+    margin-right: 0.5ch;
+}
+
+// =====================================================================
+// 10 · LISTA WĄTKÓW (forum.show, topics.index, bloki na stronie głównej)
+// =====================================================================
+
+.topic-listing {
+    grid-template-columns: 26px minmax(0, 1fr) 56px 56px 170px;
+    grid-template-areas: 'figure header posts views latest';
+    align-items: center;
+    gap: 0 12px;
+    padding: 7px 12px;
+    color: var(--pt-fg-2);
+}
+
+.topic-listing__header {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.topic-listing__heading {
+    display: inline;
+    font-size: 13px;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.topic-listing__link {
+    font-size: 13px;
+    color: var(--pt-fg);
+
+    &:hover {
+        color: var(--pt-red-fg);
+        text-decoration: none;
+    }
+}
+
+// przeczytane gasną, nieprzeczytane zostają mocne — bez zmiany rozmiaru,
+// żeby wiersze nie skakały
+.topic-listing--read .topic-listing__heading {
+    font-weight: 400;
+}
+
+.topic-listing--read .topic-listing__link {
+    color: var(--pt-fg-3);
+}
+
+.topic-listing--unread .topic-listing__heading {
+    font-weight: 600;
+}
+
+.topic-listing__created-post {
+    align-items: baseline;
+    gap: 0.5ch;
+}
+
+.topic-listing__created-author,
+.topic-listing__created-datetime {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.topic-listing__created-author a,
+.topic-listing__created-datetime a {
+    color: var(--pt-fg-4);
+
+    &:hover {
+        color: var(--pt-fg-2);
+        text-decoration: none;
+    }
+}
+
+.topic-listing__created-datetime {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.topic-listing__created-author:after {
+    content: '\00B7';
+    margin-left: 0.5ch;
+}
+
+.topic-listing__figure {
+    gap: 2px;
+}
+
+// zwykły wątek: ikona dymka nic nie wnosi → kropka jak przy działach.
+// Selektor `i.` celuje tylko w ten wariant; przypięty/zamknięty to <span>
+// z ikonami stanu, które muszą zostać widoczne.
+i.topic-listing__icon {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    max-width: 6px;
+    font-size: 0;
+    border-radius: 1px;
+    background-color: var(--pt-line-ui);
+}
+
+span.topic-listing__icon {
+    max-width: none;
+    column-gap: 0.6ch;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+.topic-listing__forum {
+    display: none;
+}
+
+// Silnik nie oznacza wiersza klasą dla przypiętego/zamkniętego wątku —
+// jedyny ślad w markupie to ikona, więc łapiemy ją przez :has().
+li.topic-listings__item:has(.fa-thumbtack) {
+    background-color: var(--pt-surface-2);
+}
+
+article.topic-listing:has(.fa-thumbtack) .fa-thumbtack {
+    color: var(--pt-red-fg);
+}
+
+article.topic-listing:has(.fa-lock) .topic-listing__link {
+    color: var(--pt-fg-3);
+}
+
+.topic-listing__latest-post {
+    grid-area: latest;
+    align-items: flex-end;
+    min-width: 0;
+    padding-left: 12px;
+    border-left: 1px solid var(--pt-line);
+}
+
+.topic-listing__latest-author,
+.topic-listing__latest-datetime {
+    max-width: 100%;
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topic-listing__latest-datetime {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.topic-listing__latest-author a,
+.topic-listing__latest-datetime a {
+    color: var(--pt-fg-4);
+
+    &:hover {
+        color: var(--pt-fg-2);
+        text-decoration: none;
+    }
+}
+
+// Bloki na stronie głównej stoją w wąskiej kolumnie — pięć kolumn się tam
+// nie mieści, więc wiersz schodzi do dwóch linii i gubi liczniki.
+.blocks__latest-topics .topic-listing {
+    grid-template-columns: 26px minmax(0, 1fr);
+    grid-template-areas:
+        'figure header'
+        'figure latest';
+    row-gap: 2px;
+}
+
+.blocks__latest-topics .topic-listing__post-stats,
+.blocks__latest-topics .topic-listing__view-stats {
+    display: none;
+}
+
+.blocks__latest-topics .topic-listing__latest-post {
+    align-items: flex-start;
+    padding-left: 0;
+    border-left: 0;
+}
+
+// =====================================================================
+// 11 · TAGI WĄTKU
+// =====================================================================
+
+// Silnik trzyma kolory tagów w custom properties zadeklarowanych na .topic-tag,
+// więc wystarczy je przedefiniować — modyfikatory .topic-tag--* zostają nietknięte.
+// Tła gasimy do zera: w PT tag to pusta pigułka z ramką w kolorze semantycznym.
+.topic-tag {
+    padding: 0 4px;
+    border-radius: 1px;
+    font-size: 10px;
+    line-height: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    --forum-tag-approved-bg: transparent;
+    --forum-tag-approved-fg: var(--pt-ok);
+    --forum-tag-solved-bg: transparent;
+    --forum-tag-solved-fg: var(--pt-ok);
+    --forum-tag-implemented-bg: transparent;
+    --forum-tag-implemented-fg: var(--pt-ok);
+    --forum-tag-denied-bg: transparent;
+    --forum-tag-denied-fg: var(--pt-red-fg);
+    --forum-tag-invalid-bg: transparent;
+    --forum-tag-invalid-fg: var(--pt-red-fg);
+    --forum-tag-bug-bg: transparent;
+    --forum-tag-bug-fg: var(--pt-warn);
+    --forum-tag-suggestion-bg: transparent;
+    --forum-tag-suggestion-fg: var(--pt-fl);
+    --forum-tag-pinned-bg: transparent;
+    --forum-tag-pinned-fg: var(--pt-red-fg);
+    --forum-tag-closed-bg: transparent;
+    --forum-tag-closed-fg: var(--pt-fg-4);
+}
+
+// ramka bierze kolor z tekstu — dzięki temu jedna reguła obsługuje wszystkie
+// warianty; goły .topic-tag (ikona „tags" nad wątkiem) ramki nie dostaje
+.topic-tag--approved,
+.topic-tag--denied,
+.topic-tag--solved,
+.topic-tag--invalid,
+.topic-tag--bug,
+.topic-tag--suggestion,
+.topic-tag--implemented,
+.topic-tag--pinned,
+.topic-tag--closed {
+    border: 1px solid currentColor;
+}
+
+.topic-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    vertical-align: middle;
+}
+
+// pasek tagów nad listą postów wątku stoi poza .panel__body, więc sam
+// odpowiada za swój margines
+.panelV2 > .topic-tags {
+    display: flex;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.panelV2 > .topic-tags > .topic-tag:first-child {
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// 12 · POST (wątek, lista postów użytkownika, blok „ostatnie posty")
+// =====================================================================
+
+// lista postów bez odstępów — posty rozdziela linia, jak wiersze tabeli
+.topic-posts {
+    row-gap: 0;
+}
+
+.topic-posts__item,
+.post-listings__item {
+    list-style-type: none;
+}
+
+.post {
+    grid-template-columns: 148px minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
+    gap: 4px 12px;
+    padding: 11px 12px;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.topic-posts > *:last-child .post {
+    border-bottom: 0;
+}
+
+// nagłówek posta: data z lewej, narzędzia dociśnięte do prawej
+.post__header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-left: 0;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    background-color: transparent;
+}
+
+.post__datetime {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-4);
+}
+
+.post__topic a {
+    color: var(--pt-fg-3);
+}
+
+.post__tip-stats {
+    gap: 0.5ch;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.post__tip-stats dd {
+    margin: 0;
+}
+
+// --- kolumna autora ---------------------------------------------------
+.post__aside {
+    padding: 0 12px 0 0;
+    border-right: 1px solid var(--pt-line);
+    background-color: transparent;
+    color: var(--pt-fg-3);
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.post__figure {
+    margin: 0 0 2px;
+}
+
+.post__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    border: 1px solid var(--pt-border);
+    object-fit: cover;
+}
+
+.post__author {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+}
+
+// nick niesie inline kolor grupy z komponentu x-user-tag — koloru nie ruszamy,
+// zdejmujemy tylko rozmiar odziedziczony po motywie bazowym
+.post__author .user-tag__link {
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.post__author-title {
+    margin: 0;
+    font-size: 10.5px;
+    font-weight: 400;
+    text-align: left;
+    color: var(--pt-fg-4);
+}
+
+.post__author-join,
+.post__author-topics,
+.post__author-posts {
+    justify-content: flex-start;
+    gap: 0.5ch;
+    margin: 0;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.post__author-join dt,
+.post__author-topics dt,
+.post__author-posts dt,
+.post__author-join dd,
+.post__author-topics dd,
+.post__author-posts dd {
+    margin: 0;
+}
+
+.post__author-join dt a,
+.post__author-topics dt a,
+.post__author-posts dt a {
+    color: var(--pt-fg-4);
+
+    &:hover {
+        color: var(--pt-fg-2);
+        text-decoration: none;
+    }
+}
+
+.post__author-join-datetime {
+    color: var(--pt-fg-3);
+}
+
+// --- treść ------------------------------------------------------------
+// 82ch to granica czytelności wiersza; poza nią oko gubi początek linii
+.post__content {
+    padding: 2px 0 4px;
+    max-width: 82ch;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+}
+
+// silnik stylizuje cytat regułą z podwojoną klasą (.bbcode-rendered.bbcode-rendered
+// blockquote) — dopasowujemy specyficzność przez .post__content.bbcode-rendered
+.post__content.bbcode-rendered blockquote {
+    margin: 6px 0;
+    padding: 5px 0 5px 10px;
+    border-left: 2px solid var(--pt-line-ui);
+    border-radius: 0;
+    background-color: var(--pt-surface-2);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--pt-fg-3);
+}
+
+.post__content.bbcode-rendered blockquote > cite {
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+.post__footer {
+    margin-top: 4px;
+    padding: 6px 0 0;
+    border-top: 1px solid var(--pt-line);
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.post__signature {
+    margin: 0;
+    text-align: left;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.post__signature img {
+    max-height: 60px;
+}
+
+// --- pasek narzędzi ---------------------------------------------------
+.post__toolbar {
+    margin-left: auto;
+    border-bottom-left-radius: 0;
+    background-color: transparent;
+    color: var(--pt-fg-4);
+}
+
+.post__permalink,
+.post__quote,
+.post__edit,
+.post__delete-button,
+.post__tip-button,
+.votes__like,
+.votes__dislike {
+    min-width: 0;
+    height: auto;
+    padding: 2px 7px;
+    border-radius: var(--pt-radius);
+    font-size: 11.5px;
+    column-gap: 0.5ch;
+}
+
+.post__permalink:hover,
+.post__quote:hover,
+.post__edit:hover,
+.post__delete:hover,
+.post__tip-button:hover,
+.votes__like:hover,
+.votes__dislike:hover {
+    background-color: var(--pt-surface-3);
+    color: var(--pt-fg);
+}
+
+.votes__like {
+    color: var(--pt-ok);
+}
+
+.votes__dislike {
+    color: var(--pt-red-fg);
+}
+
+.votes__like-count,
+.votes__dislike-count {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.post__tip-input {
+    width: 56px;
+    margin: 0 4px 0 0;
+    padding: 1px 4px;
+    border-width: 1px;
+    border-color: var(--pt-border);
+    border-radius: var(--pt-radius);
+    background-color: var(--pt-surface-2);
+    color: var(--pt-fg-2);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+}
+
+.post__toolbar-overflow {
+    margin-left: auto;
+    color: var(--pt-fg-4);
+}
+
+// Narzędzia mają nie zaśmiecać wątku — wyjeżdżają dopiero przy najechaniu
+// na post albo gdy fokus wejdzie w środek (klawiatura). Tylko tam, gdzie
+// hover istnieje i gdzie silnik nie schował paska pod „…" (jego próg to 576px).
+@media (hover: hover) and (min-width: 577px) {
+    .post__toolbar {
+        opacity: 0;
+        transition: opacity 0.12s ease;
+    }
+
+    .post:hover .post__toolbar,
+    .post:focus-within .post__toolbar {
+        opacity: 1;
+    }
+}
+
+// blok „ostatnie posty" na stronie głównej stoi w wąskiej kolumnie
+.blocks__posts .post {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        'aside'
+        'header'
+        'content'
+        'footer';
+    gap: 4px 0;
+}
+
+.blocks__posts .post__aside {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 6px;
+    border-right: 0;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.blocks__posts .post__author-join,
+.blocks__posts .post__author-title {
+    display: none;
+}
+
+// =====================================================================
+// 13 · WĄSKI EKRAN
+// =====================================================================
+
+@media (max-width: 900px) {
+    // wiersz działu: nazwa nad licznikami, ostatni post na końcu bez kreski
+    .subforum-listing {
+        grid-template-columns: 18px minmax(0, 1fr) auto;
+        grid-template-areas:
+            'figure header header'
+            'figure topics posts'
+            'figure latest latest';
+        row-gap: 3px;
+    }
+
+    // przy jednej kolumnie liczniki czytają się lepiej w linii („Wątki 12")
+    .subforum-listing__topic-stats,
+    .subforum-listing__post-stats {
+        flex-direction: row-reverse;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: 0.5ch;
+    }
+
+    .subforum-listing__post-stats {
+        justify-self: end;
+    }
+
+    .subforum-listing__latest-topic {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .topic-listing {
+        grid-template-columns: 26px minmax(0, 1fr) 56px;
+        grid-template-areas:
+            'figure header posts'
+            'figure latest latest';
+        row-gap: 3px;
+    }
+
+    .topic-listing__view-stats {
+        display: none;
+    }
+
+    .topic-listing__latest-post {
+        align-items: flex-start;
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    // post: kolumna autora kładzie się poziomym paskiem nad treścią
+    .post {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'aside'
+            'header'
+            'content'
+            'footer';
+        gap: 6px 0;
+    }
+
+    .post__aside {
+        flex-direction: row;
+        align-items: center;
+        gap: 9px;
+        padding: 0 0 7px;
+        border-right: 0;
+        border-bottom: 1px solid var(--pt-line);
+    }
+
+    .post__figure {
+        margin: 0;
+    }
+
+    .post__header {
+        flex-wrap: wrap;
+    }
+
+    .post__content {
+        max-width: 100%;
+    }
+}

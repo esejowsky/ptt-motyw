@@ -1,0 +1,1279 @@
+/* ==== REQ, SKLEP BON, STRONY POMOCY, KOMENTARZE, CHATBOX ====
+   Cel:     domknąć resztę ekranów w rytmie PT — gęste tabele z liczbami mono,
+            czytelna treść bbcode, płaskie komentarze i chatbox bez dymków.
+   Kotwice: .page__requests/.request-search__filters/.compact-search, .page__request--show
+            (.request__tags, menu.torrent__buttons), .page__user-transaction--create,
+            .page__page--index/.page__page--show/.page__staff--index (.user-card*),
+            .bbcode-rendered, #comments + .comment/.comment__* + .comment-list,
+            .bbcode-input/.bbcode-input__*, .chatbox/.chatbox__* /.chatbox-message /
+            .chatroom__* /.chatroom-users__*, .alert/.alert__content, .badge-user,
+            .text-{red,green,orange,blue,purple,gold}.
+   Ubytki:  1) w wynikach Req nie ma klas na komórkach (goły <td>) — kolumny trzeba
+            trafiać przez :nth-child, więc zmiana liczby kolumn w silniku je rozjedzie;
+            2) nagłówek panelu prośby ma kwotę bounty jako goły tekst obok <i.fa-coins>
+            — nie da się jej złapać selektorem, zostaje w foncie proporcjonalnym;
+            3) x-user-tag wstawia inline color grupy i background-image efektu —
+            ustawiamy tylko rozmiar i wagę nicku, koloru nie ruszamy;
+            4) karta w „Staff" niesie kolor grupy jako inline background — spłaszczamy ją
+            do powierzchni PT (przynależność i tak niesie nagłówek panelu nad siatką),
+            koloru grupy nie da się przenieść na tekst;
+            5) markup nie ma klasy .comments ani .badge-user (v9.2 ich nie emituje) —
+            celujemy w #comments/.comment-list, .badge-user zostaje dla starych motywów;
+            6) awatar komentarza ma inline width:50%, a figure inline text-align —
+            stąd wyjątek na !important;
+            7) chatbox rysuje wiadomość botów jako inline <div style="..."> w nagłówku
+            — jego font-style/white-space zostają inline, nie przebijamy ich.
+   ==================================================== */
+
+// =====================================================================
+// 01 · REQ — filtry (compact-search)
+// =====================================================================
+
+// Silnik rozpycha wyszukiwarkę poza kolumnę treści ujemnymi marginesami
+// liczonymi z vw — w PT wszystko ma siedzieć w tej samej kolumnie co nawigacja.
+.page__requests.request-search__component,
+.request-search__filters {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.page__requests.request-search__component {
+    row-gap: 12px;
+}
+
+.compact-search.request-search__filters {
+    border: 1px solid var(--pt-border);
+    padding: 10px 12px;
+}
+
+// pole szukania + przycisk filtrów w jednym rzędzie, bez rozstrzelenia
+.request-search__filters .compact-search__visible-default {
+    gap: 8px;
+    align-items: center;
+}
+
+.request-search__filters .form__text {
+    font-size: 12.5px;
+}
+
+// fieldsety filtrów: cieńsze ramki, niższe listy checkboxów
+.request-search__filters .form__fieldset {
+    padding: 6px 10px 10px;
+    font-size: 12.5px;
+}
+
+.request-search__filters .form__fieldset-checkbox-container {
+    height: 118px;
+    margin: -6px -10px -10px;
+    padding: 6px 10px 10px;
+}
+
+.request-search__filters .form__legend {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.request-search__filters .form__label {
+    font-size: 12px;
+}
+
+.request-search__filters .form__group--short-horizontal,
+.request-search__filters .form__group--horizontal {
+    gap: 10px;
+}
+
+// =====================================================================
+// 02 · REQ — tabela wyników
+// =====================================================================
+
+.page__requests .panel__body,
+.page__requests .data-table-wrapper {
+    background-color: var(--pt-surface);
+}
+
+.page__requests .data-table > thead > tr > th {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__requests .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    vertical-align: middle;
+}
+
+// tytuł prośby to jedyna kolumna, która ma się rozciągać — reszta zostaje
+// wąska (nowrap niżej), więc wolna szerokość ląduje na nazwie
+.page__requests .data-table > tbody > tr > td:first-child {
+    width: 100%;
+    line-height: 1.4;
+}
+
+.page__requests .data-table > tbody > tr > td:first-child > a {
+    color: var(--pt-fg);
+    font-weight: 600;
+}
+
+.page__requests .data-table > tbody > tr:hover > td:first-child > a {
+    color: var(--pt-red-fg);
+}
+
+// kategoria / typ / rozdzielczość — meta drugiego planu
+.page__requests .data-table > tbody > tr > td:nth-child(2),
+.page__requests .data-table > tbody > tr > td:nth-child(3),
+.page__requests .data-table > tbody > tr > td:nth-child(4) {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__requests .data-table .user-tag__link {
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+// głosy, komentarze, bounty — wszystkie liczby mono i wyrównane do prawej
+.page__requests .data-table > thead > tr > th:nth-child(6),
+.page__requests .data-table > thead > tr > th:nth-child(7),
+.page__requests .data-table > thead > tr > th:nth-child(8),
+.page__requests .data-table > tbody > tr > td:nth-child(6),
+.page__requests .data-table > tbody > tr > td:nth-child(7),
+.page__requests .data-table > tbody > tr > td:nth-child(8) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.page__requests .data-table > tbody > tr > td:nth-child(6),
+.page__requests .data-table > tbody > tr > td:nth-child(7),
+.page__requests .data-table > tbody > tr > td:nth-child(8) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+}
+
+.page__requests .data-table > tbody > tr > td:nth-child(8) {
+    color: var(--pt-warn);
+}
+
+.page__requests .data-table > tbody > tr > td:nth-child(9) time {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__requests .data-table > tbody > tr > td:last-child {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+}
+
+// panel statystyk pod listą — wartości mono
+.page__requests .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.page__requests .key-value dd {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+    color: var(--pt-fg);
+}
+
+// =====================================================================
+// 03 · REQ — stany prośby i strona pojedynczej prośby
+// =====================================================================
+
+// Stan to <i class="fas fa-circle text-*"> + tekst. Domyślna kropka jest
+// wielkości litery i krzyczy — w PT ma być znacznikiem, nie plamą.
+.page__requests .fa-circle,
+main.page__request--show .fa-circle {
+    font-size: 6px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+// zajęte = w toku (bursztyn), oczekuje = fiolet, niezrealizowane = czerwień,
+// zrealizowane = zieleń — mapowanie stanów na semantykę PT
+.page__requests .fa-circle.text-blue,
+main.page__request--show .fa-circle.text-blue {
+    color: var(--pt-warn);
+}
+
+.page__requests .fa-circle.text-purple,
+main.page__request--show .fa-circle.text-purple {
+    color: var(--pt-x2);
+}
+
+.page__requests .fa-circle.text-red,
+main.page__request--show .fa-circle.text-red {
+    color: var(--pt-red-fg);
+}
+
+.page__requests .fa-circle.text-green,
+main.page__request--show .fa-circle.text-green {
+    color: var(--pt-ok);
+}
+
+// pasek tagów prośby: do lewej, drobnym pismem, jak overline
+main.page__request--show .request__tags {
+    justify-content: flex-start;
+    font-size: 11.5px;
+    padding: 6px 0;
+}
+
+main.page__request--show .request__tags > li > span,
+main.page__request--show .request__tags > li > time {
+    padding: 2px 8px;
+    color: var(--pt-fg-3);
+}
+
+main.page__request--show .request__tags li:not(:last-child)::after {
+    color: var(--pt-line-ui);
+    margin-left: 0;
+}
+
+main.page__request--show .request__created-at time {
+    font-family: var(--pt-mono);
+    color: var(--pt-fg-4);
+}
+
+// Silnik daje <menu class="torrent__buttons form__group--short-horizontal">,
+// więc przyciski wchodzą w siatkę auto-fit i rozjeżdżają się na całą szerokość.
+main.page__request--show menu.torrent__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+main.page__request--show menu.torrent__buttons .form__button {
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: var(--pt-radius);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+main.page__request--show .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__request--show .key-value dd {
+    font-size: 12.5px;
+}
+
+main.page__request--show .key-value dd time {
+    font-family: var(--pt-mono);
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// 04 · SKLEP BON (users.transactions.create)
+// =====================================================================
+
+main.page__user-transaction--create .data-table > thead > tr > th {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td {
+    padding: 6px 12px;
+    font-size: 12.5px;
+    vertical-align: middle;
+}
+
+// nazwa przedmiotu bierze całą wolną szerokość, cena i akcja są wąskie
+main.page__user-transaction--create .data-table > tbody > tr > td:first-child {
+    width: 100%;
+    color: var(--pt-fg);
+}
+
+// cena w BON — liczba, więc mono i do prawej
+main.page__user-transaction--create .data-table > thead > tr > th:nth-child(2),
+main.page__user-transaction--create .data-table > tbody > tr > td:nth-child(2) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:nth-child(2) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-warn);
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+main.page__user-transaction--create .data-table .form__button {
+    padding: 4px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 16px;
+    border-radius: var(--pt-radius);
+}
+
+// wyszarzony przycisk = przedmiot już aktywny albo zablokowany
+main.page__user-transaction--create .data-table .form__button:disabled {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-border);
+    color: var(--pt-fg-4);
+    cursor: not-allowed;
+}
+
+// stan konta w railu — to liczba, ma być czytelna z daleka
+main.page__user-transaction--create .sidebar2 > aside > .panelV2:first-of-type > .panel__body {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    color: var(--pt-warn);
+    padding: 10px 12px;
+}
+
+// =====================================================================
+// 05 · STRONY POMOCY I STATYCZNE (pages.index, pages.show, staff)
+// =====================================================================
+
+main.page__page--index .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+}
+
+main.page__page--index .data-table > tbody > tr > td > a {
+    color: var(--pt-fg);
+    display: block;
+}
+
+main.page__page--index .data-table > tbody > tr:hover > td > a {
+    color: var(--pt-red-fg);
+}
+
+main.page__page--show .panel__body.bbcode-rendered {
+    padding: 14px 16px;
+}
+
+main.page__page--show .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__page--show .key-value dd time {
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// Karty ekipy: silnik wstawia kolor i efekt grupy jako inline style na <a>,
+// przez co siatka świeci pełnymi kolorami. PT jest płaskie — gasimy tło
+// (przynależność niesie nagłówek panelu nad siatką), stąd !important.
+main.page__staff--index .user-card-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    padding: 12px;
+}
+
+main.page__staff--index .user-card {
+    background-color: var(--pt-surface-2) !important;
+    background-image: none !important;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    padding: 10px 12px;
+    align-items: flex-start;
+    row-gap: 2px;
+}
+
+main.page__staff--index .user-card:hover {
+    border-color: var(--pt-line-ui);
+}
+
+main.page__staff--index .user-card__username {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pt-fg);
+    margin: 0;
+}
+
+main.page__staff--index .user-card__title {
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+// ikona grupy była dekoracją na 84px — w gęstej karcie to znacznik w rogu
+main.page__staff--index .user-card__icon {
+    font-size: 22px;
+    right: 10px;
+    top: 10px;
+    color: var(--pt-line-ui);
+    opacity: 1;
+}
+
+main.page__staff--index .user-card:hover .user-card__icon {
+    opacity: 1;
+    transform: none;
+    color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// 06 · TREŚĆ BBCODE — typografia regulaminu, opisów i komentarzy
+//      Silnik pisze te reguły na podwojonej klasie (.bbcode-rendered.bbcode-rendered),
+//      więc dublujemy ją, żeby wygrać samą kolejnością arkuszy.
+// =====================================================================
+
+.bbcode-rendered.bbcode-rendered {
+    font-family: var(--pt-sans);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+
+    > :first-child {
+        margin-top: 0;
+    }
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+
+    p,
+    ul,
+    ol,
+    dl,
+    table,
+    blockquote {
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 16px 0 8px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--pt-fg);
+    }
+
+    h1 {
+        font-size: 17px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--pt-line);
+    }
+
+    h2 {
+        font-size: 15px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--pt-line);
+    }
+
+    h3 {
+        font-size: 13px;
+    }
+
+    h4,
+    h5,
+    h6 {
+        font-size: 12.5px;
+    }
+
+    // overline: najniższe poziomy nagłówków niosą już tylko etykietę sekcji
+    h5,
+    h6 {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--pt-fg-4);
+    }
+
+    a {
+        color: var(--pt-red-fg);
+    }
+
+    ul,
+    ol {
+        padding-left: 20px;
+    }
+
+    li + li {
+        margin-top: 2px;
+    }
+
+    dt {
+        margin-top: 10px;
+        font-style: normal;
+        font-weight: 600;
+        color: var(--pt-fg);
+    }
+
+    dd {
+        margin-bottom: 8px;
+        padding: 0 0 0 12px;
+        border-left: 1px solid var(--pt-line);
+    }
+
+    hr {
+        margin: 14px 0;
+        height: 1px;
+        background-color: var(--pt-line);
+    }
+
+    blockquote {
+        padding: 6px 10px;
+        border-left: 2px solid var(--pt-red);
+        border-radius: 0;
+        background-color: var(--pt-surface-2);
+        color: var(--pt-fg-3);
+        font-size: 12.5px;
+
+        > cite {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 11px;
+            font-style: normal;
+            color: var(--pt-fg-4);
+        }
+    }
+
+    code,
+    kbd,
+    pre,
+    samp {
+        font-family: var(--pt-mono);
+    }
+
+    code {
+        padding: 1px 4px;
+        font-size: 11.5px;
+        background-color: var(--pt-surface-3);
+        border-radius: 2px;
+        color: var(--pt-fg);
+    }
+
+    pre {
+        padding: 10px 12px;
+        font-size: 11.5px;
+        line-height: 1.5;
+        background-color: var(--pt-surface-2);
+        border: 1px solid var(--pt-line);
+        border-radius: var(--pt-radius);
+        color: var(--pt-fg-2);
+    }
+
+    kbd {
+        padding: 1px 5px;
+        font-family: var(--pt-mono);
+        font-size: 11px;
+        line-height: 15px;
+        background-color: var(--pt-surface-3);
+        border: 1px solid var(--pt-border);
+        border-radius: 2px;
+        box-shadow: none;
+        color: var(--pt-fg-2);
+    }
+
+    // Ramki i tła komórek silnik wymusza !important w tej samej regule,
+    // więc bez !important tabela zostałaby w kolorach motywu bazowego.
+    th,
+    td {
+        padding: 5px 10px;
+        font-size: 12px;
+        border: 1px solid var(--pt-line) !important;
+        background-color: var(--pt-surface) !important;
+    }
+
+    th {
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--pt-fg-4);
+        background-color: var(--pt-surface-2) !important;
+    }
+
+    tr,
+    tr:nth-child(2n),
+    tr:nth-child(2n) td {
+        background-color: var(--pt-surface) !important;
+    }
+
+    img {
+        border: 1px solid var(--pt-border);
+        border-radius: var(--pt-radius);
+    }
+
+    details {
+        padding: 0;
+        border: 1px solid var(--pt-border);
+        border-radius: var(--pt-radius);
+        display: block;
+
+        summary {
+            padding: 4px 10px;
+            font-size: 11.5px;
+            color: var(--pt-fg-3);
+            background-color: var(--pt-surface-2);
+        }
+
+        &[open] > *:not(summary) {
+            padding: 0 10px 8px;
+        }
+    }
+
+    .bbcode-rendered__alert,
+    .bbcode-rendered__note {
+        padding: 6px 10px;
+        border: 0;
+        border-left: 2px solid var(--pt-red);
+        border-radius: 0;
+        background-color: var(--pt-surface-2);
+        font-size: 12.5px;
+    }
+
+    .bbcode-rendered__alert::before,
+    .bbcode-rendered__note::before {
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .bbcode-rendered__note {
+        border-left-color: var(--pt-warn);
+    }
+
+    .bbcode-rendered__note::before {
+        color: var(--pt-warn);
+    }
+
+    .bbcode-rendered__alert::before {
+        color: var(--pt-red-fg);
+    }
+
+    .bbcode-rendered__clipboard {
+        border-radius: var(--pt-radius);
+        background-color: var(--pt-surface-2);
+    }
+
+    .footnotes {
+        font-size: 11.5px;
+        border-top: 1px solid var(--pt-line);
+    }
+}
+
+// =====================================================================
+// 07 · KOMENTARZE (livewire:comments, blok „ostatnie komentarze")
+// =====================================================================
+
+#comments > .panel__body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--pt-surface);
+}
+
+// formularz nowego komentarza pod listą — najpierw treść, potem pisanie
+#comments .comment-list {
+    order: 1;
+    row-gap: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#comments .new-comment {
+    order: 2;
+    padding: 10px 14px;
+    border-top: 1px solid var(--pt-line);
+}
+
+#comments .comment-list > li:not(.comment__list-item) {
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--pt-fg-4);
+    list-style-type: none;
+}
+
+.comment__list-item {
+    list-style-type: none;
+    margin: 0;
+}
+
+// Domyślnie komentarz to karta z kolumną autora na 153px. W PT autor,
+// czas i akcje siedzą w jednym pasku nad treścią — treść bierze pełną szerokość.
+.comment {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    grid-template-areas:
+        'aside header'
+        'content content';
+    border-radius: 0;
+    box-shadow: none;
+    background-color: var(--pt-surface);
+    border-bottom: 1px solid var(--pt-line);
+    overflow: visible;
+}
+
+.comment:hover {
+    background-color: var(--pt-surface-2);
+}
+
+.comment__aside {
+    flex-direction: row;
+    align-items: center;
+    column-gap: 8px;
+    padding: 7px 12px 3px;
+    background-color: transparent;
+    min-width: 0;
+}
+
+// figure niesie inline text-align, a <img> inline width:50% — stąd !important
+.comment__figure {
+    margin: 0;
+    flex: 0 0 auto;
+    line-height: 0;
+    text-align: left !important;
+}
+
+.comment__avatar {
+    width: 26px !important;
+    height: 26px;
+    object-fit: cover;
+    border: 1px solid var(--pt-border);
+    border-radius: 2px;
+}
+
+// nick: rozmiar i waga nasze, koloru nie ruszamy — niesie go inline styl grupy
+.comment__author {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    justify-content: flex-start;
+}
+
+.comment__author .user-tag__link {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.comment__author-title {
+    margin: 0;
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+    text-align: left;
+}
+
+.comment__header {
+    padding: 7px 12px 3px 0;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    background-color: transparent;
+}
+
+.comment__datetime {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// wariant z bloku „ostatnie komentarze" — dopisek „On <torrent>"
+.comment__topic {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.comment__toolbar {
+    background-color: transparent;
+    border-bottom-left-radius: 0;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.comment__reply,
+.comment__edit,
+.comment__delete-button {
+    min-width: 0;
+    height: auto;
+    padding: 2px 7px;
+    border-radius: var(--pt-radius);
+    font-size: 11.5px;
+}
+
+.comment__reply:hover,
+.comment__edit:hover,
+.comment__delete-button:hover {
+    background-color: var(--pt-surface-3);
+    color: var(--pt-fg);
+}
+
+.comment__delete-button:hover {
+    color: var(--pt-red-fg);
+}
+
+.comment__content {
+    padding: 0 12px 9px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+}
+
+.comment__content img {
+    max-width: 320px;
+    max-height: 320px;
+}
+
+// odpowiedzi: zamiast wcięcia na 155px cienka linia rodowodu
+.comment__reply-list {
+    margin: 0 0 0 24px;
+    padding: 0;
+    row-gap: 0;
+    border-left: 1px solid var(--pt-line);
+}
+
+.reply-comment,
+.edit-comment {
+    margin: 0;
+    padding: 10px 14px 10px 24px;
+}
+
+// =====================================================================
+// 08 · EDYTOR BBCODE — pasek narzędzi i podgląd
+// =====================================================================
+
+.bbcode-input {
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    background-color: var(--pt-surface-2);
+}
+
+.bbcode-input__tabs {
+    background-color: var(--pt-surface-2);
+}
+
+// silnik wpisuje tu twarde #555/#888, więc kolory trzeba przedeklarować
+.bbcode-input__tab-label {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+}
+
+.bbcode-input__tab-input:checked + .bbcode-input__tab-label {
+    color: var(--pt-fg);
+    border-bottom: 2px solid var(--pt-red);
+}
+
+.bbcode-input__icon-bar {
+    background-color: var(--pt-surface-2);
+    gap: 0;
+}
+
+.bbcode-input__icon-bar .form__standard-icon-button {
+    padding: 3px 7px;
+    font-size: 11.5px;
+    border: 0;
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-4);
+    background-color: transparent;
+}
+
+.bbcode-input__icon-bar .form__standard-icon-button:hover {
+    background-color: var(--pt-surface-3);
+    color: var(--pt-fg);
+}
+
+.bbcode-input__icon-separator {
+    margin: 7px 4px;
+    width: 1px;
+    border: 0;
+    border-left: 1px solid var(--pt-line);
+    align-self: stretch;
+}
+
+.bbcode-input__tab-pane {
+    padding: 10px;
+    background-color: var(--pt-surface);
+    border-top: 1px solid var(--pt-line);
+    border-radius: 0 0 var(--pt-radius) var(--pt-radius);
+}
+
+.bbcode-input__preview {
+    padding: 0;
+    min-height: 60px;
+}
+
+// =====================================================================
+// 09 · CHATBOX
+//      Motywy silnika mają dla chatboxa własne reguły poza :root
+//      (Galactic: #frame, .badge-user, bąble .sent), więc tła i tła
+//      wiadomości przedeklarowujemy jawnie, nie licząc na tokeny.
+// =====================================================================
+
+.chatbox {
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+}
+
+.chatbox__chatroom {
+    height: 460px;
+    max-height: 70vh;
+    background-color: var(--pt-surface);
+}
+
+// zakładki pokojów: silnik daje im tło z --data-table-th-fg (jasny szary)
+.chatbox .panel__tabs {
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.chatbox .panel__tab {
+    padding: 5px 12px;
+    font-size: 11.5px;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    color: var(--pt-fg-3);
+}
+
+.chatbox .panel__tab:hover {
+    background-color: var(--pt-surface-3);
+    color: var(--pt-fg);
+}
+
+.chatbox .panel__tab--active {
+    color: var(--pt-fg);
+    border-bottom: 2px solid var(--pt-red);
+    background-color: var(--pt-surface-3);
+}
+
+.chatbox__tab {
+    gap: 6px;
+}
+
+.chatbox__tab-delete-icon {
+    color: var(--pt-fg-4);
+    border-radius: 2px;
+}
+
+.chatbox__tab-delete-button:hover .chatbox__tab-delete-icon {
+    background-color: var(--pt-surface-3);
+    color: var(--pt-red-fg);
+}
+
+.chatroom__messages--wrapper {
+    background-color: var(--pt-surface);
+}
+
+.chatroom__messages {
+    gap: 0;
+    padding: 0;
+    align-items: stretch;
+}
+
+.chatroom__messages > li {
+    width: 100%;
+    list-style-type: none;
+}
+
+// Domyślnie wiadomość to dymek z ogonkiem i awatarem wystającym w lewo.
+// PT chce wiersza: awatar, nick, godzina, treść — wszystko w jednej linii.
+.chatbox-message {
+    grid-template-columns: 18px auto minmax(0, 1fr) auto;
+    grid-template-areas: 'aside header content menu';
+    align-items: baseline;
+    column-gap: 7px;
+    margin-left: 0;
+    padding: 3px 10px;
+    border-radius: 0;
+    background-color: var(--pt-surface);
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.chatbox-message:hover {
+    background-color: var(--pt-surface-2);
+}
+
+// ogonek dymka nie ma racji bytu w płaskim wierszu
+.chatbox-message::before {
+    display: none;
+}
+
+.chatbox-message__aside {
+    position: static;
+    left: auto;
+    bottom: auto;
+    align-self: center;
+}
+
+.chatbox-message__avatar {
+    width: 16px;
+    height: 16px;
+    border-width: 1px;
+    border-color: var(--pt-border);
+    border-radius: 2px;
+}
+
+.chatbox-message__header {
+    align-items: baseline;
+    column-gap: 6px;
+    white-space: nowrap;
+}
+
+.chatbox-message__address {
+    padding: 0;
+    font-size: 12px;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.chatbox-message__address .user-tag__link {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.chatbox-message__time {
+    padding: 0;
+    font-family: var(--pt-mono);
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+}
+
+.chatbox-message__content {
+    padding: 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--pt-fg-2);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.chatbox-message__delete-button {
+    padding: 0 6px;
+    font-size: 11px;
+}
+
+// lista użytkowników po prawej — wąska kolumna, gęste wiersze
+.chatroom__users {
+    background-color: var(--pt-surface-2);
+    border-left: 1px solid var(--pt-line);
+    min-width: 150px;
+}
+
+.chatroom-users__heading {
+    padding: 5px 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.chatroom-users__list {
+    padding: 4px 0;
+    margin: 0;
+}
+
+.chatroom-users__list-item {
+    padding: 1px 10px;
+}
+
+.chatroom-users__list-item:hover {
+    background-color: var(--pt-surface-3);
+}
+
+.chatroom-users__user {
+    font-size: 12px;
+    min-width: 0;
+}
+
+.chatroom-users__user-link {
+    text-decoration: none;
+}
+
+.chatroom-users__button {
+    padding: 2px 5px;
+    font-size: 11px;
+}
+
+.chatroom__whispers {
+    height: auto;
+    min-height: 16px;
+    padding: 2px 10px;
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+    background-color: var(--pt-surface);
+}
+
+.chatroom__new-message {
+    margin: 0;
+    padding: 8px 10px;
+    border-top: 1px solid var(--pt-line);
+    background-color: var(--pt-surface-2);
+}
+
+#chatbox__messages-create {
+    font-size: 12.5px;
+    min-height: 34px;
+}
+
+// =====================================================================
+// 10 · ALERTY, ODZNAKI I KOLORY SEMANTYCZNE
+// =====================================================================
+
+.alert {
+    padding: 7px 14px;
+    font-size: 12px;
+    background-color: var(--pt-surface-2);
+    color: var(--pt-fg-2);
+}
+
+.alert__content strong {
+    font-weight: 600;
+    color: var(--pt-fg);
+    letter-spacing: 0.02em;
+}
+
+// odliczanie w pasku wydarzenia to liczby — mono, żeby nie skakały
+.alert__content span[x-text] {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-warn);
+}
+
+// .badge-user emitują już tylko stare motywy silnika — spłaszczamy na wypadek,
+// gdyby motyw bazowy podłożył ją pod nick w chatboksie
+.badge-user {
+    padding: 0 5px;
+    background-color: var(--pt-surface-3);
+    border: 1px solid var(--pt-border);
+    border-radius: 2px;
+    box-shadow: none;
+    text-shadow: none;
+    font-size: 11px;
+    color: var(--pt-fg-2);
+}
+
+// Globalne kolory pomocnicze silnika (_shame.scss) są jaskrawe i wypadają
+// z palety — sprowadzamy je do semantyki PT. Kolejność arkuszy decyduje.
+.text-red {
+    color: var(--pt-red-fg);
+}
+
+.text-green {
+    color: var(--pt-ok);
+}
+
+.text-orange,
+.text-gold,
+.text-yellow {
+    color: var(--pt-warn);
+}
+
+.text-blue {
+    color: var(--pt-info);
+}
+
+.text-purple {
+    color: var(--pt-x2);
+}
+
+// =====================================================================
+// 11 · WĄSKIE EKRANY
+// =====================================================================
+
+@media (max-width: 900px) {
+    // filtry Req: jedna kolumna zamiast siatki auto-fit
+    .request-search__filters .form__group--short-horizontal,
+    .request-search__filters .form__group--horizontal {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    // w wąskiej tabeli kategoria/typ/rozdzielczość tylko zabierają miejsce
+    .page__requests .data-table > thead > tr > th:nth-child(2),
+    .page__requests .data-table > thead > tr > th:nth-child(3),
+    .page__requests .data-table > thead > tr > th:nth-child(4),
+    .page__requests .data-table > tbody > tr > td:nth-child(2),
+    .page__requests .data-table > tbody > tr > td:nth-child(3),
+    .page__requests .data-table > tbody > tr > td:nth-child(4) {
+        display: none;
+    }
+
+    main.page__staff--index .user-card-wrapper {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    // komentarz: pasek autora nad treścią, żeby nick nie ściskał godziny
+    .comment {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'aside'
+            'header'
+            'content';
+    }
+
+    .comment__header {
+        padding: 0 12px 3px;
+    }
+
+    .comment__reply-list {
+        margin-left: 12px;
+    }
+
+    .reply-comment,
+    .edit-comment {
+        padding-left: 14px;
+    }
+
+    // chatbox: lista użytkowników pod rozmową, nie obok
+    .chatbox__chatroom {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'messages'
+            'whispers'
+            'new-message'
+            'users';
+        grid-template-rows: 1fr auto auto auto;
+        height: auto;
+    }
+
+    .chatroom__messages--wrapper {
+        min-height: 300px;
+    }
+
+    .chatroom__users {
+        border-left: 0;
+        border-top: 1px solid var(--pt-line);
+        max-height: 160px;
+    }
+}
