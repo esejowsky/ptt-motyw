@@ -1,0 +1,361 @@
+/* ==== CHROM GLOBALNY: nagłówek, nawigacja wtórna, stopka, alerty, paski PT ====
+   Cel:     dociągnięcie czterech pasów nagłówka, pasa wtórnego, pasków promocyjnych PT
+            i stopki do jednej kolumny 1360 px i do gęstości wzorca — bez zmian po stronie serwera.
+   Kotwice: .alerts, .alert, .alert__content, .cookie-consent*, .special-event-alert,
+            .top-nav__icon-bar, .top-nav--right__icon-link, .top-nav__profile-image,
+            .top-nav__dropdown > ul, .ratio-bar__portcheck, .secondary-nav, .nav-tabsV2,
+            body > a[style] (paski IPTV / rekrutacja — markup PT bez klas),
+            .footer, .footer__wrapper, .footer__section*, .footer__sub-footer, .footer__stats
+   Ubytki:  – „Wyślij torrent" z wzorca siedzi we wzorcu w prawym końcu pasa menu, a na produkcji
+              jest zakładką UPLOAD w .nav-tabsV2 (inna gałąź DOM) — CSS nie przenosi elementów,
+              więc zostaje tam, gdzie je wypluwa blade.
+            – silnik nie oznacza aktywnej pozycji menu górnego (brak is-active / aria-current),
+              więc czerwone podkreślenie działa tylko na .nav-tab--active__link i na hoverze.
+            – treść pasków promocyjnych (emoji w tytule, teksty, adresy) pochodzi z panelu staffu;
+              CSS może je tylko spłaszczyć i wyrównać, nie przepisać.
+            – .footer__copyright to jeden ciąg tekstu bez <span>-ów — stylujemy jako całość,
+              bez osobnego wyróżnienia roku/separatora jak we wzorcu.
+            – 3-px pasek flagi na górze strony (body::before z _brand.scss) zostaje bez zmian —
+              to celowy akcent marki, nie usterka.
+   ==================================================================== */
+
+// =====================================================================
+// ALERTY I BANER CIASTECZEK
+// Silnik daje .alert jako grid z place-items:center i paddingiem 18px,
+// przez co pasek jest wyższy niż cokolwiek pod nim i jego treść nie
+// trzyma się kolumny 1360. Sprowadzamy go do rytmu pozostałych pasów:
+// jeden wiersz, treść w kolumnie, linia zamykająca jak w każdym pasie.
+// =====================================================================
+.alert {
+    padding: 6px max(16px, calc((100% - var(--pt-col)) / 2));
+}
+
+.alert__content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 12px;
+    row-gap: 4px;
+    font-size: 12px;
+    color: var(--pt-fg-2);
+    text-align: left;
+}
+
+// baner ciasteczek styka się z nagłówkiem — bez linii zlewałby się z pasem statystyk
+.cookie-consent {
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.cookie-consent__message {
+    color: var(--pt-fg-2);
+}
+
+// przycisk zgody dziedziczy wysokość formularzowego CTA (34px) i rozpycha pasek
+.cookie-consent .form__button {
+    height: 24px;
+    padding: 0 12px;
+    font-size: 11.5px;
+}
+
+// alert wydarzenia (freeleech / double upload) — licznik to liczby, więc mono
+.special-event-alert .alert__content strong {
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+.special-event-alert .alert__content > div {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// PAS 1 — STATYSTYKI I IKONY KONTA
+// PT wstrzykuje w <header> własny <style> z `height/width: 32px !important`
+// na ikonach, a wiersz siatki nagłówka ma 28px. Efekt zmierzony: pasek ikon
+// 39.5–71.5 px w wierszu 42–70 px, czyli ikony przecinają linię oddzielającą
+// pas statystyk od pasa marki. Nasz arkusz ładuje się PÓŹNIEJ niż ten <style>
+// (link jest na końcu <body>), więc przy równej specyficzności wygrywamy
+// kolejnością — stąd !important tylko tutaj i tylko na tych deklaracjach.
+// =====================================================================
+.top-nav .top-nav__icon-bar > li > a > i {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 13px !important;
+}
+
+// kropka powiadomień była kotwiczona do pudełka 32px i wychodziła 6.5px
+// ponad górną krawędź nagłówka; przy pudełku 22px trzyma się w pasie
+.top-nav .top-nav--right__icon-link svg {
+    top: -2px !important;
+    right: -2px !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.top-nav__icon-bar {
+    column-gap: 14px;
+}
+
+.top-nav__icon-bar > li {
+    display: flex;
+    align-items: center;
+}
+
+// awatar był o 2px niższy od reszty ikon i siedział 2px niżej w pasie
+.top-nav__icon-bar > .top-nav__dropdown > a {
+    display: flex;
+    align-items: center;
+    height: 22px;
+}
+
+.top-nav__profile-image {
+    width: 20px;
+    height: 20px;
+}
+
+// ikona portcheck jako jedyna w ratio-barze miała 11.5px i własny szary —
+// reszta ma 10.5px i --pt-fg-4
+.ratio-bar__portcheck i {
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// DROPDOWNY — panel ma siadać dokładnie na linii pasa, z którego wychodzi
+// Domyślne `top: calc(100% - 1px)` liczy się od wysokości triggera, a ta
+// jest inna niż wysokość pasa: menu górne otwierało się 2px nad kreską
+// nagłówka (podwójna linia), a menu konta 4.5px nad kreską pasa statystyk.
+// =====================================================================
+.top-nav__main-menus > .top-nav__dropdown > ul {
+    top: 100%;   // 157px = ta sama linia co border-bottom nagłówka
+}
+
+.top-nav__icon-bar > .top-nav__dropdown > ul {
+    top: calc(100% + 3px);   // trigger 22px w pasie 28px — brakujące 6px dzielone na pół
+}
+
+// =====================================================================
+// NAWIGACJA WTÓRNA — okruszki i zakładki działu
+// .nav-tabsV2 miała padding 7px 0, przez co pas był wyższy (41px) niż
+// wynika z jego treści (zakładka 26px). Na stronie głównej breadcrumbs są
+// puste i zostawał 15-px pasek z kreską — pusty dzielnik bez zawartości.
+// =====================================================================
+.nav-tabsV2 {
+    padding: 4px 0;
+    column-gap: 6px;
+}
+
+.secondary-nav:not(:has(li)) {
+    display: none;
+}
+
+// =====================================================================
+// PASKI PROMOCYJNE PT (IPTV, rekrutacja)
+// Markup to gołe <a> bezpośrednio w <body>, całe malowane atrybutem style:
+// własne tła, 2-px ramki, promienie 4–6px, kafel ikony 40×40 i wypełnione
+// przyciski. Zmierzone: 65.1px + 42.6px wysokości i treść zaczynająca się
+// na x=24 zamiast x=40, czyli obok kolumny nagłówka. Nadpisanie stylu
+// inline wymaga !important — to jedyny sposób, jaki tu działa.
+// Paski zostają (staff ich chce), ale mają czytać się jak reszta motywu:
+// tło --pt-surface, jedna linia 1px pod spodem, kolor wyłącznie na tekście.
+// =====================================================================
+body > a[style] {
+    box-sizing: border-box;
+    min-height: 32px;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px 16px !important;
+    padding: 5px max(16px, calc((100% - var(--pt-col)) / 2)) !important;
+    background: var(--pt-surface) !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+    border-radius: 0 !important;
+    font-size: 12px !important;
+    text-decoration: none !important;
+}
+
+body > a[style]:hover {
+    background: var(--pt-surface-2) !important;
+}
+
+// zdejmujemy wypełnienia, ramki i zaokrąglenia z wnętrza pasków
+body > a[style] div,
+body > a[style] span {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+// kafel 40×40 wokół ikony — zostaje sama ikona
+body > a[style] div:has(> i) {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+body > a[style] span {
+    font-size: 12px !important;
+}
+
+body > a[style] i {
+    width: auto !important;
+    height: auto !important;
+    font-size: 12px !important;
+}
+
+// tytuł i podtytuł stały jeden pod drugim (2 wiersze = 65px);
+// w jednej linii pasek schodzi do 32px i trzyma rytm pozostałych pasów
+body > a[style] > div > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+}
+
+body > a[style] > div > div:last-child > div {
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+
+// CTA jako obrys w kolorze paska, dosunięty do prawej krawędzi kolumny
+body > a[style] > :last-child {
+    display: inline-flex !important;
+    align-items: center;
+    height: 20px;
+    margin-left: auto !important;
+    padding: 0 9px !important;
+    color: inherit !important;
+    border: 1px solid currentColor !important;
+    border-radius: var(--pt-radius) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+// dwa paski = dwa kolory semantyczne, wyłącznie na tekście i ikonie
+body > a[href*='selliptv'],
+body > a[href*='selliptv'] i,
+body > a[href*='selliptv'] > div > div:last-child > div:first-child {
+    color: var(--pt-warn) !important;
+}
+
+body > a[href*='selliptv'] > div > div:last-child > div:nth-child(2) {
+    color: var(--pt-fg-3) !important;
+}
+
+body > a[href*='staff-application'],
+body > a[href*='staff-application'] i,
+body > a[href*='staff-application'] span {
+    color: var(--pt-info) !important;
+}
+
+// =====================================================================
+// STOPKA
+// Wzorzec (_theme.scss, sekcja „FOOTER w stylu Design" + A_lista.png):
+// stopka na własnym tle --pt-surface, kolumny linków zbite i wyrównane
+// do prawej, a w pasku dolnym telemetria renderowania po lewej (mono)
+// i podpis po prawej. Produkcja miała stopkę na tle strony, kolumny
+// rozjeżdżające się flexem i pusty lewy bok paska dolnego.
+// =====================================================================
+.footer {
+    background: var(--pt-surface);
+}
+
+.footer__wrapper {
+    display: grid;
+    grid-template-columns: 1fr repeat(4, max-content);
+    align-items: start;
+    gap: 18px 30px;
+    padding: 15px 0 10px;
+}
+
+.footer__section:not(:first-child) {
+    text-align: right;
+}
+
+.footer__section:not(:first-child) .footer__section-title {
+    justify-content: flex-end;
+}
+
+.footer__section:not(:first-child) .footer__section-list {
+    align-items: flex-end;
+}
+
+.footer__section-list {
+    row-gap: 4px;
+}
+
+.footer__sub-footer {
+    justify-content: space-between;
+    padding: 8px 0 12px;
+}
+
+// Time / Used / Load / Date — we wzorcu widoczne i pisane mono;
+// wypełniają lewą stronę paska, po której inaczej zostaje pustka
+.footer__stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    margin: 0;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+.footer__stats strong {
+    font-weight: 600;
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// WĄSKIE EKRANY
+// Siatka 1fr + 4 kolumny mieści się do ~940px; niżej łamiemy ją na dwie
+// i wracamy do wyrównania do lewej, bo prawa krawędź przestaje być wspólna.
+// =====================================================================
+@media (max-width: 940px) {
+    .footer__wrapper {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 24px;
+    }
+
+    .footer__section:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .footer__section:not(:first-child) {
+        text-align: left;
+    }
+
+    .footer__section:not(:first-child) .footer__section-title {
+        justify-content: flex-start;
+    }
+
+    .footer__section:not(:first-child) .footer__section-list {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 900px) {
+    // paski promocyjne łamią się na kilka wierszy — CTA nie ma już do czego
+    // dosuwać się w prawo, więc wraca do lewej krawędzi treści
+    body > a[style] {
+        align-items: flex-start !important;
+        padding-top: 7px !important;
+        padding-bottom: 7px !important;
+    }
+
+    body > a[style] > :last-child {
+        margin-left: 0 !important;
+    }
+
+    .footer__sub-footer {
+        justify-content: flex-start;
+    }
+}

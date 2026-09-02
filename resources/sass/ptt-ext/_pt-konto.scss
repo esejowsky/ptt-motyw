@@ -1,0 +1,710 @@
+/* ==== PROFIL — PODSTRONY KONTA ====
+   Cel:     sprowadzić całą rodzinę podstron użytkownika (uploady, historia,
+            aktywne, bonusy, zakładki, osiągnięcia, ustawienia) do tego samego
+            gęstego, płaskiego rytmu, co przegląd profilu — jedna szerokość
+            kolumny, jeden pasek nagłówka panelu, jeden wiersz danych.
+   Kotwice: main[class^='page__user-'] (bez profilu i sklepu BON — te mają
+            własne partiale), .user-uploads/.user-torrents/.user-peers/
+            .user-resurrections wraz z ich *__filters, .panelV2, .panel__header,
+            .panel__heading, .panel__actions, .panel__action, .panel__body,
+            .key-value, .key-value__group, .data-table (thead/tbody/tfoot),
+            .data-table-wrapper, .achievement, .achievement__badge,
+            .achievement__description, .achievement__progress,
+            .form__fieldset, .form__legend, .form__fieldset-checkbox-container,
+            .form__group, .pagination.
+   Ubytki:  1) Kafli statystyk „PT” (pasek WYSŁANE/POBRANE/RATIO pod hero
+               ze wzorca) na podstronach nie ma — panel „Statystyki” jest
+               listą <dl class="key-value"> na dole strony i CSS nie przeniesie
+               go pod nagłówek ani nie zamieni <dt>/<dd> w kolumny siatki
+               obejmującej całą szerokość bez utraty par etykieta–wartość.
+            2) Rail /achievements ma parę „Odblokowane osiągnięcia: / 4”
+               rozbitą na DWA osobne <div class="key-value__group"> —
+               CSS nie połączy dwóch węzłów w jeden wiersz. Da się tylko
+               zdjąć kreskę między nimi i dosunąć wartość do prawej,
+               żeby czytały się jako całość.
+            3) /users/{nick}/achievements: nazwa odznaki siedzi wyłącznie
+               w atrybutach alt/title <img>, a postęp punktowy w title
+               <article>. Na karcie nie da się pokazać ani nazwy, ani
+               licznika „2 / 600” — zostaje ikona, opis i pasek postępu.
+            4) Kolumna „Postęp” na /active to gotowy tekst („48.20%”),
+               nie liczba w atrybucie — nie da się z niej zrobić paska.
+            5) Ustawienia: „Block order” to lista sortowalna (drag & drop
+               po JS) — zostaje jedną kolumną na całą szerokość, bo siatka
+               rozjeżdża podpowiedzi upuszczania.
+            6) /torrents ma 19 kolumn — po nadaniu nazwie czytelnej podłogi
+               200 px tabela ma 1656 px i przewija się poziomo WEWNĄTRZ
+               panelu. Bez usunięcia kolumn po stronie serwera nie zmieści
+               się w kolumnie 1360 px.
+            7) /bookmarks bez zakładek renderuje samą <thead> i puste <tbody>
+               — w markupie nie ma żadnego komunikatu, a CSS treści nie tworzy.
+               Stan pusty wymaga dopisania wiersza w Blade po stronie serwera.
+   ==================================================================== */
+
+// Jeden przedrostek dla całej rodziny podstron. Wyłączone są dwie strony,
+// które mają już własne, dopracowane reguły w innych partialach:
+// profil (_profile.scss) i sklep BON (_misc.scss).
+$konto: 'main[class^="page__user-"]:not(.page__user-profile--show):not(.page__user-transaction--create)';
+
+/* =====================================================================
+   1 · SZEROKOŚĆ KOLUMNY
+   Po co: silnik „odwraca magiczne liczby layoutu” ujemnym marginesem —
+   na 1440 px lista uploadów dostaje margin: 0 -84px i width: 1440px,
+   a panel filtrów nad nią margin: 0 48px. Zmierzone: filtry x=88 w=1264,
+   lista x=0 w=1440, panel statystyk pod spodem x=40 w=1360 — trzy różne
+   krawędzie w jednej kolumnie. Zerujemy oba marginesy, żeby wszystko
+   stało na 40/1360, tam gdzie zaczyna się nagłówek strony.
+   ===================================================================== */
+
+#{$konto} .user-uploads,
+#{$konto} .user-torrents,
+#{$konto} .user-peers,
+#{$konto} .user-resurrections,
+#{$konto} .user-uploads__filters,
+#{$konto} .user-torrents__filters,
+#{$konto} .user-peers__filters,
+#{$konto} .user-resurrections__filters {
+    margin-inline: 0;
+    width: auto;
+    max-width: 100%;
+    align-self: stretch;
+}
+
+// livewire opakowuje filtry i listę we własny flex z gap: 1rem —
+// PT trzyma panele 12 px od siebie
+#{$konto} > article > div[style*='flex-direction: column'] {
+    gap: 12px;
+}
+
+/* =====================================================================
+   2 · PASEK NAGŁÓWKA PANELU
+   Po co: poza profilem nagłówek zostaje na silnikowych 7px 5px / 16 px
+   (zmierzone: h=32, padding 7px 5px, font-size 12px z _base) — tytuł
+   dokleja się do lewej krawędzi ramki i nie ma kreski oddzielającej go
+   od treści. PT chce pasa 6px 12px z linią pod spodem.
+   ===================================================================== */
+
+#{$konto} .panelV2 > .panel__heading,
+#{$konto} .panelV2 > .panel__header {
+    margin: 0;
+    padding: 6px 12px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius) var(--pt-radius) 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+// nagłówek w środku <header> nie może dokładać drugiego tła ani paddingu
+#{$konto} .panelV2 > .panel__header > .panel__heading {
+    padding: 0;
+    background-color: transparent;
+    border-bottom: 0;
+    border-radius: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+// akcje w pasku (Wyczyść zakładki, Ukryj kolumny, licznik) — silnik daje im
+// 16 px odstępu i własny padding, przez co pas rośnie do 55 px
+#{$konto} .panelV2 > .panel__header > .panel__actions {
+    gap: 10px;
+    padding: 0;
+    background-color: transparent;
+}
+
+#{$konto} .panel__action {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// przycisk w pasie 24 px nie może być pigułką 13 px z marginesem
+#{$konto} .panel__actions .form__button,
+#{$konto} .data-table__actions .form__button {
+    height: 22px;
+    margin: 0;
+    padding: 0 8px;
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 20px;
+    text-transform: uppercase;
+}
+
+#{$konto} .panel__actions .form__button--text {
+    color: var(--pt-fg-3);
+    background-color: transparent;
+}
+
+#{$konto} .panel__actions .form__button--text:hover {
+    color: var(--pt-red-fg);
+    background-color: var(--pt-surface-3);
+    filter: none;
+}
+
+// wersaliki paska nie mogą sięgać treści, którą wpisuje użytkownik
+#{$konto} .panel__header input,
+#{$konto} .panel__header select,
+#{$konto} .panel__header textarea {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+// pole filtra wstawione w pasek nagłówka: motyw układa etykietę NAD polem,
+// przez co pas rósł do 55 px — w pasku etykieta ma stać obok
+#{$konto} .panel__header .form__group:has(> .form__label--floating) {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+#{$konto} .panel__header .form__text,
+#{$konto} .panel__header .form__select {
+    height: 24px;
+}
+
+#{$konto} .panelV2 > .panel__body {
+    padding: 12px;
+    font-size: 12.5px;
+    color: var(--pt-fg-2);
+}
+
+// panele stoją w kolumnie po 12 px — bez tego layout daje 1rem tylko części z nich
+#{$konto} .panelV2 {
+    margin-bottom: 0;
+}
+
+/* =====================================================================
+   3 · WIERSZE KLUCZ–WARTOŚĆ
+   Po co: silnik liczy padding jako calc(var(--key-value-padding) / 2),
+   czyli zakłada JEDNĄ długość. Motyw podaje dwie („6px 12px”), więc
+   calc jest nieprawidłowy i cały padding wypada do zera — zmierzone:
+   .key-value__group padding 0px, wysokość wiersza 13 px, bez kreski,
+   etykieta i wartość doklejone do krawędzi panelu. Ustawiamy padding
+   wprost i dokładamy linie oraz hover, tak jak na profilu.
+   ===================================================================== */
+
+#{$konto} .key-value {
+    --key-value-odd-bg: transparent;
+    --key-value-even-bg: transparent;
+
+    margin: 0;
+    color: var(--pt-fg-2);
+}
+
+#{$konto} .key-value > .key-value__group,
+#{$konto} .key-value > .key-value__group--nested {
+    align-items: baseline;
+    gap: 12px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+#{$konto} .key-value > .key-value__group:last-child,
+#{$konto} .key-value > .key-value__group--nested:last-child {
+    border-bottom: 0;
+}
+
+// tło wiersza ma !important w silniku, więc hover idzie przez tokeny
+#{$konto} .key-value > .key-value__group:hover {
+    --key-value-odd-bg: var(--pt-surface-2);
+    --key-value-even-bg: var(--pt-surface-2);
+}
+
+#{$konto} .key-value dt {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--pt-fg-4);
+}
+
+#{$konto} .key-value dd {
+    flex: 0 0 auto;
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--pt-fg);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// Blade osiągnięć rozbija parę „Odblokowane osiągnięcia: / 4” na dwa
+// wiersze. Kreski między nimi nie ma, a sama wartość idzie na prawą
+// krawędź — dzięki temu czytają się jak jeden wiersz, mimo dwóch węzłów.
+#{$konto} .key-value > .key-value__group:not(:has(dd)) {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+#{$konto} .key-value > .key-value__group:not(:has(dt)) {
+    justify-content: flex-end;
+    padding-top: 0;
+}
+
+// linki w wierszach to wartości, nie akcje — bez czerwieni w spoczynku
+#{$konto} .key-value a {
+    color: var(--pt-fg-2);
+    text-decoration: none;
+}
+
+#{$konto} .key-value a:hover {
+    color: var(--pt-red-fg);
+}
+
+/* =====================================================================
+   4 · TABELE DANYCH
+   Po co: silnik maluje tło i kreskę na komórkach (`> tr > td`), a komórki
+   w tych tabelach mają różne wysokości (nazwa łamie się na dwie linie,
+   liczby nie) — z tła robi się zlepek prostokątów, a z kreski schodki.
+   Przenosimy jedno i drugie na wiersz. Padding komórki bierze się
+   z lokalnego --data-table-padding: 7px ustawionego wprost na .data-table,
+   więc token z :root do niej nie dociera i trzeba go nadpisać na miejscu.
+   ===================================================================== */
+
+#{$konto} .data-table {
+    --data-table-padding: 6px 10px;
+    --data-table-tr-odd-bg: transparent;
+    --data-table-tr-even-bg: transparent;
+    --data-table-tr-hover-bg: transparent;
+}
+
+#{$konto} .data-table > thead > tr > th {
+    padding: 6px 10px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+#{$konto} .data-table > tbody > tr > td {
+    padding: 6px 10px;
+    background: transparent;
+    border-bottom: 0;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--pt-fg-2);
+    vertical-align: middle;
+}
+
+#{$konto} .data-table > tbody > tr {
+    background: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+#{$konto} .data-table > tbody > tr:last-child {
+    border-bottom: 0;
+}
+
+#{$konto} .data-table > tbody > tr:hover {
+    background: var(--pt-surface-2);
+}
+
+// nazwa torrentu: jeden wiersz, reszta kolumn nie może się przez nią chwiać
+#{$konto} .data-table > tbody > tr > td a {
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+#{$konto} .data-table > tbody > tr:hover > td a {
+    color: var(--pt-red-fg);
+}
+
+// daty, rozmiary i liczniki są z definicji liczbami
+#{$konto} .data-table time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+}
+
+// stopka („Suma”, przypis pod listą klientów) to komentarz, nie dane
+#{$konto} .data-table > tfoot > tr > td {
+    padding: 6px 10px;
+    background: transparent;
+    border-top: 1px solid var(--pt-border);
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--pt-fg-4);
+}
+
+// pusta tabela („Brak zakładek”) — wyśrodkowana i wyciszona
+#{$konto} .data-table > tbody > tr > td[colspan] {
+    padding: 16px 10px;
+    text-align: center;
+    color: var(--pt-fg-4);
+}
+
+#{$konto} .data-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+// sortowanie w nagłówku: strzałka ma być cieniem, nie drugim tekstem
+#{$konto} .data-table > thead > tr > th a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#{$konto} .data-table > thead > tr > th a:hover {
+    color: var(--pt-fg-2);
+}
+
+/* =====================================================================
+   5 · KOLUMNY LIST TORRENTÓW
+   Po co: silnik oznacza komórki klasami per kolumna
+   (.user-uploads__size, .user-torrents__ratio, .user-active__ip …),
+   a nazwę torrentu trzyma w <a class="user-*__name"> wewnątrz komórki
+   BEZ klasy. Zmierzone na /torrents i /active: kolumna nazwy dostaje
+   145 px, nazwa łamie się na osiem linii i wiersz rośnie do 131 px.
+   Nazwa dostaje całą wolną szerokość i jedną linię, wszystkie kolumny
+   z klasą (poza klientem i rodzajem, które są tekstem) idą w monospace.
+   ===================================================================== */
+
+// max-width: 0 + width: 100% zdejmuje z komórki liczenie szerokości
+// z treści — dopiero wtedy ellipsis w środku ma się o co oprzeć
+#{$konto} .data-table > tbody > tr > td:has(> .user-uploads__name),
+#{$konto} .data-table > tbody > tr > td:has(> .user-torrents__name),
+#{$konto} .data-table > tbody > tr > td:has(> .user-active__name),
+#{$konto} .data-table > tbody > tr > td:has(> .user-peers__name),
+#{$konto} .data-table > tbody > tr > td:has(> .user-earnings__name),
+#{$konto} .data-table > tbody > tr > td:has(> .user-resurrections__name) {
+    max-width: 0;
+    width: 100%;
+    // /torrents ma 19 kolumn i na nazwę nie zostaje ani piksela zapasu —
+    // zmierzone 81 px. Podłoga 200 px jest ważniejsza niż brak przewijania
+    // wewnątrz panelu (kolumna treści i tak zostaje na 1360 px).
+    min-width: 200px;
+}
+
+#{$konto} .user-uploads__name,
+#{$konto} .user-torrents__name,
+#{$konto} .user-active__name,
+#{$konto} .user-peers__name,
+#{$konto} .user-earnings__name,
+#{$konto} .user-resurrections__name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--pt-fg);
+}
+
+// klasy kolumn niosą wyłącznie liczby, czas i adresy IP — poza kolumną
+// klienta (.user-*__agent) i rodzaju (.user-earnings__type), które są tekstem
+#{$konto} .data-table > tbody > tr > td[class*='user-']:not([class*='__agent']):not([class*='__type']) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+// nagłówki kolumn silnik zostawia na 11 px z cursor: pointer — sortowanie
+// ma być czytelne, a strzałka cichsza od etykiety
+#{$konto} .data-table > thead > tr > th[class*='-header'] {
+    font-size: 11px;
+}
+
+// Kolumny „Wysłane / Pobrane / Ratio” trzymają DWIE wartości rozdzielone
+// <br> (surową i zaliczoną) — bez hierarchii czyta się to jak dublet.
+// Druga linia zostaje, ale schodzi do rangi przypisu.
+#{$konto} .data-table > tbody > tr > td[class*='__upload'] > span:last-child,
+#{$konto} .data-table > tbody > tr > td[class*='__download'] > span:last-child,
+#{$konto} .data-table > tbody > tr > td[class*='__ratio'] > span:last-child {
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+#{$konto} .data-table > tbody > tr > td[class*='__upload'],
+#{$konto} .data-table > tbody > tr > td[class*='__download'],
+#{$konto} .data-table > tbody > tr > td[class*='__ratio'] {
+    line-height: 1.3;
+}
+
+// stan aktywności: silnik daje tym komórkom tylko poświatę (zdjętą już
+// w _torrents.scss), więc znaczenie trzeba oddać kolorem tekstu
+#{$konto} .data-table .torrent-activity-indicator--seeding {
+    color: var(--pt-ok);
+}
+
+#{$konto} .data-table .torrent-activity-indicator--leeching {
+    color: var(--pt-warn);
+}
+
+#{$konto} .data-table .torrent-activity-indicator--completed {
+    color: var(--pt-fg-3);
+}
+
+/* =====================================================================
+   6 · PANEL FILTRÓW NAD LISTĄ
+   Po co: silnik daje kontenerowi checkboxów sztywne height: 160px —
+   w „Filtry” siedzi JEDEN checkbox, a pudełko i tak zajmuje 167 px
+   z uchwytem do rozciągania. Trzy takie pudełka podnoszą panel
+   wyszukiwania do 288 px. Wysokość ma wynikać z treści.
+   ===================================================================== */
+
+#{$konto} .form__fieldset-checkbox-container,
+#{$konto} .form__fieldset-checkbox-container--shrink {
+    height: auto;
+    max-height: 180px;
+    // uchwyt do rozciągania zostaje — przy ośmiu pozycjach lista i tak
+    // dobija do limitu i użytkownik musi mieć czym ją otworzyć
+    resize: vertical;
+}
+
+// pole „Nazwa” w filtrach dostawało całą szerokość panelu (1330 px) —
+// pas wyszukiwania ma być polem, nie tłem
+#{$konto} .user-uploads__filters .form__group--horizontal .form__group,
+#{$konto} .user-torrents__filters .form__group--horizontal .form__group,
+#{$konto} .user-peers__filters .form__group--horizontal .form__group,
+#{$konto} .user-resurrections__filters .form__group--horizontal .form__group {
+    max-width: 460px;
+}
+
+#{$konto} .user-uploads__filters .panel__body,
+#{$konto} .user-torrents__filters .panel__body,
+#{$konto} .user-peers__filters .panel__body,
+#{$konto} .user-resurrections__filters .panel__body {
+    padding: 12px;
+}
+
+// checkboxy filtrów: rytm 12,5 px i jeden odstęp, bez skoków między grupami
+#{$konto} .user-uploads__filters .form__group,
+#{$konto} .user-torrents__filters .form__group,
+#{$konto} .user-peers__filters .form__group,
+#{$konto} .user-resurrections__filters .form__group {
+    margin: 0;
+}
+
+// silnik centruje pudełka filtrów w pionie (align-items: center), więc
+// grupa o czterech checkboxach wypycha sąsiadki w dół — mają stać w rzędzie
+#{$konto} .form__group--short-horizontal:not([style*='display: none']) {
+    align-items: start;
+}
+
+/* =====================================================================
+   7 · OSIĄGNIĘCIA
+   Po co: silnik daje każdej odznace grid „auto 3fr 1fr”, padding 18 px,
+   margines 5 px i cień — zmierzone 116 px na pozycję, czyli 4443 px
+   na całą stronę przy czterdziestu odznakach. PT pokazuje je jako gęstą
+   siatkę kart: ikona 28 px, opis w jednej linii, pasek postępu 3 px.
+   ===================================================================== */
+
+#{$konto} .achievements__unlocked,
+#{$konto} .achievements__pending {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+}
+
+#{$konto} .achievements__unlocked > .panel__heading,
+#{$konto} .achievements__pending > .panel__heading {
+    grid-column: 1 / -1;
+}
+
+#{$konto} .achievement {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) 96px;
+    gap: 10px;
+    align-items: center;
+    margin: 0;
+    padding: 7px 12px;
+    border-radius: 0;
+    border-top: 1px solid var(--pt-line);
+    box-shadow: none;
+    background-color: transparent;
+    color: var(--pt-fg-2);
+}
+
+#{$konto} .achievement:hover {
+    background-color: var(--pt-surface-2);
+}
+
+// Pierwszym dzieckiem panelu jest nagłówek, więc lewa kolumna to karty
+// PARZYSTE — one niosą pionową kreskę, a pierwszy rzęd (dzieci 2 i 3)
+// nie potrzebuje kreski poziomej, bo ma pod sobą pas nagłówka.
+#{$konto} .achievement:nth-child(even) {
+    border-right: 1px solid var(--pt-line);
+}
+
+#{$konto} .achievement:nth-child(2),
+#{$konto} .achievement:nth-child(3) {
+    border-top: 0;
+}
+
+#{$konto} .achievement > img,
+#{$konto} .achievement__badge > img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+#{$konto} .achievement__description {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--pt-fg-2);
+}
+
+#{$konto} .achievement__progress {
+    width: 100%;
+    height: 3px;
+    border: 0;
+    border-radius: 2px;
+    background-color: var(--pt-surface-3);
+    color: var(--pt-red);
+    appearance: none;
+}
+
+#{$konto} .achievement__progress::-webkit-progress-bar {
+    background-color: var(--pt-surface-3);
+    border-radius: 2px;
+}
+
+#{$konto} .achievement__progress::-webkit-progress-value {
+    background-color: var(--pt-red);
+    border-radius: 2px;
+}
+
+#{$konto} .achievement__progress::-moz-progress-bar {
+    background-color: var(--pt-red);
+    border-radius: 2px;
+}
+
+// zdobyte odznaki czyta się jako stan „gotowe”, nie jako postęp
+#{$konto} .achievements__unlocked .achievement__progress::-webkit-progress-value {
+    background-color: var(--pt-ok);
+}
+
+#{$konto} .achievements__unlocked .achievement__progress::-moz-progress-bar {
+    background-color: var(--pt-ok);
+}
+
+#{$konto} .achievements__unlocked .achievement__description {
+    color: var(--pt-fg-3);
+}
+
+@media (max-width: 900px) {
+    #{$konto} .achievements__unlocked,
+    #{$konto} .achievements__pending {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #{$konto} .achievement:nth-child(even) {
+        border-right: 0;
+    }
+
+    #{$konto} .achievement:nth-child(3) {
+        border-top: 1px solid var(--pt-line);
+    }
+}
+
+/* =====================================================================
+   8 · USTAWIENIA KONTA
+   Po co: formularz stoi jedną kolumną na całą szerokość panelu —
+   zmierzone: <select> z wartością „Polski” ma 1318 px, a lista
+   jedenastu checkboxów „Block visibility” zajmuje 214 px pionu przy
+   pustej prawej połowie. Zwijamy pola i checkboxy w siatkę, żeby
+   ustawienia mieściły się na jednym ekranie.
+   ===================================================================== */
+
+#{$konto} .form__fieldset {
+    margin: 0;
+    padding: 10px 12px 12px;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+#{$konto} .form__legend {
+    padding: 0 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+// pola i checkboxy w siatce: 260 px to najwęższa sensowna szerokość
+// dla <select> z nazwą motywu, przy 1300 px daje cztery kolumny
+#{$konto}.page__user-general-setting--index .form__fieldset {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px 16px;
+    align-items: start;
+}
+
+// w siatce mają siedzieć wyłącznie pola i checkboxy; zagnieżdżony fieldset,
+// lista sortowalna i podpowiedź „Drag and drop…” to bloki na całą szerokość
+// — bez tego podpowiedź lądowała w drugiej kolumnie obok listy
+#{$konto}.page__user-general-setting--index .form__fieldset > :not(.form__group) {
+    grid-column: 1 / -1;
+}
+
+// adresy arkuszy CSS muszą być czytelne w całości
+#{$konto}.page__user-general-setting--index .form__group:has(> input[type='url']) {
+    grid-column: span 2;
+}
+
+#{$konto}.page__user-general-setting--index .form__group {
+    margin: 0;
+}
+
+// wiersz „checkbox + opis” bez własnego rytmu zlewa się w blok tekstu
+#{$konto}.page__user-general-setting--index .form__group:has(> .form__label > .form__checkbox),
+#{$konto}.page__user-general-setting--index .form__group:has(> .form__checkbox) {
+    padding: 2px 0;
+}
+
+// pojedyncze pole poza fieldsetem (język) nie ma się rozciągać na 1300 px
+#{$konto}.page__user-general-setting--index > article > .panelV2 > .panel__body > .form > .form__group {
+    max-width: 340px;
+}
+
+/* =====================================================================
+   9 · PAGINACJA I STANY PUSTE
+   Po co: paginacja siedzi wewnątrz panelu i bez własnego oddzielenia
+   klei się do ostatniego wiersza tabeli; puste panele („Brak aktywnych
+   transferów”) mają być ciche, a nie w kolorze treści.
+   ===================================================================== */
+
+#{$konto} .panelV2 > .pagination {
+    padding: 8px 12px;
+    border-top: 1px solid var(--pt-line);
+}
+
+#{$konto} .panelV2 > .panel__header + .pagination {
+    border-top: 0;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+#{$konto} .panel__body > p:only-child {
+    margin: 0;
+    color: var(--pt-fg-4);
+}
+
+// /earnings: pierwszy panel railu to sam licznik punktów w gołym <div>.
+// Jako jedyna treść panelu ma się czytać jak wartość, nie jak akapit.
+main.page__user-earning--index > article > aside > .panelV2:first-child > .panel__body {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 15px;
+    color: var(--pt-fg);
+}

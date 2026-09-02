@@ -19,3 +19,11 @@
 @use 'profile';
 @use 'forms';
 @use 'misc';
+
+// --- korekty z produkcji (PolishTorrent) ---
+@use 'pt-chrom';
+@use 'pt-listy';
+@use 'pt-torrent';
+@use 'pt-konto';
+@use 'pt-spolecznosc';
+@use 'pt-reszta';

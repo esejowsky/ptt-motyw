@@ -1,0 +1,583 @@
+/* ==== REQ · STATYSTYKI · SKLEP · POWIADOMIENIA · KONWERSACJE ====
+   Cel:     domknąć piątkę ekranów „reszty" w rytmie PT — kafle statystyk bez
+            pustego dołu, liczby w monospace we wszystkich kolumnach rankingów,
+            pasek podsumowania próśb jako rząd komórek, stany w kolorach
+            semantycznych oraz naprawa dwóch defektów silnika (jasnoszare
+            zakładki panelu i etykieta pływająca rozpychająca nagłówek).
+   Kotwice: main[class*='page__stats--'], .stats__panels, .panel--grid-item,
+            .stats__groups-table, main.page__request--index, .page__requests,
+            .key-value/.key-value__group, .data-table + .data-table__actions,
+            main.page__user-notification--index, main.page__user-conversation--index,
+            main.page__user-wish--index, main.page__user-transaction--create,
+            .panel__header/.panel__heading/.panel__actions/.panel__action,
+            .panel__tabs/.panel__tab/.panel__tab--active, .panel__body,
+            .form__label--floating, .form__button--filled,
+            .text-red/.text-green/.text-blue/.text-purple/.text-success/
+            .text-danger/.text-info/.text-warning, i.fa-circle
+   Ubytki:  1) /stats nie ma w markupie ani wykresu ruchu dobowego, ani sum
+               odniesienia dla kategorii — pasków udziału i wykresu ze wzorca
+               (ref/A_stats.png) nie da się zrobić samym CSS-em;
+            2) kolumna „Ratio" niesie samą liczbę, bez klasy stanu — nie da się
+               pokolorować ratio < 1 na czerwono, więc zostaje neutralna;
+            3) na stronie powiadomień wyłączone przyciski akcji dostają od
+               silnika `visibility: hidden`, więc kolumna „Akcje" bywa pusta —
+               samo CSS nie zwęzi jej, bo przycisk dalej zajmuje szerokość;
+            4) nagłówek strony ze wzorca („Req · 10 otwartych · 28 950 BON")
+               oraz pasek chipsów filtrów nie istnieją w markupie /requests —
+               silnik daje wyłącznie panel z tabelą i osobną wyszukiwarkę;
+            5) na /stats/groups barwy grup przychodzą jako `style="color: #..."`
+               prosto z bazy (np. #8B4513 dla „Pruned") — kilka z nich ledwie
+               odcina się od tła, ale nadpisanie ich zabiłoby rozpoznawalność
+               grup w całym serwisie, więc zostają jak są.
+   ==================================================================== */
+
+// =====================================================================
+// STATYSTYKI — kafle mają kończyć się tam, gdzie kończą się dane
+// Silnik trzyma `.panel--grid-item { height: 100% }`, więc wszystkie cztery
+// panele /stats rosły do wysokości najdłuższego (zmierzone: treść 684/369/
+// 221/234 px, panel zawsze 718 px → do 500 px pustki pod trzema z nich).
+// =====================================================================
+
+.stats__panels {
+    align-items: start;
+}
+
+.stats__panels > .panelV2,
+.stats__panels > .panel--grid-item {
+    height: auto;
+}
+
+// =====================================================================
+// STATYSTYKI — wstęp „Kochamy statystyki" ma być stopką strony, nie panelem
+// Wzorzec ma w tym miejscu nagłówek strony; skoro markup daje panel,
+// przynajmniej odbieramy mu wagę nagłówka panelu.
+// =====================================================================
+
+.page__stats--index > article > .panelV2:first-of-type > .panel__heading {
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// STATYSTYKI — tytuł panelu w jednej pionowej linii z komórkami tabeli
+// Zmierzone: tytuł startował na x=46 (padding 7px 5px), a komórki na x=53
+// (padding 6px 12px) — 7 px rozjazdu na każdym panelu.
+// =====================================================================
+
+main[class*='page__stats--'] .panelV2 > .panel__heading,
+main.page__request--index .panelV2 > .panel__heading,
+main.page__user-notification--index .panelV2 > .panel__heading,
+main.page__user-conversation--index .panelV2 > .panel__heading,
+main.page__user-wish--index .panelV2 > .panel__heading,
+main.page__user-transaction--create .panelV2 > .panel__heading,
+main.page__user-conversation--index .panel__header > .panel__heading,
+main.page__user-wish--index .panel__header > .panel__heading {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+// tytuł wewnątrz nagłówka z akcjami nie może dokładać drugiego tła i promienia
+main.page__user-conversation--index .panel__header > .panel__heading,
+main.page__user-wish--index .panel__header > .panel__heading {
+    background-color: transparent;
+    border-radius: 0;
+}
+
+// =====================================================================
+// STATYSTYKI — kolumny liczbowe rankingów w monospace i do prawej
+// Wszystkie rankingi użytkowników mają układ „# | użytkownik | liczby",
+// więc od trzeciej kolumny w prawo jest już wyłącznie liczba (sprawdzone
+// w widokach: bankers, downloaded, leechers, messages, seeders, seedsize,
+// seedtime, upload-snatches, uploaded, uploaders, bountied).
+// Zmierzone przed: „94.61 PiB" system-ui, text-align: start.
+// =====================================================================
+
+.page__stats--bankers .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--downloaded .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--leechers .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--messages .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--seeders .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--seedsize .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--seedtime .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--upload-snatches .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--uploaded .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--uploaders .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--bountied .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--clients .data-table > tbody > tr > td:nth-child(n + 2) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: right;
+    color: var(--pt-fg);
+}
+
+.page__stats--bankers .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--downloaded .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--leechers .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--messages .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--seeders .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--seedsize .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--seedtime .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--upload-snatches .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--uploaded .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--uploaders .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--bountied .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--clients .data-table > thead > tr > th:nth-child(n + 2) {
+    text-align: right;
+}
+
+// kolumna z nazwą (druga) ma zostać tekstem — nie chcemy jej ciągnąć w prawo
+.page__stats--bankers .data-table > tbody > tr > td:nth-child(2),
+.page__stats--uploaded .data-table > tbody > tr > td:nth-child(2),
+.page__stats--downloaded .data-table > tbody > tr > td:nth-child(2) {
+    text-align: left;
+}
+
+// /stats/groups: kolumna liczby użytkowników do prawej krawędzi
+.page__stats--groups .stats__groups-table > tbody > tr > td:nth-child(2),
+.page__stats--groups .stats__groups-table > thead > tr > th:nth-child(2),
+.page__stats--groups .data-table > tbody > tr > td:nth-child(2),
+.page__stats--groups .data-table > thead > tr > th:nth-child(2) {
+    text-align: right;
+}
+
+// =====================================================================
+// STATYSTYKI — hover na wierszu, nie na komórce
+// (tło zostaje na td, bo tabela silnika maluje td; ale sterujemy nim z tr)
+// =====================================================================
+
+main[class*='page__stats--'] .data-table > tbody > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+// =====================================================================
+// REQ — pasek podsumowania pod listą próśb
+// Zmierzone przed: dl bez paddingu, wiersz 13 px, etykieta na x=41 (klejona
+// do ramki panelu), wartość na x=1361 (przy przeciwległej krawędzi) — para
+// „etykieta ↔ wartość" była nieczytelna, bo dzieliło je 1358 px.
+// Wzorzec (ref/A_req.png) ma tu rząd komórek rozdzielonych pionową kreską.
+// =====================================================================
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    padding: 0;
+    margin: 0;
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 7px;
+    align-items: baseline;
+    width: auto;
+    padding: 7px 14px;
+    border-right: 1px solid var(--pt-line);
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group:last-child {
+    border-right: 0;
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group > dt {
+    flex: 0 0 auto;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group > dd {
+    flex: 0 0 auto;
+    margin: 0;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pt-fg);
+}
+
+// =====================================================================
+// REQ — stan prośby czytany kolorem tekstu, nie kropką
+// Markup: `<i class="fas fa-circle text-*"></i> Niewypełnione` w ostatniej
+// komórce. Wzorzec pokazuje sam napis w barwie stanu, bez kropki.
+// =====================================================================
+
+main.page__request--index .data-table > tbody > tr > td > i.fa-circle {
+    display: none;
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle) {
+    text-align: right;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+main.page__request--index .data-table > thead > tr > th:last-child {
+    text-align: right;
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-red) {
+    color: var(--pt-red-fg);
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-blue) {
+    color: var(--pt-warn);
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-purple) {
+    color: var(--pt-x2);
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-green) {
+    color: var(--pt-ok);
+}
+
+// tytuł prośby to główna treść wiersza — ma być jasny, nie czerwony
+main.page__request--index .data-table > tbody > tr > td:first-child > a {
+    color: var(--pt-fg);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+main.page__request--index .data-table > tbody > tr > td:first-child > a:hover {
+    color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE — ściana czerwieni w kolumnie tytułu
+// Globalne `a { color: var(--color-blue) }` (u nas --pt-red-fg) barwi każdy
+// tytuł w tabeli; przy 25 wierszach cała kolumna świeci na czerwono.
+// Czerwień zostaje na hoverze, gdzie faktycznie coś znaczy.
+// =====================================================================
+
+main.page__user-notification--index .data-table > tbody > tr > td > a,
+main.page__user-conversation--index .data-table > tbody > tr > td > a,
+main.page__user-wish--index .data-table > tbody > tr > td > a {
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+main.page__user-notification--index .data-table > tbody > tr > td > a:hover,
+main.page__user-conversation--index .data-table > tbody > tr > td > a:hover,
+main.page__user-wish--index .data-table > tbody > tr > td > a:hover {
+    color: var(--pt-red-fg);
+    text-decoration: none;
+}
+
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE / ŻYCZENIA — rytm tabeli jak w /requests
+// Zmierzone przed: padding 7px (tekst na x=48), gdy reszta serwisu ma 12 px
+// w poziomie; wiersz bez hoveru.
+// =====================================================================
+
+main.page__user-notification--index .data-table > thead > tr > th,
+main.page__user-conversation--index .data-table > thead > tr > th,
+main.page__user-wish--index .data-table > thead > tr > th {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-notification--index .data-table > tbody > tr > td,
+main.page__user-conversation--index .data-table > tbody > tr > td,
+main.page__user-wish--index .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+main.page__user-notification--index .data-table > tbody > tr:hover > td,
+main.page__user-conversation--index .data-table > tbody > tr:hover > td,
+main.page__user-wish--index .data-table > tbody > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+// treść powiadomienia jest tłem informacyjnym, nie tytułem
+main.page__user-notification--index .data-table > tbody > tr > td:nth-child(2) {
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// data zawsze jedną linią i w monospace — inaczej „1 tydzień temu" łamie wiersz
+main.page__user-notification--index .data-table > tbody > tr > td time,
+main.page__user-conversation--index .data-table > tbody > tr > td time,
+main.page__user-transaction--create .data-table > tbody > tr > td time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pt-fg-3);
+}
+
+// licznik odpowiedzi to liczba, nie zdanie
+main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(4) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// KONWERSACJE — zakładki panelu (defekt silnika)
+// `.panel__tab { background-color: var(--data-table-th-fg) }` bierze KOLOR
+// TEKSTU nagłówka tabeli jako TŁO zakładki: zmierzone rgb(150,150,150) na
+// jasnoszaro, tekst rgb(227,227,227) — pasek był nieczytelny. Do tego
+// `.panel__tab--active` ma zaszyte #b0b0b0/#888, więc aktywna zakładka
+// wyglądała na wygaszoną.
+// =====================================================================
+
+main.page__user-conversation--index .panel__tabs {
+    justify-content: flex-start;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+main.page__user-conversation--index .panel__tab {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+main.page__user-conversation--index .panel__tab:hover {
+    color: var(--pt-fg);
+}
+
+main.page__user-conversation--index .panel__tab--active {
+    color: var(--pt-fg);
+    border-bottom: 2px solid var(--pt-red);
+}
+
+// =====================================================================
+// KONWERSACJE / ŻYCZENIA — pola filtrów nie mogą rozpychać nagłówka panelu
+// Globalnie etykieta pływająca jest statyczna NAD polem (tak chce motyw),
+// ale w pasku nagłówka nie ma na to miejsca: zmierzone `.form__group`
+// urosło do 47 px i podniosło nagłówek z 36 na 55 px. W nagłówku wracamy
+// do zachowania jak w `.compact-search` — etykieta siedzi w polu.
+// =====================================================================
+
+main.page__user-conversation--index .panel__actions .form__group:has(> .form__label--floating),
+main.page__user-wish--index .panel__actions .form__group:has(> .form__label--floating) {
+    display: block;
+    position: relative;
+    gap: 0;
+}
+
+main.page__user-conversation--index .panel__actions .form__label--floating,
+main.page__user-wish--index .panel__actions .form__label--floating {
+    position: absolute;
+    top: 50%;
+    left: 7px;
+    transform: translateY(-50%);
+    order: 0;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+    pointer-events: none;
+}
+
+// pole wypełnione lub aktywne — etykieta wskakuje na krawędź, żeby nie
+// nakładała się na wpisywany tekst
+main.page__user-conversation--index .panel__actions .form__text:focus ~ .form__label--floating,
+main.page__user-conversation--index .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating,
+main.page__user-wish--index .panel__actions .form__text:focus ~ .form__label--floating,
+main.page__user-wish--index .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating {
+    top: 0;
+    font-size: 10px;
+    color: var(--pt-red-fg);
+    background-color: var(--pt-surface-2);
+}
+
+main.page__user-conversation--index .panel__header,
+main.page__user-wish--index .panel__header {
+    align-items: center;
+    padding: 4px 8px 4px 0;
+}
+
+main.page__user-conversation--index .panel__actions,
+main.page__user-wish--index .panel__actions {
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+
+main.page__user-conversation--index .panel__action,
+main.page__user-wish--index .panel__action {
+    font-size: 12.5px;
+}
+
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE / SKLEP — panele boczne i ich przyciski
+// Silnikowe `.panel__body { padding: 20px; font-size: 15px }` rozpycha wąski
+// rail 290 px, a przyciski akcji stały bez odstępu jeden na drugim, z
+// line-height 12.5 px przy dwu- i trzywierszowym napisie (mierzone: 28/40/28
+// px wysokości, 0 px przerwy) — czytało się to jak jedna czerwona plama.
+// =====================================================================
+
+main.page__user-notification--index .panel__body,
+main.page__user-conversation--index .panel__body,
+main.page__user-transaction--create .panel__body {
+    padding: 10px 12px;
+    font-size: 12.5px;
+}
+
+main.page__user-notification--index .panel__body > form + form,
+main.page__user-notification--index .panel__body > form + p,
+main.page__user-notification--index .panel__body > p + form,
+main.page__user-conversation--index .panel__body > form + form,
+main.page__user-conversation--index .panel__body > form + p,
+main.page__user-conversation--index .panel__body > p + form {
+    margin-top: 7px;
+}
+
+main.page__user-notification--index .panel__body .form__button--filled,
+main.page__user-conversation--index .panel__body .form__button--filled {
+    height: auto;
+    min-height: 28px;
+    gap: 7px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal;
+    text-align: center;
+}
+
+// zestaw filtrów powiadomień: gęściej i bez uchwytu do rozciągania
+main.page__user-notification--index .form__fieldset {
+    padding: 6px 8px 8px;
+}
+
+main.page__user-notification--index .form__fieldset-checkbox-container {
+    padding: 4px 8px 8px;
+    resize: none;
+}
+
+main.page__user-notification--index .form__fieldset .form__label {
+    gap: 7px;
+    font-size: 12px;
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// STANY — warianty `.text-*`, których globalna mapa nie obejmuje
+// Zmierzone: `.text-success` na liście filtrów to rgb(0,188,99) — zieleń
+// bootstrapowa, obca palecie PT.
+// =====================================================================
+
+main[class*='page__stats--'] .text-success,
+main.page__request--index .text-success,
+main.page__user-notification--index .text-success,
+main.page__user-conversation--index .text-success,
+main.page__user-wish--index .text-success,
+main.page__user-transaction--create .text-success {
+    color: var(--pt-ok);
+}
+
+main[class*='page__stats--'] .text-danger,
+main.page__request--index .text-danger,
+main.page__user-notification--index .text-danger,
+main.page__user-conversation--index .text-danger,
+main.page__user-wish--index .text-danger,
+main.page__user-transaction--create .text-danger {
+    color: var(--pt-red-fg);
+}
+
+main[class*='page__stats--'] .text-info,
+main.page__request--index .text-info,
+main.page__user-notification--index .text-info,
+main.page__user-conversation--index .text-info,
+main.page__user-wish--index .text-info,
+main.page__user-transaction--create .text-info {
+    color: var(--pt-info);
+}
+
+main[class*='page__stats--'] .text-warning,
+main.page__request--index .text-warning,
+main.page__user-notification--index .text-warning,
+main.page__user-conversation--index .text-warning,
+main.page__user-wish--index .text-warning,
+main.page__user-transaction--create .text-warning {
+    color: var(--pt-warn);
+}
+
+// =====================================================================
+// AKCJE W WIERSZU TABELI — tekstowy przycisk ma czytać się jak etykieta
+// =====================================================================
+
+main.page__user-notification--index .data-table__actions,
+main.page__user-conversation--index .data-table__actions,
+main.page__user-wish--index .data-table__actions {
+    gap: 8px;
+}
+
+main.page__user-notification--index .data-table__actions .form__button--text,
+main.page__user-conversation--index .data-table__actions .form__button--text,
+main.page__user-wish--index .data-table__actions .form__button--text {
+    height: auto;
+    min-height: 22px;
+    padding: 2px 8px;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--pt-fg-3);
+}
+
+main.page__user-notification--index .data-table__actions .form__button--text:hover,
+main.page__user-conversation--index .data-table__actions .form__button--text:hover,
+main.page__user-wish--index .data-table__actions .form__button--text:hover {
+    color: var(--pt-red-fg);
+    border-color: var(--pt-line-ui);
+    background-color: var(--pt-surface-3);
+    filter: none;
+}
+
+// =====================================================================
+// SKLEP BON — ostrzeżenie i saldo w rytmie reszty railu
+// =====================================================================
+
+main.page__user-transaction--create .panelV2:last-of-type > .panel__body {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--pt-fg-3);
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:last-child {
+    text-align: right;
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:last-child form {
+    display: inline-block;
+    margin: 0;
+}
+
+// =====================================================================
+// WĄSKI EKRAN — rankingi i pasek podsumowania nie mogą rozpychać strony
+// =====================================================================
+
+@media (max-width: 900px) {
+    main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group {
+        padding: 6px 10px;
+    }
+
+    main.page__user-conversation--index .panel__tab {
+        padding: 7px 10px;
+    }
+}
