@@ -384,3 +384,32 @@
 }
 .torrent-search--list__rating { font-size: 11px !important; line-height: 1.2 !important; }
 .torrent-search--list__rating * { font-size: inherit !important; }
+
+
+// --- korekty z produkcji: tła wierszy i szerokość kontenera ---
+/* ---- 1. tło wiersza zamiast tła pojedynczych komórek -------------------
+   Komórki mają różne wysokości (od 23 do 64 px). Gdy każda niesie własne tło,
+   na stronie widać zlepek ciemnych prostokątów zamiast jednego wiersza. */
+.torrent-search--list__row,
+.torrent-search--list__no-poster-row { background-color: var(--pt-surface); }
+
+.torrent-search--list__row > td,
+.torrent-search--list__no-poster-row > td { background-color: transparent !important; }
+
+.torrent-search--list__row:hover,
+.torrent-search--list__no-poster-row:hover { background-color: var(--pt-surface-2); }
+
+/* przypięte znów muszą wygrać z powyższym */
+.torrent-search--list__sticky-row { background-color: rgb(212 33 46 / 18%) !important; }
+.torrent-search--list__sticky-row:hover { background-color: rgb(212 33 46 / 26%) !important; }
+
+/* nagłówek tabeli tak samo: tło na wierszu, nie na komórkach */
+.torrent-search--list__headers,
+.torrent-search--list__no-poster-headers { background-color: var(--pt-surface-2); }
+.torrent-search--list__headers > th,
+.torrent-search--list__no-poster-headers > th { background-color: transparent !important; }
+
+/* ---- 2. szerokość zgodna z nawigacją i stopką --------------------------
+   PT opakowuje listę we własny kontener z poziomym paddingiem, przez co
+   tabela jest węższa od panelu nad nią i wygląda na przesuniętą. */
+.search-portal-box { padding-left: 0 !important; padding-right: 0 !important; }
