@@ -1,0 +1,431 @@
+/* ==== WIADOMOŚCI I POWIADOMIENIA ====
+   Cel:     lista rozmów i lista powiadomień mają być gęstymi rejestrami z
+            czytelnym znacznikiem „nieprzeczytane", a wątek rozmowy — ciągiem
+            wpisów z nazwiskiem autora i czasem, nie stosem paneli-etykiet.
+   Kotwice: main.page__user-conversation--index, main.page__user-conversation--show,
+            main.page__user-notification--index, .data-table (thead/tbody/tr/td),
+            .notification--read / .notification--unread, .data-table__actions,
+            .data-table__action, .form__button--text[disabled],
+            .panelV2 > .panel__header / .panel__heading / .panel__actions /
+            .panel__action, .panel__body(.bbcode-rendered), .user-tag,
+            .user-tag__link, .bbcode-input, .bbcode-input__tab-pane,
+            .form__label--floating, .form__fieldset, article.sidebar2
+   Ubytki:  1) przy dzwonku i kopercie w nagłówku NIE MA licznika — silnik
+               wstawia tam wyłącznie pulsującą kropkę SVG (komponent
+               `animation.notification`, bez żadnej liczby). Samo CSS nie
+               policzy nieprzeczytanych, więc „7" przy kopercie wymagałoby
+               zmiany w blade. Kolor kropki jest już przestawiony na czerwień
+               PT w `_nav.scss` — tu tego nie dublujemy;
+            2) w wątku nie da się odróżnić własnych wypowiedzi od cudzych —
+               `conversations/show.blade.php` nie daje panelowi żadnej klasy
+               stanu, a jedyny wyróżnik (link do własnego profilu) zależy od
+               nazwy konta, więc nie da się go zapisać we wspólnym arkuszu.
+               Stąd bąbelki „lewo/prawo" odpadają; zostaje jednolity rejestr;
+            3) wiersz listy rozmów nie niesie klasy „nieprzeczytana" — stan
+               siedzi wyłącznie w ikonie w piątej kolumnie, więc akcent stawiamy
+               przez `tr:has(...)`. Na przeglądarce bez `:has()` wiersz po prostu
+               zostanie neutralny (ikona i tak zostaje);
+            4) temat rozmowy przycięty do jednej linii nie ma atrybutu `title`,
+               więc bardzo długiego tematu nie da się podejrzeć tooltipem —
+               widać go dopiero w wątku. CSS nie dopisze atrybutu;
+            5) akcje wiersza silnik odsłania dopiero na hoverze
+               (`.data-table__action > :not(.dialog) { visibility: hidden }`),
+               ale miejsce rezerwuje zawsze. Martwy przycisk „Oznacz jako
+               przeczytane" chowamy po atrybucie `disabled` — tam gdzie akcja
+               jest tylko wyszarzana BEZ tego atrybutu, CSS jej nie rozpozna;
+            6) wątek nie ma kotwicy „skocz do najnowszej" ani numeracji
+               wypowiedzi — przy 68 wiadomościach (rozmowa 283536) trzeba
+               przewijać; to wymaga zmiany w blade.
+   ==================================================================== */
+
+// ---------------------------------------------------------------------
+// Skrót do walki o specyficzność z regułami „konta"
+// `_pt-konto.scss` opisuje CAŁY dział /users regułami w kształcie
+// `main[class^='page__user-']:not(.page__user-profile--show):not(.page__user-transaction--create) …`,
+// czyli (0,6,1) dla nagłówka panelu i (0,5,1) dla jego treści. Zwykłe
+// `main.page__user-conversation--show …` to tylko (0,4,1) i PRZEGRYWA —
+// zmierzone: nick w wątku dalej wychodził 11 px wersalikami.
+// Dokładamy do tego samego kształtu klasę strony, żeby wyjść o jedno wyżej
+// (0,7,1)/(0,6,1) i nie sięgać po !important.
+// ---------------------------------------------------------------------
+$watek: 'main[class^="page__user-"]:not(.page__user-profile--show):not(.page__user-transaction--create).page__user-conversation--show';
+
+// =====================================================================
+// 01 · LISTA ROZMÓW — wiersz ma mieć jedną wysokość
+// Zmierzone przed: wiersze 1–2 mają 48 px, reszta 35 px, bo długi temat łamie
+// się na dwie linie w kolumnie 362 px. Lista 25 pozycji „faluje".
+// Temat dostaje jedną linię z wielokropkiem — pełną treść i tak widać w wątku.
+// =====================================================================
+
+// Samo `text-overflow` NIE wystarczy: przy `table-layout: auto` komórka rośnie
+// do szerokości treści — zmierzone po pierwszej próbie: tabela 1058 -> 1768 px.
+// Dlatego najpierw ustalamy podział kolumn, a dopiero potem przycinamy temat.
+main.page__user-conversation--index .data-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+main.page__user-conversation--index .data-table > thead > tr > th:nth-child(1) {
+    width: 14%; // nadawcy
+}
+
+main.page__user-conversation--index .data-table > thead > tr > th:nth-child(3) {
+    width: 12%; // data
+}
+
+// Szerokości dyktuje NAGŁÓWEK, nie treść: „ODPOWIEDZI" i „PRZECZYTANE" mają
+// `white-space: nowrap`, więc przy pierwszej próbie (8% / 6%) napisy wyszły na
+// sąsiednią kolumnę i nałożyły się na „AKCJE". Punkt odniesienia to szerokości,
+// jakie sam sobie wyliczył układ automatyczny (czyli max-content nagłówków):
+// zmierzone [123, 362, 124, 118, 114, 218] px przy tabeli 1058 px —
+// stąd 12% / 11% / 21% jako minimum, które te napisy mieści.
+main.page__user-conversation--index .data-table > thead > tr > th:nth-child(4) {
+    width: 12%; // odpowiedzi
+}
+
+main.page__user-conversation--index .data-table > thead > tr > th:nth-child(5) {
+    width: 11%; // stan
+}
+
+// „Nieprzeczytane" + „Usuń" to zmierzone 198 px paska akcji — kolumna musi je
+// pomieścić razem z paddingiem 2 x 10 px, inaczej przyciski wychodzą na stan
+main.page__user-conversation--index .data-table > thead > tr > th:nth-child(6) {
+    width: 21%; // akcje
+}
+
+main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(2) > a {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+// nadawcy w pierwszej kolumnie: przy rozmowie wieloosobowej znaczniki
+// użytkowników sklejały się w jeden ciąg — rozdzielamy je odstępem
+main.page__user-conversation--index .data-table > tbody > tr > td:first-child {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+main.page__user-conversation--index .data-table > tbody > tr > td:first-child .user-tag + .user-tag {
+    margin-left: 8px;
+}
+
+// =====================================================================
+// 02 · LISTA ROZMÓW — stan „przeczytane" bez ściany zielonych ptaszków
+// Zmierzone przed: 25/25 wierszy niosło `i.fa-check.text-green` w kolorze
+// rgb(110,207,139) — zieleń krzyczała w miejscu, w którym nic się nie dzieje.
+// Sygnał ma nieść WYJĄTEK (nieprzeczytane), nie stan domyślny.
+// =====================================================================
+
+main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(5) > i.fa-check {
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(5) > i.fa-times {
+    font-size: 11px;
+    color: var(--pt-red);
+}
+
+// =====================================================================
+// 03 · LISTA ROZMÓW — nieprzeczytane akcentem, nie tłem
+// Markup nie daje wierszowi żadnej klasy stanu; jedyny nośnik to ikona
+// `fa-times` w piątej kolumnie (patrz `livewire/conversation-search.blade.php`).
+// Kreska 2 px przy lewej krawędzi + temat w pełnej bieli wystarczą; w rzędzie
+// tabeli wszystkie komórki mają tę samą wysokość, więc kreska na pierwszej
+// komórce jest dokładnie tak wysoka jak wiersz.
+// Wiersze przeczytane dostają przezroczystą kreskę tej samej grubości, żeby
+// kolumna nie skakała w bok o 2 px.
+// =====================================================================
+
+main.page__user-conversation--index .data-table > tbody > tr > td:first-child {
+    border-left: 2px solid transparent;
+}
+
+main.page__user-conversation--index
+    .data-table
+    > tbody
+    > tr:has(> td:nth-child(5) > i.fa-times)
+    > td:first-child {
+    border-left-color: var(--pt-red);
+}
+
+main.page__user-conversation--index
+    .data-table
+    > tbody
+    > tr:has(> td:nth-child(5) > i.fa-times)
+    > td:nth-child(2) > a {
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+// data ostatniego ruchu w nieprzeczytanej rozmowie też przestaje być szara
+main.page__user-conversation--index
+    .data-table
+    > tbody
+    > tr:has(> td:nth-child(5) > i.fa-times)
+    > td time {
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// 04 · POWIADOMIENIA — niewidzialny znacznik nieprzeczytanych (defekt motywu)
+// Zmierzone przed: `td.notification--read` ma `border-left: 8px solid
+// rgb(31,31,31)`, a nieprzeczytane — `var(--notification-unread)`, czyli
+// #232323. Obie kreski leżą na panelu #1f1f1f, więc różnica przeczytane /
+// nieprzeczytane była praktycznie NIEWIDOCZNA (kontrast 1.06:1), a przy tym
+// zjadała 8 px wcięcia w każdym wierszu.
+// Zwężamy pasek do 2 px i dajemy mu czerwień PT tylko dla nieprzeczytanych.
+// =====================================================================
+
+// Silnik pisze te dwie reguły z `!important` (`.notification--read {
+// border-left: 8px solid var(--notification-read) !important }` w main.css),
+// więc jedyne, co je przebije, to również !important (LEKCJA 4).
+main.page__user-notification--index .data-table > tbody > tr > td.notification--read {
+    border-left: 2px solid transparent !important;
+}
+
+main.page__user-notification--index .data-table > tbody > tr > td.notification--unread {
+    border-left: 2px solid var(--pt-red) !important;
+}
+
+// tytuł nieprzeczytanego powiadomienia w pełnej bieli i półgrubo — to jedyne
+// miejsce, w którym waga kroju coś znaczy
+main.page__user-notification--index .data-table > tbody > tr > td.notification--unread > a {
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+main.page__user-notification--index .data-table > tbody > tr > td.notification--read > a {
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// 04b · POWIADOMIENIA — podział kolumn
+// Zmierzone przed: `table-layout: auto` dawał kolumnie tytułu 192 px, przez co
+// „Nowe powiadomienie o…" łamało się na TRZY linie i rozdymało wiersz do 66–83
+// px. Ustalony podział mieści tytuł w dwóch linijkach, a treści oddaje więcej
+// miejsca niż silnik (518 -> 560 px). Sprawdzone cztery podziały; 24/12/11
+// dało najkrótszą tabelę przy tytule mieszczącym się w dwóch wierszach
+// (tbody 1567 -> 1524 px).
+// =====================================================================
+
+main.page__user-notification--index .data-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+main.page__user-notification--index .data-table > thead > tr > th:nth-child(1) {
+    width: 24%; // tytuł
+}
+
+main.page__user-notification--index .data-table > thead > tr > th:nth-child(3) {
+    width: 12%; // data
+}
+
+main.page__user-notification--index .data-table > thead > tr > th:nth-child(4) {
+    width: 11%; // akcje
+}
+
+// =====================================================================
+// 05 · POWIADOMIENIA — treść łamana w środku wyrazu
+// Blade wstawia w komórkę treści `style="word-break: break-all"`, więc
+// „Skomentował" potrafiło się złamać na „Skomen-|tował". Styl jest inline,
+// więc jedyne, co go przebije, to !important (LEKCJA 4).
+// =====================================================================
+
+main.page__user-notification--index .data-table > tbody > tr > td:nth-child(2) {
+    word-break: normal !important;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// 06 · POWIADOMIENIA — kolumna „Akcje" nie może trzymać pustego miejsca
+// Silnik odsłania akcje wiersza dopiero na hoverze
+// (`.data-table__action > :not(.dialog) { visibility: hidden }` +
+// `.data-table tr:hover … { visibility: visible }` w main.css), ale miejsce
+// rezerwuje ZAWSZE. Przy powiadomieniu już przeczytanym przycisk „Oznacz jako
+// przeczytane" ma `disabled` i nigdy nie da się go kliknąć, a mimo to zajmuje
+// zmierzone 137 px z kolumny 220 px — czyli przez 24 z 25 wierszy „Usuń"
+// stoi odsunięty w prawo od martwego przycisku.
+// Chowamy całą pozycję listy; zmierzone po: pasek akcji 200 -> 55 px.
+// =====================================================================
+
+main.page__user-notification--index li.data-table__action:has(button[disabled]) {
+    display: none;
+}
+
+// =====================================================================
+// 07 · POWIADOMIENIA — filtr typów: 20 zielonych ikon to nie jest sygnał
+// Zmierzone przed: każda z 20 pozycji filtra ma ikonę `.text-success`
+// (rgb(110,207,139)). Zieleń w motywie PT znaczy „ok / seeduje"; tutaj ikona
+// jest wyłącznie piktogramem typu, więc gaśnie do szarości interfejsu.
+// =====================================================================
+
+main.page__user-notification--index .form__fieldset .form__label > i {
+    width: 13px;
+    font-size: 11.5px;
+    text-align: center;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-notification--index .form__fieldset .form__label:hover > i {
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// 08 · WĄTEK ROZMOWY — nagłówek panelu to NAZWA AUTORA, nie etykieta sekcji
+// Zmierzone przed: `.panel__heading` w wątku dziedziczy styl etykiety panelu —
+// 11 px, wersaliki, ls 0.66 px, kolor --pt-fg-3 — przez co nick „Atut" czytał
+// się jak podpis rubryki, a jego barwa grupy (inline `style="color:#F7A95B"`)
+// ginęła w wersalikach. Dokładnie ten sam zabieg zrobiliśmy dla tytułu wątku
+// na forum (`_pt-spolecznosc.scss`, sekcja 03).
+// =====================================================================
+
+#{$watek} .panelV2 > .panel__header > .panel__heading {
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+#{$watek} .panelV2 > .panel__header > .panel__heading .user-tag__link {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+#{$watek} .panelV2 > .panel__header {
+    align-items: center;
+    gap: 12px;
+    padding: 5px 12px;
+}
+
+// =====================================================================
+// 09 · WĄTEK — czas wypowiedzi jest liczbą, nie krzykiem
+// Zmierzone przed: `<time>` w nagłówku dziedziczy 11.5 px / 600 / wersaliki /
+// ls 0.66 px, a `.panel__action` dokłada własne tło --pt-surface-2 i promień
+// 3px 3px 0 0 (z tokenów nagłówka panelu) — czyli prostokącik w prostokącie.
+// =====================================================================
+
+main.page__user-conversation--show .panel__actions {
+    gap: 0;
+    padding: 0;
+}
+
+// Promień 3px 3px 0 0 przychodzi z silnikowej reguły
+// `.panel__actions > .panel__action:last-child { border-radius: ... }` —
+// (0,3,0). Żeby ją przebić bez !important, celujemy przez `.panel__actions`.
+main.page__user-conversation--show .panel__actions > .panel__action {
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+}
+
+main.page__user-conversation--show .panel__header time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// 10 · WĄTEK — ciąg wypowiedzi zamiast stosu osobnych kart
+// Zmierzone przed: `article.sidebar2 > div` to flex z `row-gap: 10px`, więc
+// przy 68 wiadomościach (rozmowa 283536) sama przerwa między panelami dawała
+// 680 px pustego przewijania. 6 px trzyma wpisy jako jeden rejestr, a ramki
+// paneli dalej je rozdzielają.
+// =====================================================================
+
+main.page__user-conversation--show article.sidebar2 > div {
+    row-gap: 6px;
+}
+
+// treść wiadomości jest tekstem GŁÓWNYM tej strony — ma prawo do pełnej bieli
+// (silnik daje jej --pt-fg-2, czyli kolor podpisów)
+#{$watek} .panelV2 > .panel__body.bbcode-rendered {
+    padding: 10px 12px;
+    line-height: 1.6;
+    color: var(--pt-fg);
+}
+
+// =====================================================================
+// 11 · WĄTEK — lista uczestników w panelu bocznym
+// Zmierzone przed: goła `<ul>` z przeglądarki — wcięcie 40 px, kropki `disc`,
+// margines 12.5 px góra/dół. W kolumnie 274 px nick startował dopiero na
+// x=1153, czyli 40 px od krawędzi panelu.
+// =====================================================================
+
+#{$watek} article.sidebar2 > aside .panel__body > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#{$watek} article.sidebar2 > aside .panel__body > ul > li {
+    padding: 4px 0;
+    font-size: 12.5px;
+}
+
+#{$watek} article.sidebar2 > aside .panel__body > ul > li + li {
+    border-top: 1px solid var(--pt-line);
+}
+
+// =====================================================================
+// 12 · WĄTEK — formularz odpowiedzi
+// Zmierzone przed: etykieta pływająca „Odpowiedz" stoi jako pełnowymiarowy
+// akapit 11 px NAD polem i powtarza tytuł panelu („ODPOWIEDZ"). Zostaje —
+// bo to jedyna dostępna nazwa pola dla czytnika ekranu — ale gaśnie do
+// podpisu w rytmie 10.5 px / wersaliki / --pt-fg-4.
+// Zgodnie z LEKCJĄ 3 NIE przestawiamy jej na position:absolute: przy polu
+// wielowierszowym etykieta w środku pola zasłaniałaby wpisywany tekst.
+// =====================================================================
+
+main.page__user-conversation--show .bbcode-input .form__label--floating {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+// pole odpowiedzi ma dać miejsce na kilka zdań bez sięgania po uchwyt
+main.page__user-conversation--show .bbcode-input .form__textarea {
+    min-height: 104px;
+}
+
+// wnętrze karty „Write / Podgląd" — 10 px z każdej strony to za dużo przy
+// polu, które i tak ma własny padding 7/9 px
+main.page__user-conversation--show .bbcode-input__tab-pane {
+    padding: 8px 10px;
+}
+
+// przycisk „Odpowiedz" pod polem — 10 px odstępu, żeby nie kleił się do ramki
+main.page__user-conversation--show .bbcode-input ~ .form__group {
+    margin-top: 10px;
+}
+
+// =====================================================================
+// 13 · WĄTEK — panel odpowiedzi trzyma rytm panelu wiadomości
+// =====================================================================
+
+#{$watek} .panelV2 > .panel__body:not(.bbcode-rendered) {
+    padding: 10px 12px;
+}
+
+#{$watek} article.sidebar2 > aside .panelV2 > .panel__body {
+    padding: 8px 12px;
+    font-size: 12.5px;
+}

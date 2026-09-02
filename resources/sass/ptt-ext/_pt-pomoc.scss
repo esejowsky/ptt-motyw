@@ -1,0 +1,720 @@
+/* ==== HELPDESK, KONTAKT, STRONY STATYCZNE, WIKI, ARTYKUŁY ====
+   Cel:     doprowadzić helpdesk i strony informacyjne do gęstego, płaskiego rytmu PT —
+            lista zgłoszeń jako zwarta tabela ze stanami w kolorach semantycznych,
+            zgłoszenie i strony statyczne w tej samej typografii co treść bbcode.
+   Kotwice: main.page__ticket--index / .page__ticket--show / .page__ticket--create /
+            .page__contact / .page__about-us--index / .page__blacklist--index /
+            .page__internal--index / .page__page--show, .panelV2 > .panel__header /
+            .panel__heading / .panel__actions / .panel__action, .panel__tabs /
+            .panel__tab / .panel__tab--full-width / .panel__tab--active,
+            .data-table (> tbody > tr > th|td), .data-table__actions,
+            .form / .form__group / .form__label--floating / .form__text /
+            .form__select / .form__textarea / .form__button(--filled|--text),
+            .panel__body (bez .bbcode-rendered), .key-value / .key-value__group,
+            .user-card-wrapper / .user-card / .user-card__username / .user-card__icon,
+            form[action$="/close"|"/reopen"|"/assignee"].
+   Ubytki:  – silnik nie oznacza zgłoszenia klasą stanu: „otwarte/zamknięte" siedzi
+              wyłącznie w TEKŚCIE komórki („N/A" albo data), a CSS treści nie czyta —
+              rozróżnienie zostaje na zakładkach Open/Closed nad tabelą;
+            – priorytet to nazwa i KOLOR Z BAZY wstawiony inline na ikonie
+              (zmierzone #FF9966 = wysoki, #FFFFFF = niski). Nie da się zmapować
+              tych kolorów na paletę bez wpisania hexów z bazy w arkusz, więc
+              gasimy tylko przypadek czystej bieli (najgłośniejszy kolor w ciemnym
+              motywie na NAJMNIEJ pilnym stanie) — reszta zostaje jak w bazie;
+            – „Otwarte/Zamknięte", „Unassigned", „My assigned tickets", „Staff",
+              „No notes", „Other tickets" i nagłówki tabeli notatek są zaszyte
+              po angielsku w blade'ach — CSS ich nie przetłumaczy;
+            – karty ekipy na /pages/internal niosą rangę WYŁĄCZNIE jako inline
+              background-color; gasimy je do wspólnej płaszczyzny (jak na /staff),
+              więc kolor rangi znika — CSS nie umie przepisać tła na obramowanie;
+            – BBCode [size] renderuje się jako inline `font-size: clamp(…)` (zmierzone
+              47 px na /pages/11). Ścięcie tego wymagałoby globalnego !important na
+              treści autorów — poza tym obszarem, świadomie nie ruszamy;
+            – załączników zgłoszenia (livewire attachment-upload) nie da się obejrzeć
+              bez wysłania pliku, więc panel „Dodaj" stylujemy tylko w stanie pustym;
+            – czarna lista klientów jest pusta (zmierzone: sama <thead>, zero wierszy),
+              więc reguły wierszy tej tabeli są pisane z markupu blade'a, nie z pomiaru.
+   ==================================================== */
+
+$tk-idx: 'main.page__ticket--index';
+$tk-show: 'main.page__ticket--show';
+$tk-new: 'main.page__ticket--create';
+
+// =====================================================================
+// 01 · HELPDESK — nagłówek panelu i pasek filtrów
+// Globalnie motyw kładzie .form__label--floating NAD polem (position: static,
+// order: -1) i to jest dobre w formularzu. Ale w pasku nagłówka nie ma na to
+// miejsca: zmierzone .form__group urosło do 47,3 px i podniosło <header>
+// z ~36 na 55,3 px. W nagłówku wracamy do etykiety wewnątrz pola.
+// =====================================================================
+
+#{$tk-idx} .panel__header {
+    align-items: center;
+    padding: 4px 8px 4px 0;
+}
+
+#{$tk-idx} .panel__actions {
+    align-items: center;
+    gap: 12px;
+    padding: 0 4px 0 12px;
+}
+
+#{$tk-idx} .panel__actions .form__group:has(> .form__label--floating) {
+    display: block;
+    position: relative;
+    gap: 0;
+}
+
+#{$tk-idx} .panel__actions .form__label--floating {
+    position: absolute;
+    top: 50%;
+    left: 7px;
+    transform: translateY(-50%);
+    order: 0;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+    pointer-events: none;
+}
+
+// pole wypełnione lub aktywne — etykieta wskakuje na krawędź pola,
+// żeby nie leżała na wpisywanym tekście
+#{$tk-idx} .panel__actions .form__text:focus ~ .form__label--floating,
+#{$tk-idx} .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating {
+    top: 0;
+    font-size: 10px;
+    color: var(--pt-red-fg);
+    background-color: var(--pt-surface-2);
+}
+
+// select ma zawsze wybraną wartość, więc jego podpis nigdy nie ma gdzie
+// „wskoczyć" — z góry siedzi na krawędzi pola. Tło w kolorze pola robi
+// z niego znaczek wpięty w ramkę, a nie napis wiszący nad nagłówkiem.
+#{$tk-idx} .panel__actions .form__group:has(> .form__select) > .form__label--floating {
+    top: 0;
+    left: 6px;
+    padding: 0 3px;
+    font-size: 10px;
+    background-color: var(--pt-surface-2);
+}
+
+// checkbox „My assigned tickets" to filtr, nie treść — drobniej niż etykieta pola
+#{$tk-idx} .panel__actions .form__group:has(> .form__checkbox) > .form__label {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+}
+
+#{$tk-idx} .panel__actions .form__button--text {
+    height: 24px;
+    margin: 0;
+    font-size: 11.5px;
+}
+
+// =====================================================================
+// 02 · HELPDESK — zakładki Open / Closed (defekt silnika)
+// `.panel__tab { background-color: var(--data-table-th-fg) }` bierze KOLOR
+// TEKSTU nagłówka tabeli jako TŁO zakładki: zmierzone rgb(150,150,150) —
+// jasnoszary pas na całą szerokość panelu, a tekst aktywnej zakładki
+// rgb(176,176,176) na tym tle był praktycznie niewidoczny.
+// Ten sam zabieg co przy konwersacjach, żeby pasek zakładek w całym
+// motywie czytało się jednakowo.
+// =====================================================================
+
+#{$tk-idx} .panel__tabs {
+    justify-content: flex-start;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+#{$tk-idx} .panel__tab,
+#{$tk-idx} .panel__tab--full-width {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 7px 14px;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+#{$tk-idx} .panel__tab:hover {
+    color: var(--pt-fg);
+}
+
+#{$tk-idx} .panel__tab--active {
+    color: var(--pt-fg);
+    border-bottom: 2px solid var(--pt-red);
+}
+
+// =====================================================================
+// 03 · HELPDESK — tabela zgłoszeń
+// Uwaga na markup: livewire wstawia wiersz nagłówkowy z <th> WEWNĄTRZ
+// <tbody> (nie ma <thead>), więc wszystkie reguły motywu pisane jako
+// `> thead > tr > th` omijają tę tabelę. Adresujemy `> tbody > tr > th`.
+// =====================================================================
+
+#{$tk-idx} .data-table > tbody > tr > th {
+    padding: 6px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    cursor: pointer;
+}
+
+#{$tk-idx} .data-table > tbody > tr > th:hover {
+    color: var(--pt-fg-2);
+}
+
+// strzałki sortowania to znacznik, nie treść — nie mogą konkurować z tytułem
+#{$tk-idx} .data-table > tbody > tr > th .fa-sort,
+#{$tk-idx} .data-table > tbody > tr > th .fa-sort-up,
+#{$tk-idx} .data-table > tbody > tr > th .fa-sort-down {
+    font-size: 9px;
+    color: var(--pt-line-ui);
+}
+
+#{$tk-idx} .data-table > tbody > tr > td {
+    padding: 6px 10px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--pt-fg-2);
+    background-color: var(--pt-surface);
+    border-bottom: 1px solid var(--pt-line);
+    vertical-align: middle;
+}
+
+// podświetlenie całego wiersza, nie pojedynczych komórek
+#{$tk-idx} .data-table > tbody > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+// numer zgłoszenia to identyfikator — cyfry w monospace i na stałej szerokości
+#{$tk-idx} .data-table > tbody > tr > td:first-child {
+    width: 1%;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// daty („6 godzin temu", „N/A") są treścią pomocniczą — cichsze i bez łamania
+#{$tk-idx} .data-table > tbody > tr > td time {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// przycisk akcji w wierszu podbijał wiersz do 43 px (28 px guzik + 2×7 px);
+// 22 px trzyma wiersz w rytmie tabeli
+#{$tk-idx} .data-table__actions {
+    justify-content: flex-end;
+}
+
+// silnik trzyma guzik na `min-height: 28px` (zmierzone) — samo `height`
+// go nie ściśnie, trzeba obniżyć oba
+#{$tk-idx} .data-table__actions .form__button--text {
+    height: 22px;
+    min-height: 22px;
+    padding: 0 8px;
+    font-size: 11.5px;
+}
+
+#{$tk-idx} .data-table > tbody > tr > td:last-child {
+    width: 1%;
+    white-space: nowrap;
+}
+
+// komunikat „brak wyników" nie jest wierszem danych
+#{$tk-idx} .data-table > tbody > tr > td[colspan] {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// 04 · HELPDESK — stany zgłoszenia
+// Silnik nie daje wierszowi klasy stanu; jedyne, co niesie stan w HTML-u,
+// to kropka „nieprzeczytane" (inline `color: #0dffff`) obok tematu oraz
+// inline kolor ikony priorytetu. Oba to style inline — stąd !important.
+// =====================================================================
+
+// kropka „nowe / nieprzeczytane": cyjan #0dffff jest spoza palety i krzyczy
+// głośniej niż czerwień marki — sprowadzamy do tokenu informacyjnego
+#{$tk-idx} .data-table .fa-circle[style*='0dffff'] {
+    color: var(--pt-info) !important;
+    font-size: 7px !important;
+    vertical-align: 3px !important;
+}
+
+// temat jest nazwą wiersza: neutralny, czerwień zostawiamy na hover;
+// wiersz nieprzeczytany (ten z kropką) dostaje pogrubienie i pełną jasność
+#{$tk-idx} .data-table > tbody > tr > td:nth-child(2) > a {
+    color: var(--pt-fg-2);
+}
+
+#{$tk-idx} .data-table > tbody > tr > td:has(> .fa-circle) > a {
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+#{$tk-idx} .data-table > tbody > tr > td:nth-child(2) > a:hover {
+    color: var(--pt-red-fg);
+    text-decoration: none;
+}
+
+// ikona priorytetu: kolor pochodzi z bazy. Czysta biel na najniższym
+// priorytecie czytała się jak najwyższy alarm — tylko ten przypadek gasimy.
+#{$tk-idx} .data-table > tbody > tr > td:nth-child(3) > i[style*='#FFFFFF'],
+#{$tk-idx} .data-table > tbody > tr > td:nth-child(3) > i[style*='#ffffff'] {
+    color: var(--pt-fg-4) !important;
+}
+
+#{$tk-idx} .data-table > tbody > tr > td:nth-child(3) {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+}
+
+// „Unassigned" to brak przypisania, nie nazwisko — musi być cichsze od user-taga
+#{$tk-idx} .data-table > tbody > tr > td:nth-child(5) {
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// 05 · ZGŁOSZENIE — treść i notatki personelu
+// Treść zgłoszenia to zwykły .panel__body (bez .bbcode-rendered), więc
+// typografia bbcode go nie obejmuje: zmierzone 15 px / 22 px / padding 20 px.
+// Sprowadzamy do tego samego rytmu, co treść wiki i regulaminu.
+// =====================================================================
+
+// Kotwiczymy się na jedynym pewnym znaczniku treści zgłoszenia: blade
+// wypisuje ją z inline `white-space: pre-wrap`. Szerszy selektor
+// (`.panel__body:not(.bbcode-rendered)`) łapał też blok komentarzy
+// i przeciekał do niego stopniem pisma.
+#{$tk-show} .panelV2 > .panel__body[style*='pre-wrap'] {
+    padding: 14px 16px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+}
+
+// tytuł zgłoszenia jest tytułem TREŚCI, nie etykietą sekcji —
+// zdejmujemy wersaliki, tak samo jak przy temacie forum i aktualności.
+// Ścieżka to main > article.sidebar2 > div > section.panelV2, a nagłówek
+// jest bezpośrednim dzieckiem panelu tylko w panelu z treścią
+// (notatki i komentarze mają go w <header class="panel__header">).
+#{$tk-show} .sidebar2 > div > .panelV2 > h2.panel__heading {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--pt-fg);
+    padding: 7px 12px;
+}
+
+// tabela notatek personelu — ten sam gęsty rytm co lista zgłoszeń
+#{$tk-show} .data-table > thead > tr > th {
+    padding: 6px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+#{$tk-show} .data-table > tbody > tr > td {
+    padding: 6px 10px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--pt-fg-2);
+    background-color: var(--pt-surface);
+    border-bottom: 1px solid var(--pt-line);
+    vertical-align: top;
+}
+
+#{$tk-show} .data-table > tbody > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+#{$tk-show} .data-table > tbody > tr > td time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// „No notes" / „No results" to komunikat pustej listy
+#{$tk-show} .data-table > tbody > tr > td[colspan] {
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+#{$tk-show} .data-table__actions .form__button--text {
+    height: 22px;
+    min-height: 22px;
+    padding: 0 8px;
+    font-size: 11.5px;
+}
+
+// =====================================================================
+// 06 · ZGŁOSZENIE — rail boczny: metryka i akcje
+// Zmierzone: <dl class="key-value"> miało padding 0 i wiersze po 13 px
+// bez odstępów — metryka zlewała się w jeden blok tekstu. Ustawiamy ten
+// sam wzorzec, co metryka wiki (klucz z lewej, wartość z prawej).
+// =====================================================================
+
+#{$tk-show} .sidebar2 > aside .key-value,
+#{$tk-show} > aside .key-value {
+    padding: 8px 12px;
+}
+
+#{$tk-show} .key-value > .key-value__group {
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 3px 0;
+}
+
+#{$tk-show} .key-value > .key-value__group + .key-value__group {
+    border-top: 1px solid var(--pt-line);
+}
+
+#{$tk-show} .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+#{$tk-show} .key-value dd {
+    font-size: 12px;
+    color: var(--pt-fg-2);
+    text-align: right;
+}
+
+// ID i daty to liczby — mono z tabelarycznymi cyframi
+#{$tk-show} .key-value > .key-value__group:first-child dd,
+#{$tk-show} .key-value dd time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-3);
+}
+
+// panel „Akcje": guziki na pełną szerokość railu, ale nie trzy czerwone
+// pasy pod sobą. Rozróżniamy je po adresie formularza (jedyne, co silnik
+// daje w HTML-u): czerwień zostaje wyłącznie dla usunięcia.
+#{$tk-show} .panel__body form + form,
+#{$tk-show} .panel__body form + .form {
+    margin-top: 6px;
+}
+
+#{$tk-show} .panel__body form[action$='/close'] .form__button--filled,
+#{$tk-show} .panel__body form[action$='/assignee'] .form__button--filled {
+    background-color: transparent;
+    border: 1px solid var(--pt-border);
+    color: var(--pt-fg-2);
+}
+
+#{$tk-show} .panel__body form[action$='/close'] .form__button--filled:hover,
+#{$tk-show} .panel__body form[action$='/assignee'] .form__button--filled:hover {
+    border-color: var(--pt-line-ui);
+    color: var(--pt-fg);
+}
+
+// ponowne otwarcie to działanie odtwarzające, nie niszczące — zielony token
+#{$tk-show} .panel__body form[action$='/reopen'] .form__button--filled {
+    background-color: transparent;
+    border: 1px solid var(--pt-ok);
+    color: var(--pt-ok);
+}
+
+#{$tk-show} .panel__body form[action$='/reopen'] .form__button--filled:hover {
+    background-color: color-mix(in srgb, var(--pt-ok) 14%, transparent);
+}
+
+// pole „Przydziel" w railu: etykieta nad polem jest tu na miejscu,
+// zbijamy tylko odstęp, żeby blok akcji nie rósł
+#{$tk-show} .panel__body .form--horizontal:has(> .form__group) {
+    margin-bottom: 6px;
+}
+
+// panele railu (akcje, załączniki) mają silnikowe 20 px wyściółki —
+// w kolumnie szerokiej na 298 px to jedna trzecia miejsca
+#{$tk-show} .sidebar2 > aside .panelV2 > .panel__body {
+    padding: 12px;
+}
+
+// =====================================================================
+// 07 · NOWE ZGŁOSZENIE I KONTAKT — formularze
+// Zmierzone: .panel__body ma padding 20 px, a pola rozciągają się na całą
+// szerokość panelu (1318 px na /tickets/create, 1008 px na /contact).
+// Pole „Temat" szerokie na metr czyta się jak błąd — ograniczamy miarę
+// wiersza, zostawiając textarea szeroką na tyle, ile trzeba do pisania.
+// =====================================================================
+
+#{$tk-new} .panelV2 > .panel__body,
+main.page__contact .panelV2 > .panel__body {
+    padding: 14px 16px;
+}
+
+#{$tk-new} .panel__body > .form,
+main.page__contact .panel__body > .form {
+    max-width: 720px;
+    gap: 10px;
+}
+
+#{$tk-new} .form__textarea,
+main.page__contact .form__textarea {
+    min-height: 132px;
+    line-height: 1.5;
+}
+
+// przycisk wysyłki nie musi być szeroki na całą kolumnę
+#{$tk-new} .panel__body > .form .form__button--filled,
+main.page__contact .panel__body > .form .form__button--filled {
+    height: 26px;
+    padding: 0 14px;
+    font-size: 12px;
+}
+
+// limit załączników to ostrzeżenie techniczne, nie alarm
+#{$tk-new} .form__label .text-danger.small {
+    font-size: 11px;
+    color: var(--pt-warn);
+}
+
+#{$tk-new} .form__file {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// panel informacyjny w railu kontaktu to jedno zdanie, nie tabela
+main.page__contact .sidebar2 > aside .panel__body,
+main.page__contact > aside .panel__body {
+    padding: 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// 08 · STRONY STATYCZNE — surowa treść w .panel__body
+// /pages/aboutus i rail czarnej listy nie mają klasy .bbcode-rendered,
+// więc typografia treści ich nie obejmuje: zmierzone h3 17,55 px,
+// p/li 15 px, <ol> z wcięciem 40 px. Przepisujemy na rytm PT
+// (17/15/12,5/11) tymi samymi wartościami, co treść bbcode.
+// =====================================================================
+
+main.page__about-us--index .panelV2 > .panel__body,
+main.page__blacklist--index .panelV2 > .panel__body {
+    padding: 14px 16px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+}
+
+main.page__about-us--index .panel__body > :first-child {
+    margin-top: 0;
+}
+
+main.page__about-us--index .panel__body h3 {
+    margin: 0 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--pt-line);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--pt-fg);
+}
+
+// nagłówki drugiego poziomu są tu etykietami list („Zalety", „Zasady") —
+// czytają się lepiej jako overline niż jako kolejny tytuł
+main.page__about-us--index .panel__body h4 {
+    margin: 16px 0 6px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+// ikony globusa po obu stronach nagłówka to ozdoba — nie mogą być
+// większe od tekstu, który obramowują
+main.page__about-us--index .panel__body h4 > i {
+    font-size: 10px;
+    color: var(--pt-line-ui);
+}
+
+main.page__about-us--index .panel__body p {
+    margin: 8px 0;
+}
+
+main.page__about-us--index .panel__body ol,
+main.page__about-us--index .panel__body ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+main.page__about-us--index .panel__body li + li {
+    margin-top: 4px;
+}
+
+// czarna lista klientów — tabela dwukolumnowa, powód dopisany cichszym stopniem
+main.page__blacklist--index .data-table > thead > tr > th {
+    padding: 6px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+main.page__blacklist--index .data-table > tbody > tr > td,
+main.page__blacklist--index .data-table > tr > td {
+    padding: 6px 10px;
+    font-size: 12.5px;
+    color: var(--pt-fg-2);
+    background-color: var(--pt-surface);
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__blacklist--index .data-table > tbody > tr:hover > td,
+main.page__blacklist--index .data-table > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+// nazwa klienta to identyfikator techniczny (BitTorrent 7.x, µTorrent 2.x)
+main.page__blacklist--index .data-table > tbody > tr > td:first-child,
+main.page__blacklist--index .data-table > tr > td:first-child {
+    width: 1%;
+    font-family: var(--pt-mono);
+    color: var(--pt-fg);
+    white-space: nowrap;
+}
+
+main.page__blacklist--index .data-table > tbody > tr > td:nth-child(2),
+main.page__blacklist--index .data-table > tr > td:nth-child(2) {
+    color: var(--pt-fg-3);
+}
+
+// metryka strony statycznej — na /pages/{id} <dl> nie miało w ogóle
+// paddingu (zmierzone 0), przez co przylegało do krawędzi panelu
+main.page__page--show .sidebar2 > aside .key-value,
+main.page__page--show > aside .key-value {
+    padding: 8px 12px;
+}
+
+main.page__page--show .key-value > .key-value__group {
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 2px 0;
+}
+
+// =====================================================================
+// 09 · WEWNĘTRZNY TORRENT — karty grup
+// Ten sam defekt co na /staff: silnik wkleja kolor grupy jako inline
+// background-color na <a> (zmierzone #F7A95B, #FC0000, #40E0D0, #00ff66),
+// więc siatka świeci pełnymi barwami, a nazwa użytkownika ma 30 px
+// przy ikonie 84 px. PT jest płaskie — kolor gasimy (stąd !important
+// przy stylu inline), a hierarchię odbudowujemy stopniem pisma.
+// =====================================================================
+
+main.page__internal--index .user-card-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    padding: 12px;
+}
+
+main.page__internal--index .user-card {
+    background-color: var(--pt-surface-2) !important;
+    background-image: none !important;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    padding: 10px 12px;
+    align-items: flex-start;
+    row-gap: 2px;
+}
+
+main.page__internal--index .user-card:hover {
+    border-color: var(--pt-line-ui);
+}
+
+main.page__internal--index .user-card__username {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--pt-fg);
+}
+
+// tytuły bywają całymi zdaniami (zmierzone: cytat na trzy wiersze rozpychał
+// kartę o 22 px) — dwa wiersze i wielokropek trzymają siatkę w rytmie
+main.page__internal--index .user-card__title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--pt-fg-4);
+}
+
+// ikona grupy była dekoracją na 84 px — w gęstej karcie to znacznik w rogu
+main.page__internal--index .user-card__icon {
+    top: 10px;
+    right: 10px;
+    font-size: 22px;
+    color: var(--pt-line-ui);
+    opacity: 1;
+}
+
+main.page__internal--index .user-card:hover .user-card__icon {
+    transform: none;
+    opacity: 1;
+    color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// 10 · WĄSKIE EKRANY
+// Poniżej progu silnika rail ląduje pod treścią — kolumna treści musi
+// wtedy odzyskać pełną szerokość.
+// =====================================================================
+
+@media (max-width: 867px) {
+    #{$tk-show} .sidebar2 > div,
+    main.page__contact .sidebar2 > div,
+    main.page__about-us--index .sidebar2 > div,
+    main.page__blacklist--index .sidebar2 > div {
+        max-width: 100%;
+    }
+
+    // pasek filtrów helpdesku nie mieści się obok tytułu — łamiemy go
+    // pod nagłówek i wracamy do etykiet nad polami (jest już miejsce)
+    #{$tk-idx} .panel__header {
+        flex-wrap: wrap;
+        padding: 4px 8px 8px;
+    }
+
+    #{$tk-idx} .panel__actions {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0;
+    }
+
+    #{$tk-new} .panel__body > .form,
+    main.page__contact .panel__body > .form {
+        max-width: 100%;
+    }
+}

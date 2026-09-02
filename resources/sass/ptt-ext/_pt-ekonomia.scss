@@ -1,0 +1,637 @@
+/* ==== BON, ZAPROSZENIA, PREZENTY, HISTORIA KONTA ====
+   Cel:     zamknąć ekonomię konta (zarobki BON, sklep, prezenty, zaproszenia,
+            historia i aktywne torrenty, obserwujący) w jednym rytmie: gęste
+            tabele bez poziomego przewijania, liczby w monospace z tabular-nums,
+            a sklep BON jako płaskie karty z ceną jako najgłośniejszym elementem.
+   Kotwice: main.page__user-earning--index, main.page__user-transaction--create,
+            main.page__user-gift--index, main.page__user-gift--create,
+            main.page__user-invite--index, main.page__user-invite-tree--index,
+            main.page__user-follower--index, main.page__user-following--index,
+            main.page__user-torrents--index, main.page__user-peers--index,
+            .data-table (thead/tbody/tfoot), .data-table-wrapper, .data-table__actions,
+            .user-earnings__*, .user-torrents__*, .user-active__*,
+            .user-search__avatar, .key-value, .panelV2, .panel__body, .form__button.
+   Ubytki:  1) /users/{nick}/history i /users/{nick}/peers na produkcji zwracają
+               404 — silnik trzyma te widoki pod /users/{nick}/torrents (historia
+               pobrań) i /users/{nick}/active (aktywne peery). Stylujemy te dwa.
+            2) Nagłówki „Cost”, „Hourly”, „Daily”, „Weekly”, „Monthly”, „Stat”,
+               „Average”, „Total”, „Count”, „Invite tree”, „Ancestors” oraz stany
+               puste „No invitees”, „No followers”, „Not following” są w Blade
+               po angielsku na sztywno, bez wywołania __(). CSS nie tłumaczy.
+            3) /earnings z zaznaczonym „Rozszerzone statystyki” dokłada cztery
+               kolumny (Daily/Weekly/Monthly + Hourly) — zmierzone 1251 px przy
+               kolumnie 1058 px. Domyślny widok mieści się co do piksela, tryb
+               rozszerzony zostaje z przewijaniem wewnątrz panelu; bez usunięcia
+               kolumn po stronie serwera nie da się tego zmieścić.
+            4) Kolumna „Postęp” na /active to gotowy tekst („100%”), nie liczba
+               w atrybucie — CSS nie zrobi z niej paska postępu. To samo dotyczy
+               paska „ile zostało do wymaganego czasu seedowania”: tej wartości
+               w markupie w ogóle nie ma.
+            5) /users/{nick}/invites/create przy zerowej puli zaproszeń robi
+               przekierowanie na stronę główną — formularza nie ma czego stylować.
+            6) Na liście prezentów nie da się odróżnić „dostałem” od „wysłałem”
+               inaczej niż czytając dwie kolumny nicków — w markupie nie ma flagi
+               kierunku ani klasy na wierszu.
+            7) Wiersze tabeli stawek z zerem torrentów niczym się nie różnią od
+               aktywnych — liczba jest treścią komórki, a CSS nie selekcjonuje
+               po tekście.
+            8) Sklep BON: przestawienie tabeli na siatkę kart (display: grid)
+               zdejmuje elementom rolę tabeli w drzewie dostępności. Zamiana jest
+               świadoma — wariant tabelaryczny miał 877 px pustego pasa między
+               nazwą a ceną. Powrót do tabeli to jedna reguła (sekcja 3).
+   ==================================================================== */
+
+// Reguły rytmu tabel dla całej rodziny `page__user-*` stoją w _pt-konto.scss
+// pod selektorem o wadze (0,4,4). Żeby nadpisać z nich kolor, rozmiar czy
+// padding, potrzeba wagi wyższej — stąd podwojona klasa strony w prefiksach
+// poniżej. To ta sama technika, co przy regułach z podwojoną klasą w motywie.
+$zarobki: 'main.page__user-earning--index.page__user-earning--index';
+$sklep: 'main.page__user-transaction--create.page__user-transaction--create';
+$prezenty: 'main.page__user-gift--index.page__user-gift--index';
+$prezent-nowy: 'main.page__user-gift--create.page__user-gift--create';
+$zaproszenia: 'main.page__user-invite--index.page__user-invite--index';
+$drzewo: 'main.page__user-invite-tree--index.page__user-invite-tree--index';
+$obserwujacy: 'main.page__user-follower--index.page__user-follower--index';
+$obserwowani: 'main.page__user-following--index.page__user-following--index';
+$historia: 'main.page__user-torrents--index.page__user-torrents--index';
+$aktywne: 'main.page__user-peers--index.page__user-peers--index';
+
+/* =====================================================================
+   1 · LICZNIK BON W RAILU
+   Po co: to samo saldo pokazują cztery strony i wyglądało na każdej inaczej.
+   Zmierzone: /earnings — monospace 12,5 px w kolorze --pt-fg-2 (reguła
+   z _pt-konto podnosząca je do 15 px przegrywa wagą z ogólnym
+   `.panelV2 > .panel__body`), /gifts i /gifts/create — bezszeryfowe 12,5 px,
+   /transactions/create — monospace 17 px bursztynowe. Saldo BON jest
+   najważniejszą liczbą tych ekranów, więc wszędzie ma być jedną liczbą:
+   monospace, tabular-nums, 17 px, w barwie BON.
+   ===================================================================== */
+
+#{$zarobki} > article > aside > .panelV2:first-of-type > .panel__body,
+#{$prezenty} > article > aside > .panelV2:first-of-type > .panel__body,
+#{$prezent-nowy} > article > aside > .panelV2:first-of-type > .panel__body,
+#{$sklep} > article > aside > .panelV2:first-of-type > .panel__body {
+    padding: 10px 12px;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    line-height: 1.2;
+    color: var(--pt-warn);
+}
+
+/* =====================================================================
+   2 · ZAROBKI (/users/{nick}/earnings)
+   Po co: dwie tabele na jednej stronie stały na różnych zasadach.
+   Tabela stawek nie ma ŻADNYCH klas na komórkach, więc mnożnik i licznik
+   torrentów szły bezszeryfowo do lewej, a opis (588 px) i tak nie wypełniał
+   panelu. Tabela torrentów wychodziła 1073,5 px przy kolumnie 1058 px —
+   nagłówek „Hourly” był ucięty razem ze strzałką sortowania.
+   ===================================================================== */
+
+// --- tabela stawek: nazwa i opis to tekst, dwie ostatnie kolumny to liczby
+#{$zarobki} > article > div > .panelV2:first-child .data-table > tbody > tr > td:nth-child(1) {
+    width: 1%;
+    white-space: nowrap;
+    color: var(--pt-fg);
+}
+
+// opis bierze cały zapas szerokości i schodzi do rangi przypisu —
+// to zdanie pomocnicze, nie dane
+#{$zarobki} > article > div > .panelV2:first-child .data-table > tbody > tr > td:nth-child(2) {
+    width: 100%;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+#{$zarobki} > article > div > .panelV2:first-child .data-table > thead > tr > th:nth-child(3),
+#{$zarobki} > article > div > .panelV2:first-child .data-table > thead > tr > th:nth-child(4),
+#{$zarobki} > article > div > .panelV2:first-child .data-table > tbody > tr > td:nth-child(3),
+#{$zarobki} > article > div > .panelV2:first-child .data-table > tbody > tr > td:nth-child(4) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+// mnożnik („× 1.15”) i licznik torrentów to liczby — monospace i do prawej,
+// wtedy przecinki dziesiętne stoją w jednej kolumnie
+#{$zarobki} > article > div > .panelV2:first-child .data-table > tbody > tr > td:nth-child(3),
+#{$zarobki} > article > div > .panelV2:first-child .data-table > tbody > tr > td:nth-child(4) {
+    width: 1%;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+}
+
+// --- tabela torrentów: piętnaście kolumn musi zmieścić się bez przewijania
+// Zmierzone: padding 6px 10px dawał 1073,5 px. Ścięcie go do 7 px po bokach
+// zwalnia 15 × 6 px = 90 px — tabela schodzi do 1048 px, a kolumna nazwy
+// rośnie z 200 px (podłoga z _pt-konto) do 240 px.
+#{$zarobki} > article > div > .panelV2:nth-child(2) .data-table > thead > tr > th,
+#{$zarobki} > article > div > .panelV2:nth-child(2) .data-table > tbody > tr > td {
+    padding: 6px 7px;
+}
+
+// liczniki peerów i stawki godzinowe: liczba czyta się od prawej
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__seeders'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__leechers'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__times'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__hourly'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__daily'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__weekly'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__monthly'] {
+    text-align: right;
+}
+
+// czas seedowania i wiek torrentu to kontekst, nie wynik — ciszej od stawki
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__seedtime'],
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__age'] {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// rodzaj wydania (REMUX / WEB-DL) to etykieta, nie nazwa — mniejsza i cichsza
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__type'] {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// stawki BON to najważniejsza liczba wiersza — jasna, reszta liczb przygaszona
+#{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__hourly'] {
+    color: var(--pt-fg);
+}
+
+/* =====================================================================
+   3 · SKLEP BON (/users/{nick}/transactions/create)
+   Po co: silnik renderuje sklep jako tabelę „Przedmiot | Cost | Wymiana”.
+   Zmierzone: kolumna przedmiotu 877 px, cena 62 px, przycisk 110 px —
+   czyli osiem setek pikseli pustego pasa między nazwą a ceną, dziewięć razy
+   pod rząd, plus dziewięć wypełnionych czerwonych przycisków jeden pod drugim.
+   Ta sama treść jako siatka trzech kart w rzędzie: 336 × 88,5 px na kartę,
+   panel z 426,5 px schodzi do 335,7 px, cena ląduje w jednej linii z nazwą.
+   Powrót do tabeli = skasowanie tej sekcji.
+   ===================================================================== */
+
+// karty same się zawijają, więc wrapper nie ma czego przewijać
+#{$sklep} .data-table-wrapper {
+    overflow: visible;
+}
+
+#{$sklep} .data-table {
+    display: block;
+    width: 100%;
+}
+
+// nagłówek tabeli w siatce kart nie ma czego opisywać
+#{$sklep} .data-table > thead {
+    display: none;
+}
+
+#{$sklep} .data-table > tbody {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px;
+}
+
+// karta: płaska, 1 px ramki, promień 3 px — tło o stopień jaśniejsze
+// od panelu, żeby siatka czytała się jako osobne pozycje
+#{$sklep} .data-table > tbody > tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+#{$sklep} .data-table > tbody > tr:hover {
+    border-color: var(--pt-line-ui);
+}
+
+// tło i kreskę silnik trzymał na komórce (zmierzone: td #1f1f1f + 1 px
+// border-bottom przy tr bez ramki) — w kartach jedno i drugie idzie na wiersz
+#{$sklep} .data-table > tbody > tr > td {
+    display: block;
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+
+#{$sklep} .data-table > tbody > tr > td:nth-child(1) {
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: left;
+    color: var(--pt-fg);
+}
+
+// cena — jedyny element karty, który ma krzyczeć
+#{$sklep} .data-table > tbody > tr > td:nth-child(2) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--pt-warn);
+}
+
+#{$sklep} .data-table > tbody > tr > td:nth-child(3) {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    text-align: left;
+}
+
+#{$sklep} .data-table > tbody > tr > td:nth-child(3) form {
+    display: block;
+    margin: 0;
+}
+
+// przycisk zakupu: cichy obrys w stopce karty, czerwień dopiero pod kursorem —
+// dziewięć wypełnionych przycisków robiło ze sklepu czerwoną ścianę
+#{$sklep} .data-table .form__button {
+    display: block;
+    width: 100%;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 22px;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+#{$sklep} .data-table .form__button:hover {
+    background: var(--pt-red);
+    border-color: var(--pt-red);
+    color: #fff;
+    filter: none;
+}
+
+// pozycja niedostępna (aktywny freeleech, za duży bufor, za mało BON) —
+// karta gaśnie razem z ceną, żeby nie kusiła
+#{$sklep} .data-table > tbody > tr:has(> td .form__button:disabled) {
+    background: var(--pt-surface);
+}
+
+#{$sklep} .data-table > tbody > tr:has(> td .form__button:disabled) > td:nth-child(2) {
+    color: var(--pt-fg-4);
+}
+
+/* =====================================================================
+   4 · PREZENTY (/users/{nick}/gifts)
+   Po co: tabela nie ma klas na komórkach, więc kwota BON („1425.00”,
+   „10000000.00”) szła bezszeryfowo do lewej i nijak nie odróżniała się
+   od wiadomości. Zmierzone kolumny: 165 / 137 / 153 / 462 / 131 px.
+   Nicki i data zwężają się do treści, kwota staje po prawej w barwie BON,
+   a wiadomość dostaje cały zapas (652 px) i zostaje w jednej linii.
+   ===================================================================== */
+
+#{$prezenty} .data-table > tbody > tr > td:nth-child(1):not([colspan]),
+#{$prezenty} .data-table > tbody > tr > td:nth-child(2):not([colspan]) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+#{$prezenty} .data-table > thead > tr > th:nth-child(3),
+#{$prezenty} .data-table > tbody > tr > td:nth-child(3):not([colspan]) {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+#{$prezenty} .data-table > tbody > tr > td:nth-child(3):not([colspan]) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+    color: var(--pt-warn);
+}
+
+// wiadomość do prezentu bywa dowolnie długa — max-width: 0 zdejmuje
+// z komórki liczenie szerokości z treści, dopiero wtedy wielokropek działa
+#{$prezenty} .data-table > tbody > tr > td:nth-child(4):not([colspan]) {
+    max-width: 0;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+#{$prezenty} .data-table > thead > tr > th:nth-child(5),
+#{$prezenty} .data-table > tbody > tr > td:nth-child(5):not([colspan]) {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+// podsumowanie w railu też jest w BON — ta sama barwa, co kwoty w tabeli
+#{$prezenty} > article > aside > .panelV2:last-of-type .key-value dd {
+    color: var(--pt-warn);
+}
+
+/* =====================================================================
+   5 · WYSYŁKA PREZENTU (/users/{nick}/gifts/create)
+   Po co: formularz rozciągał się na 1024 px — pole „Kwota” na dwadzieścia
+   znaków miało metr szerokości. Kolumna formularza dostaje 560 px,
+   czyli tyle, ile potrzebuje najdłuższe z trzech pól.
+   ===================================================================== */
+
+#{$prezent-nowy} .panel__body > .form {
+    max-width: 560px;
+}
+
+/* =====================================================================
+   6 · ZAPROSZENIA (/users/{nick}/invites)
+   Po co: dziesięć kolumn z nagłówkami na sztywno w jednej linii wypełnia
+   kolumnę co do piksela już przy PUSTEJ tabeli (zmierzone: suma nagłówków
+   1359 px przy 1358 px kolumny) — po wpisaniu maili i kodów tabela musi
+   wyjść poza panel. Nagłówki dostają prawo do złamania w dwie linie,
+   padding schodzi do 7 px, a kolumny z adresem i kodem idą w monospace.
+   ===================================================================== */
+
+#{$zaproszenia} .data-table > thead > tr > th {
+    padding: 6px 7px;
+    white-space: normal;
+    line-height: 1.2;
+    vertical-align: bottom;
+}
+
+#{$zaproszenia} .data-table > tbody > tr > td {
+    padding: 6px 7px;
+}
+
+// adres e-mail zaproszonego jest drugą kolumną niezależnie od uprawnień
+#{$zaproszenia} .data-table > tbody > tr > td:nth-child(2):not([colspan]) {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// kolumna „Kod” istnieje tylko dla staffu (widok liczy dziesięć kolumn) —
+// para nth-child + nth-last-child trafia w nią bez zgadywania numeru
+#{$zaproszenia} .data-table > tbody > tr > td:nth-child(3):nth-last-child(8) {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+    white-space: nowrap;
+    color: var(--pt-fg-4);
+}
+
+// wiadomość do zaproszenia ma w markupie inline `white-space: pre-wrap` —
+// to jedyny stabilny uchwyt na tę komórkę. Bez ograniczenia rozpycha wiersz.
+#{$zaproszenia} .data-table > tbody > tr > td[style*='pre-wrap'] {
+    max-width: 220px;
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+#{$zaproszenia} .data-table > tbody > tr > td:last-child:not([colspan]) {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =====================================================================
+   7 · DRZEWO ZAPROSZEŃ (/users/{nick}/invite-tree)
+   Po co: dziewięć nagłówków w jednej linii dawało tabelę 1257,7 px przy
+   kolumnie 1058 px — „Data rejestracji” było ucięte, a „Ostatnia akcja”
+   i „Akcje” w ogóle nie mieściły się w kadrze. W railu tabela statystyk
+   miała 380 px przy 298 px panelu, więc kolumna „Total” była niewidoczna,
+   a etykiety wierszy stały w <th> i czytały się jak drugi nagłówek.
+   Po zmianie wszystkie cztery tabele mieszczą się w 0 px nadmiaru.
+   ===================================================================== */
+
+#{$drzewo} .data-table > thead > tr > th {
+    padding: 6px 6px;
+    white-space: normal;
+    line-height: 1.2;
+    vertical-align: bottom;
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+}
+
+#{$drzewo} .data-table > tbody > tr > td {
+    padding: 6px 6px;
+}
+
+// etykiety wierszy w railu siedzą w <th> wewnątrz <tbody> — mają być
+// podpisem po lewej, nie kolejnym nagłówkiem tabeli
+#{$drzewo} > article > aside .data-table > tbody > tr > th {
+    padding: 6px 8px;
+    background: transparent;
+    border: 0;
+    font-size: 11.5px;
+    font-weight: 400;
+    letter-spacing: normal;
+    line-height: 1.25;
+    text-align: left;
+    text-transform: none;
+    white-space: normal;
+    color: var(--pt-fg-3);
+}
+
+// w railu wszystkie wartości to liczby, rozmiary i czasy
+#{$drzewo} > article > aside .data-table > tbody > tr > td {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    white-space: nowrap;
+}
+
+/* =====================================================================
+   8 · OBSERWUJĄCY I OBSERWOWANI (/followers, /following)
+   Po co: kolumna „Awatar” dostawała 296 px na obrazek 40 px, a wiersz rósł
+   do 57,5 px — trzy kolumny rozlewały się po 1358 px bez żadnego rytmu.
+   Awatar 28 px w kwadracie 3 px zwęża kolumnę do 74 px i sadza wiersz na 41 px;
+   data przechodzi w monospace i staje przy prawej krawędzi.
+   ===================================================================== */
+
+#{$obserwujacy} .data-table > tbody > tr > td:nth-child(1):not([colspan]),
+#{$obserwowani} .data-table > tbody > tr > td:nth-child(1):not([colspan]) {
+    width: 1%;
+    padding-right: 0;
+}
+
+#{$obserwujacy} .user-search__avatar,
+#{$obserwowani} .user-search__avatar {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--pt-radius);
+    object-fit: cover;
+}
+
+#{$obserwujacy} .data-table > tbody > tr > td:nth-child(2):not([colspan]),
+#{$obserwowani} .data-table > tbody > tr > td:nth-child(2):not([colspan]) {
+    width: 100%;
+}
+
+#{$obserwujacy} .data-table > thead > tr > th:nth-child(3),
+#{$obserwujacy} .data-table > tbody > tr > td:nth-child(3):not([colspan]),
+#{$obserwowani} .data-table > thead > tr > th:nth-child(3),
+#{$obserwowani} .data-table > tbody > tr > td:nth-child(3):not([colspan]) {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+// data obserwacji jest zwykłym tekstem, nie <time> — reguła z _pt-konto
+// nadająca datom monospace jej nie łapie
+#{$obserwujacy} .data-table > tbody > tr > td:nth-child(3):not([colspan]),
+#{$obserwowani} .data-table > tbody > tr > td:nth-child(3):not([colspan]) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+#{$obserwowani} .data-table > thead > tr > th:nth-child(4),
+#{$obserwowani} .data-table > tbody > tr > td:nth-child(4):not([colspan]) {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =====================================================================
+   9 · HISTORIA KONTA (/users/{nick}/torrents) I AKTYWNE (/users/{nick}/active)
+   Po co: _pt-konto zapisało obie listy jako ubytek — dziewiętnaście kolumn
+   historii dawało 1656,4 px, szesnaście kolumn aktywnych 1462 px przy
+   kolumnie 1358 px, więc obie przewijały się poziomo wewnątrz panelu.
+   Trzy oszczędności składają się na brakujące 300 px i podłoga 200 px
+   na nazwę torrentu zostaje nietknięta:
+     · padding komórki 10 px → 6/7 px po bokach (19 × 8 px i 16 × 6 px),
+     · nagłówki wolno złamać w dwie linie (nie muszą już trzymać kolumny),
+     · kolumna klienta obcięta wielokropkiem do 96 px („qBittorrent/5.1.4”).
+   Zmierzone po zmianie: obie tabele 1358 px, czyli 0 px nadmiaru.
+   ===================================================================== */
+
+#{$aktywne} .data-table > thead > tr > th,
+#{$aktywne} .data-table > tbody > tr > td {
+    padding: 6px 7px;
+}
+
+#{$historia} .data-table > thead > tr > th,
+#{$historia} .data-table > tbody > tr > td {
+    padding: 6px 6px;
+}
+
+#{$historia} .data-table > thead > tr > th,
+#{$aktywne} .data-table > thead > tr > th {
+    white-space: normal;
+    line-height: 1.2;
+    vertical-align: bottom;
+}
+
+// nazwa klienta to jedyna kolumna tekstowa poza nazwą torrentu i jedyna,
+// którą można obciąć bez straty — wersja klienta czyta się z podpowiedzi
+#{$historia} .data-table > tbody > tr > td[class*='__agent'],
+#{$aktywne} .data-table > tbody > tr > td[class*='__agent'] {
+    max-width: 96px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// daty i czasy w historii to kontekst wiersza, nie jego wynik
+#{$historia} .data-table > tbody > tr > td[class*='__created-at'],
+#{$historia} .data-table > tbody > tr > td[class*='__updated-at'],
+#{$historia} .data-table > tbody > tr > td[class*='__completed-at'],
+#{$historia} .data-table > tbody > tr > td[class*='__prewarned-at'],
+#{$historia} .data-table > tbody > tr > td[class*='__leechtime'],
+#{$historia} .data-table > tbody > tr > td[class*='__seedtime'],
+#{$aktywne} .data-table > tbody > tr > td[class*='__created-at'],
+#{$aktywne} .data-table > tbody > tr > td[class*='__updated-at'] {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// „Postęp” i „Pozostało” to stan pobierania — jedyne liczby, po których
+// naprawdę się w tej tabeli wodzi wzrokiem
+#{$aktywne} .data-table > tbody > tr > td[class*='__progress'] {
+    color: var(--pt-fg);
+}
+
+/* =====================================================================
+   10 · AKCJE W WIERSZU (zaproszenia, obserwowani, drzewo)
+   Po co: „Usuń”, „Odsubskrybuj” i „Wyślij ponownie” renderują się jako gołe
+   przyciski tekstowe w kolorze akcentu — w kolumnie akcji czytały się jak
+   odnośnik w treści. Mają być etykietą w obrysie, tak jak na liście
+   wiadomości i powiadomień (_pt-reszta.scss).
+   ===================================================================== */
+
+#{$zaproszenia} .data-table__actions,
+#{$obserwowani} .data-table__actions,
+#{$drzewo} .data-table__actions {
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+#{$zaproszenia} .data-table__actions .form__button--text,
+#{$obserwowani} .data-table__actions .form__button--text,
+#{$drzewo} .data-table__actions .form__button--text {
+    height: auto;
+    min-height: 22px;
+    padding: 2px 8px;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+#{$zaproszenia} .data-table__actions .form__button--text:hover,
+#{$obserwowani} .data-table__actions .form__button--text:hover,
+#{$drzewo} .data-table__actions .form__button--text:hover {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-line-ui);
+    color: var(--pt-red-fg);
+    filter: none;
+}
+
+/* =====================================================================
+   11 · STANY PUSTE
+   Po co: „No invitees”, „No followers”, „Not following” to jedyna treść
+   pustej strony. _pt-konto wyśrodkowuje je i wycisza, ale reguły szerokości
+   kolumn z sekcji 4, 6 i 8 zwężały komórkę z colspan (wiersz rósł z 50
+   do 67,5 px) — stąd `:not([colspan])` w każdej z nich. Tu tylko oddech,
+   żeby pusty panel nie wyglądał na uszkodzony.
+   ===================================================================== */
+
+#{$zaproszenia} .data-table > tbody > tr > td[colspan],
+#{$prezenty} .data-table > tbody > tr > td[colspan],
+#{$obserwujacy} .data-table > tbody > tr > td[colspan],
+#{$obserwowani} .data-table > tbody > tr > td[colspan],
+#{$drzewo} .data-table > tbody > tr > td[colspan] {
+    width: auto;
+    padding: 18px 12px;
+    text-align: center;
+    white-space: normal;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+/* =====================================================================
+   12 · WĄSKI EKRAN
+   Po co: siatka kart sklepu na trzy kolumny nie ma sensu poniżej ~900 px,
+   a zwężone kolumny tabel i tak wracają wtedy do przewijania w panelu.
+   ===================================================================== */
+
+@media (max-width: 900px) {
+    #{$sklep} .data-table > tbody {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #{$prezenty} .data-table > tbody > tr > td:nth-child(4):not([colspan]) {
+        max-width: 160px;
+    }
+}

@@ -1,0 +1,535 @@
+/* ==== KOLEKCJE · ANKIETY · ZAKŁADKI ====
+   Cel:     sprowadzić karty kolekcji, ankiety i tabelę zakładek do rytmu PT —
+            płaskie kafle 3 px bez cieni, jedna wysokość karty w rzędzie,
+            paski wyników w barwie akcentu i pasek filtrów, który nie rośnie.
+   Kotwice: main.page__playlist--index, main.page__playlist--show,
+            main.page__poll--index, main.page__poll--show, main.page__poll--result,
+            main.page__user-bookmark--index, .panel__body.playlists,
+            .playlists__playlist wraz z -image-link(--none)/-image(--none)/
+            -author/-link/-name/-link-titles/-titles, .playlist__backdrop,
+            .playlist__backdrop-filter, .playlist__author-link/-avatar/-author,
+            .playlist__description, .playlist__torrents, .playlist__torrent-container,
+            .data-table (thead/tbody/tr/td), .form__meter, .form__radio,
+            .form__checkbox, .form__label, .form__group, .panel__header,
+            .panel__action, .form__label--floating, .form__text, .form__select,
+            .user-bookmarks, .user-bookmarks__name/-size/-seeders/-leechers/
+            -times-completed/-actions, .torrent__seeder-count/-leecher-count.
+   Ubytki:  1) /polls to sama lista tytułów — markup nie niesie ani liczby
+               głosów, ani daty zamknięcia, ani informacji „już głosowałeś”.
+               Kolumny stanu nie da się dorobić CSS-em; wejście w ankietę,
+               w której już się głosowało, silnik przekierowuje na /votes.
+            2) Na stronie wyników nazwa opcji i procent siedzą w JEDNYM węźle
+               tekstowym <label> („Opcja (30.85%)”) — nie da się wypchnąć
+               procentu na prawo ani podać go monospace’em. Sam <meter> nie
+               ma widocznej wartości liczbowej, tylko długość paska.
+            3) Ankieta jednokrotnego wyboru używa layoutu z bocznym railem,
+               ale nie wypełnia go (rail dostaje treść tylko przy multiple
+               choice). Zmierzone: pusty <aside> 290 px, a kolumna treści ma
+               sztywne width: 1060px — schowanie raila NIE poszerza kolumny,
+               więc 300 px strony zostaje puste. Wymaga zmiany layoutu w Blade.
+            4) /users/{nick}/bookmarks bez zakładek renderuje samą <thead>
+               i puste <tbody>, bez żadnego komunikatu. CSS potrafi tylko
+               schować osierocony nagłówek — tekstu „brak zakładek” nie stworzy.
+            5) Karta kolekcji nie ma w markupie ani opisu, ani daty, ani
+               kategorii — zostaje okładka, nazwa, licznik tytułów i autor.
+               Okładka jest surowym uploadem o dowolnych proporcjach, więc
+               jedynym sposobem na równy rząd jest kadrowanie do 16:9.
+            6) /playlists/{id}: gdy pierwszy tytuł kolekcji nie ma backdropu
+               z TMDB, silnik wstawia adres https://via.placeholder.com/1280x350
+               (domena martwa) i tło nie wczytuje się wcale. CSS może podłożyć
+               pod spód neutralny kolor, ale nie podmieni adresu obrazka.
+            7) Kafle osiągnięć są już domknięte w _pt-konto.scss (sekcja 7)
+               — tu ich nie ruszamy, żeby nie dublować reguł. Tam też opisano,
+               że nazwa odznaki i licznik „2 / 600” żyją wyłącznie w atrybutach
+               alt/title, więc na kafelku ich nie widać.
+            8) Lista życzeń na koncie testowym była pusta („No wishes”), a jej
+               tabelę obsługują już reguły .data-table z _pt-konto.scss —
+               własnych reguł nie dokładamy.
+   ==================================================================== */
+
+/* =====================================================================
+   1 · KOLEKCJE — SIATKA KART
+   Po co: silnik daje siatce grid-gap: 2rem i kolumny minmax(220px, 1fr),
+   a panelowi padding 20 px — zmierzone na 1440 px: 5 kolumn po 247,6 px
+   i strona wysoka na 2434 px przy dwudziestu czterech kartach.
+   Gęstsza siatka mieści 6 kolumn po 214 px w tej samej szerokości.
+   ===================================================================== */
+
+main.page__playlist--index .panel__body.playlists {
+    padding: 12px;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+/* =====================================================================
+   2 · KOLEKCJE — KARTA
+   Po co: karta jest gridem 'image' 'author' 'link' 'titles', więc autor
+   wcina się MIĘDZY okładkę a nazwę. Przestawiamy obszary tak, żeby
+   nazwa szła zaraz pod okładką, a autor zamykał kartę stopką.
+   Kotwica obrazka nie ma grid-area (silnik ustawia ją na <img> w środku,
+   gdzie jest bezużyteczna), więc trafia automatycznie do pierwszego
+   wolnego pola — czyli do 'image'. Zweryfikowane pomiarem kolejności:
+   okładka y=312, nazwa y=432, licznik y=468, autor y=495.
+   ===================================================================== */
+
+main.page__playlist--index .playlists__playlist {
+    grid-template-areas: 'image' 'link' 'titles' 'author';
+    grid-template-rows: auto auto auto auto;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+}
+
+main.page__playlist--index .playlists__playlist:hover {
+    border-color: var(--pt-line-ui);
+}
+
+// Okładki przychodzą w dowolnych proporcjach: zmierzone 138,1 px przy
+// obrazku i 130 px przy zastępniku, w rzędzie 145 px — czyli trzy różne
+// dolne krawędzie w jednym rzędzie plus przerwa pod obrazkiem, bo <img>
+// jest inline i siada na linii bazowej. Sztywne 16:9 i display: block
+// robią z tego jedną, równą krawędź.
+main.page__playlist--index .playlists__playlist-image-link,
+main.page__playlist--index .playlists__playlist-image-link--none {
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__playlist--index .playlists__playlist-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+// zastępnik „brak okładki”: silnik trzyma go na sztywnych 130 px
+// i rysuje ikonę fontem o line-height 145 px / font-size 100 px
+main.page__playlist--index .playlists__playlist-image--none {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: var(--pt-surface-3);
+}
+
+main.page__playlist--index .playlists__playlist-image--none::before {
+    font-size: 26px;
+    line-height: 1;
+    color: var(--pt-fg-4);
+}
+
+// Nazwa: silnik daje 18px/700 wyśrodkowane. W siatce sześciu kolumn
+// tytuły mają od jednej do trzech linii, przez co karty w rzędzie
+// różniły się wysokością (zmierzone 355 / 328 / 408 px). Dwie linie
+// z przycięciem i podłogą 34 px wyrównują wszystkie karty do 210 px.
+main.page__playlist--index .playlists__playlist-link {
+    text-align: left;
+}
+
+main.page__playlist--index .playlists__playlist-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 34px;
+    margin: 0;
+    padding: 7px 10px 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: left;
+    color: var(--pt-fg);
+}
+
+main.page__playlist--index .playlists__playlist:hover .playlists__playlist-name {
+    color: var(--pt-red-fg);
+}
+
+// licznik tytułów to liczba — monospace i ranga przypisu
+main.page__playlist--index .playlists__playlist-link-titles {
+    text-align: left;
+}
+
+main.page__playlist--index .playlists__playlist-titles {
+    padding: 2px 10px 7px;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    text-align: left;
+    color: var(--pt-fg-4);
+}
+
+// autor jako stopka karty: silnikowy padding 20px 8px dawał 54 px
+// wysokości na jedną linijkę nicka
+main.page__playlist--index .playlists__playlist-author {
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 5px 10px;
+    border-top: 1px solid var(--pt-line);
+    font-size: 11px;
+    text-align: left;
+}
+
+/* =====================================================================
+   3 · KOLEKCJE — PASEK FILTRÓW W NAGŁÓWKU PANELU
+   Po co: motyw ustawia .form__label--floating na position: static i kładzie
+   ją NAD polem, przez co pas nagłówka rósł do 55,3 px (pole 30 px + podpis
+   14 px). Wracamy do wzorca z paska nad listą torrentów: etykieta obok pola
+   (globalne order: -1 stawia ją po lewej), pole 24 px. Zmierzone po zmianie:
+   nagłówek 36 px na /playlists i 32 px na /playlists/{id}.
+   ===================================================================== */
+
+main.page__playlist--index .panel__header .panel__action .form__group:has(> .form__label--floating),
+main.page__playlist--show .panel__header .panel__action .form__group:has(> .form__label--floating) {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+main.page__playlist--index .panel__header .form__label--floating,
+main.page__playlist--show .panel__header .form__label--floating {
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--pt-fg-4);
+}
+
+main.page__playlist--index .panel__header .form__text,
+main.page__playlist--show .panel__header .form__text {
+    height: 24px;
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 12px;
+    line-height: 22px;
+}
+
+main.page__playlist--index .panel__header .form__select {
+    height: 24px;
+    min-height: 24px;
+    padding: 0 24px 0 8px;
+    font-size: 12px;
+    line-height: 22px;
+}
+
+/* =====================================================================
+   4 · KOLEKCJA — NAGŁÓWEK Z BACKDROPEM
+   Po co: silnik daje mu padding 40 px, blur 5 px i awatar 50 px w kółku,
+   a opis dostaje od motywu tło .bbcode-rendered — zmierzone 191,5 px pasa
+   na dwa wiersze tekstu, z jasnym prostokątem opisu jak panel w panelu.
+   Płasko, bez rozmycia, awatar 32 px: pas schodzi do 84 px.
+   ===================================================================== */
+
+// kolor pod spodem obrazka: gdy backdrop z TMDB nie istnieje, silnik wstawia
+// martwy adres placeholdera i zostaje samo tło
+main.page__playlist--show .playlist__backdrop {
+    background-color: var(--pt-surface-3);
+}
+
+main.page__playlist--show .playlist__backdrop-filter {
+    grid-template: 'avatar author' 'avatar description' / auto 1fr;
+    align-items: start;
+    gap: 4px 10px;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: none;
+}
+
+main.page__playlist--show .playlist__author-avatar {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: var(--pt-radius);
+}
+
+main.page__playlist--show .playlist__author {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+// opis leży NA przyciemnieniu, więc nie może mieć własnego tła panelu
+main.page__playlist--show .playlist__description {
+    padding: 0;
+    background: none;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #cfcfcf;
+}
+
+/* =====================================================================
+   5 · KOLEKCJA — SIATKA TORRENTÓW I TABELA SUGESTII
+   Po co: panel z kartami miał padding 20 px i gap 1rem (zmierzone kolumny
+   504 px), a tabela sugestii stała na silnikowych ustawieniach: tło i kreska
+   na KOMÓRCE, padding 7 px, brak hoveru. Tło i kreskę przenosimy na wiersz —
+   inaczej komórki o różnej wysokości dają zlepek prostokątów i schodki.
+   ===================================================================== */
+
+main.page__playlist--show .playlist__torrents {
+    padding: 12px;
+    gap: 10px;
+}
+
+main.page__playlist--show .playlist__torrent-container {
+    gap: 4px;
+}
+
+main.page__playlist--show .data-table > thead > tr > th {
+    padding: 6px 12px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+main.page__playlist--show .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    background: transparent;
+    border-bottom: 0;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--pt-fg-2);
+    vertical-align: middle;
+}
+
+main.page__playlist--show .data-table > tbody > tr {
+    background: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__playlist--show .data-table > tbody > tr:last-child {
+    border-bottom: 0;
+}
+
+main.page__playlist--show .data-table > tbody > tr:hover {
+    background: var(--pt-surface-2);
+}
+
+// tytuł torrentu nie ma świecić na czerwono w całej kolumnie
+main.page__playlist--show .data-table > tbody > tr > td > a {
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+main.page__playlist--show .data-table > tbody > tr:hover > td > a {
+    color: var(--pt-red-fg);
+}
+
+main.page__playlist--show .data-table time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+}
+
+/* =====================================================================
+   6 · ANKIETY — LISTA
+   Po co: tabela ma jedną kolumnę i zero nagłówka, a silnik trzyma tło
+   i kreskę na komórce (zmierzone: td bg #1f1f1f, border-bottom 1px) —
+   wiersz nie reaguje na kursor, choć cały jest odnośnikiem. Tło i kreska
+   idą na wiersz, odnośnik rozciąga się na całą szerokość komórki.
+   ===================================================================== */
+
+main.page__poll--index .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    background: transparent;
+    border-bottom: 0;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--pt-fg-2);
+}
+
+main.page__poll--index .data-table > tbody > tr {
+    background: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__poll--index .data-table > tbody > tr:last-child {
+    border-bottom: 0;
+}
+
+main.page__poll--index .data-table > tbody > tr:hover {
+    background: var(--pt-surface-2);
+}
+
+main.page__poll--index .data-table > tbody > tr > td > a {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+main.page__poll--index .data-table > tbody > tr:hover > td > a {
+    color: var(--pt-red-fg);
+}
+
+// ikona wykresu to znacznik rodzaju, nie element treści
+main.page__poll--index .data-table > tbody > tr > td > a > i {
+    flex: none;
+    width: 12px;
+    font-size: 11px;
+    text-align: center;
+    color: var(--pt-fg-4);
+}
+
+main.page__poll--index .data-table > tbody > tr:hover > td > a > i {
+    color: var(--pt-red);
+}
+
+/* =====================================================================
+   7 · ANKIETA — GŁOSOWANIE I WYNIKI
+   Po co: opcje to <p class="form__group"> bez żadnego odstępu i kreski,
+   etykieta ma 11,5 px w kolorze --pt-fg-4 (a jest jedyną treścią strony),
+   a <meter> to pasek 22 px z ramką 2 px i promieniem 4 px, osadzony
+   inline — przez co niósł jeszcze 16 px pustej linii. Zmierzone: wiersz
+   opcji 47 px. Po zmianie 39,9 px, przy pasku 6 px i czytelnej etykiecie.
+   ===================================================================== */
+
+main.page__poll--show .panel__body,
+main.page__poll--result .panel__body {
+    padding: 6px 12px 10px;
+}
+
+main.page__poll--result .panel__body > .form__group {
+    margin: 0;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__poll--result .panel__body > .form__group:last-child {
+    border-bottom: 0;
+}
+
+main.page__poll--result .panel__body .form__label {
+    display: block;
+    margin: 0 0 4px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--pt-fg-2);
+}
+
+// display: block zdejmuje z paska pustą linię bazową (22 px)
+main.page__poll--result .form__meter {
+    display: block;
+    height: 6px;
+    border: 0;
+    border-radius: 2px;
+    background: var(--pt-surface-3);
+}
+
+// formularz głosowania: przełącznik i opis w jednym wierszu z kreską
+main.page__poll--show .panel__body form > .form__group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+// ostatnia grupa to przyciski „Głosuj / Wyniki”, nie opcja
+main.page__poll--show .panel__body form > .form__group:last-child {
+    gap: 8px;
+    padding-top: 12px;
+    border-bottom: 0;
+}
+
+// bez color-scheme przeglądarka rysuje jasny, systemowy przełącznik —
+// biała kropka na ciemnym panelu była najjaśniejszym punktem strony
+main.page__poll--show .form__radio,
+main.page__poll--show .form__checkbox {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    margin: 0;
+    accent-color: var(--pt-red);
+    color-scheme: dark;
+}
+
+main.page__poll--show .panel__body .form__label {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--pt-fg-2);
+    cursor: pointer;
+}
+
+/* =====================================================================
+   8 · ZAKŁADKI
+   Po co: rytm tabeli daje już _pt-konto.scss (cała rodzina page__user-*),
+   ale kolumn zakładek tam nie ma — nazwa siedzi w klasie na KOMÓRCE
+   (.user-bookmarks__name), nie na odnośniku w środku jak w uploadach,
+   więc łapie ją reguła „komórki z klasą idą w monospace” i rośnie bez
+   ograniczenia. Zmierzone na wierszu testowym: nazwa 12 px monospace,
+   bez przycięcia. Po zmianie: 12,5 px pismem tekstowym z wielokropkiem.
+   ===================================================================== */
+
+// max-width: 0 + width: 100% zdejmuje z komórki liczenie szerokości
+// z treści; dopiero wtedy wielokropek na odnośniku ma się o co oprzeć
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__name {
+    max-width: 0;
+    width: 100%;
+    min-width: 200px;
+}
+
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__name > a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--pt-sans);
+    font-size: 12.5px;
+}
+
+// rozmiar i liczniki to liczby — do prawej, żeby dało się je porównywać
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__size,
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__seeders,
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__leechers,
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__times-completed {
+    text-align: right;
+}
+
+// Liczniki peerów są odnośnikami, a te dostają z _pt-konto.scss kolor
+// --pt-fg (0,4,5). Dokładamy klasę panelu i klasę komórki, żeby przebić
+// tę regułę bez !important — barwy jak w kartach torrentów.
+main.page__user-bookmark--index .user-bookmarks .data-table > tbody > tr > td.user-bookmarks__seeders > a.torrent__seeder-count {
+    color: var(--pt-ok);
+}
+
+main.page__user-bookmark--index .user-bookmarks .data-table > tbody > tr > td.user-bookmarks__leechers > a.torrent__leecher-count {
+    color: var(--pt-warn);
+}
+
+main.page__user-bookmark--index .user-bookmarks .data-table > tbody > tr > td.user-bookmarks__times-completed > a.torrent__times-completed-count {
+    color: var(--pt-fg-3);
+}
+
+main.page__user-bookmark--index .data-table > tbody > tr > td.user-bookmarks__actions {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+}
+
+// Bez zakładek silnik renderuje osiem nagłówków kolumn nad pustym <tbody>
+// (zmierzone: panel 72 px, same kreski) — sam nagłówek bez danych czyta się
+// jak zepsuta strona. Chowamy go i przywracamy dopiero, gdy jest wiersz.
+main.page__user-bookmark--index .user-bookmarks .data-table > thead {
+    display: none;
+}
+
+main.page__user-bookmark--index .user-bookmarks .data-table:has(> tbody > tr) > thead {
+    display: table-header-group;
+}
