@@ -143,6 +143,28 @@
     display: block;
 }
 
+// PT ma w komórce nazwy własny markup bez klas (wstawiany po ich stronie),
+// którego wewnętrzny kontener bywa szerszy niż kolumna — bez ograniczenia
+// wychodzi na sąsiednie kolumny i nachodzi na ocenę.
+.torrent-search--list__overview {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.torrent-search--list__overview > div {
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+.torrent-search--list__overview > div > div {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 // --- nazwa + druga linia ----------------------------------------------
 .torrent-search--list__overview > div {
     display: grid;
