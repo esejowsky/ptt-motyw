@@ -467,3 +467,56 @@
     font-size: 12px;
     font-family: var(--pt-mono);
 }
+
+
+// --- korekty: kreski komorek, przyciski akcji, upload, domek ---
+/* ---- 1. podkreślenia w liście ------------------------------------------
+   Każda komórka niosła własny border-bottom. Przy różnych wysokościach
+   komórek kreski lądowały na różnych poziomach i wyglądały jak przypadkowe
+   podkreślniki. Linia oddzielająca należy do wiersza, nie do komórek. */
+.torrent-search--list__row > td,
+.torrent-search--list__no-poster-row > td,
+.torrent-search--list__headers > th,
+.torrent-search--list__no-poster-headers > th {
+    border-bottom: 0 !important;
+    border-top: 0 !important;
+}
+
+.torrent-search--list__row,
+.torrent-search--list__no-poster-row { border-bottom: 1px solid var(--pt-line); }
+
+/* obrazki w wierszu też dostawały dolną krawędź */
+.torrent-search--list__row img,
+.torrent-search--list__no-poster-row img { border-bottom: 0 !important; }
+
+/* ---- 2. przyciski akcji: płaskie ikony zamiast pudełek ----------------- */
+.torrent-search--list__buttons .form__standard-icon-button {
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--pt-fg-4) !important;
+}
+
+.torrent-search--list__buttons .form__standard-icon-button:hover {
+    color: var(--pt-fg) !important;
+    background: var(--pt-surface-3) !important;
+}
+
+/* ---- 3. „Upload" ma być wyróżniony jak w motywie PT --------------------
+   Na PT leży w nawigacji wtórnej, nie w menu głównym (inna gałąź DOM,
+   CSS go nie przeniesie), więc wyróżniamy go kolorem w miejscu, w którym jest. */
+.nav-tabV2 .nav-tab__link[href*="/torrents/create"],
+.nav-tab--active .nav-tab--active__link[href*="/torrents/create"] {
+    background: var(--pt-red) !important;
+    border-color: var(--pt-red) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* ---- 4. domek w okruszkach: czytelny, w barwie akcentu ----------------- */
+.breadcrumbV2:first-child .breadcrumb__link,
+.breadcrumbV2:first-child a {
+    color: var(--pt-fg-2);
+    font-size: 14px;
+}
+
+.breadcrumbV2:first-child a:hover { color: var(--pt-red-fg); }
