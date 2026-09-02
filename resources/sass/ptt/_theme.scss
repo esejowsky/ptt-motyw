@@ -4468,3 +4468,1395 @@ select.ptt-field__input {
     background-repeat: no-repeat; background-position: calc(100% - 8px) center; background-size: 14px; padding-right: 30px;
 }
 .ptt-set2 .form__select:disabled { opacity: .75; }
+
+// =====================================================================
+// PRYMITYWY WSPÓLNE dla ekranów budowanych wg Design
+// (statystyki, sklep, społeczność, zasady — jeden zestaw na wszystkie)
+// =====================================================================
+
+// --- panel: ramka + pasek nagłówka -----------------------------------
+.ptt-pane {
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ptt-pane__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 12px;
+    background: var(--ptt-surface-2);
+    border-bottom: 1px solid var(--ptt-border);
+}
+
+.ptt-pane__title {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-3);
+}
+
+.ptt-pane__meta {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+
+// --- nagłówek strony: tytuł + podpis ---------------------------------
+.ptt-st__head,
+.ptt-page__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 14px 0 10px;
+}
+
+.ptt-st__title,
+.ptt-page__title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ptt-fg);
+}
+
+.ptt-st__sub,
+.ptt-page__sub {
+    margin: 0;
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// =====================================================================
+// STATYSTYKI (Design 11)
+// =====================================================================
+.page__stats--index {
+    .panelV2:first-of-type {
+        display: none; // silnikowy blok „Kochamy statystyki" — zastąpiony nagłówkiem
+    }
+}
+
+.ptt-st__kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.ptt-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 12px;
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+}
+
+.ptt-kpi__label {
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+}
+
+.ptt-kpi__value {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ptt-fg);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-kpi__note {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+
+.ptt-st__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// --- tabela rankingu -------------------------------------------------
+.ptt-st__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    tr {
+        border-bottom: 1px solid var(--ptt-line);
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        &:hover {
+            background: var(--ptt-surface-2);
+        }
+    }
+
+    td {
+        padding: 6px 8px;
+        font-size: 12.5px;
+    }
+}
+
+.ptt-st__rank {
+    width: 34px;
+    padding-left: 12px !important;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-st__user {
+    color: var(--ptt-fg);
+
+    // ranking to lista nazwisk — kolor grupy rozbijałby rytm kolumny
+    .user-tag__link {
+        color: var(--ptt-fg) !important;
+    }
+
+    // ikona rangi przed nickiem: w Design ranking jest bez ikon
+    .user-tag__link::before {
+        display: none;
+    }
+}
+
+.ptt-st__num,
+.ptt-st__ratio {
+    text-align: right;
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ptt-fg-2);
+    white-space: nowrap;
+}
+
+.ptt-st__ratio {
+    padding-right: 12px !important;
+    color: var(--ptt-green);
+}
+
+// --- paski udziału kategorii ----------------------------------------
+.ptt-cat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.ptt-cat__name {
+    width: 92px;
+    flex: 0 0 auto;
+    font-size: 12.5px;
+    color: var(--ptt-fg-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ptt-cat__bar {
+    flex: 1 1 auto;
+    min-width: 60px;
+    height: 6px;
+    background: var(--ptt-surface-3);
+    border: 1px solid var(--ptt-border);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.ptt-cat__fill {
+    display: block;
+    height: 100%;
+    background: var(--ptt-fg-4);
+}
+
+.ptt-cat__num {
+    width: 62px;
+    flex: 0 0 auto;
+    text-align: right;
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// --- wykres słupkowy (konturowy, bez biblioteki) ---------------------
+.ptt-chart {
+    padding: 12px;
+}
+
+.ptt-chart__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 96px;
+}
+
+.ptt-chart__col {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+.ptt-chart__fill {
+    display: block;
+    background: var(--ptt-surface-3);
+    border: 1px solid var(--ptt-line-ui);
+    border-bottom: 0;
+}
+
+.ptt-chart__axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// --- zakładki podstron statystyk (nav-tabV2 — silnik ich nie stylował) ---
+.nav-tabV2 {
+    list-style: none;
+}
+
+.nav-tabV2 .nav-tab__link,
+.nav-tab--active .nav-tab--active__link {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 11px;
+    border-radius: 2px;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.nav-tabV2 .nav-tab__link {
+    background: transparent;
+    border: 1px solid var(--ptt-border);
+    color: var(--ptt-fg-2);
+
+    &:hover {
+        border-color: var(--ptt-line-ui);
+        color: var(--ptt-fg);
+        text-decoration: none;
+    }
+}
+
+.nav-tab--active .nav-tab--active__link {
+    background: var(--ptt-surface-3);
+    border: 1px solid var(--ptt-line-ui);
+    color: var(--ptt-fg);
+    font-weight: 600;
+}
+
+// =====================================================================
+// KARTY, PRZYCISKI, WIERSZE — prymitywy używane przez sklep i społeczność
+// =====================================================================
+.ptt-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.ptt-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 11px 12px;
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+}
+
+.ptt-card__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ptt-fg);
+}
+
+.ptt-card__desc {
+    flex: 1 1 auto; // rozpycha kafel do równej wysokości w rzędzie
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ptt-fg-4);
+}
+
+.ptt-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 2px;
+
+    form {
+        margin: 0;
+    }
+}
+
+.ptt-card__cost {
+    font-size: 13px;
+    color: var(--ptt-fg);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// --- przyciski -------------------------------------------------------
+.ptt-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 11px;
+    border-radius: 2px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.ptt-btn--go {
+    background: var(--ptt-red);
+    border: 1px solid var(--ptt-red);
+    color: #fff;
+    font-weight: 600;
+
+    &:hover {
+        filter: brightness(1.1);
+    }
+}
+
+.ptt-btn--off {
+    background: var(--ptt-surface-3);
+    border: 1px solid var(--ptt-border);
+    color: var(--ptt-fg-4);
+    cursor: not-allowed;
+}
+
+.ptt-btn--ghost {
+    background: transparent;
+    border: 1px solid var(--ptt-line-ui);
+    color: var(--ptt-fg-2);
+
+    &:hover {
+        background: var(--ptt-surface-3);
+        color: var(--ptt-fg);
+        text-decoration: none;
+    }
+}
+
+// --- uniwersalny wiersz listy ---------------------------------------
+.ptt-line {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &:hover {
+        background: var(--ptt-surface-2);
+    }
+}
+
+.ptt-row__main {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 12.5px;
+    color: var(--ptt-fg-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ptt-row__meta {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    white-space: nowrap;
+}
+
+.ptt-row__num {
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.ptt-empty,
+.ptt-pane__note {
+    margin: 0;
+    padding: 11px 12px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ptt-fg-4);
+}
+
+// =====================================================================
+// SKLEP BON (Design 12)
+// =====================================================================
+.ptt-shop__balance {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 11px 12px;
+    margin-bottom: 14px;
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+}
+
+.ptt-shop__slot {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ptt-shop__label {
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+}
+
+.ptt-shop__points {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ptt-fg);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-shop__value {
+    font-size: 13px;
+    color: var(--ptt-fg-2);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-shop__link {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+}
+
+.ptt-shop__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// silnikowy nagłówek zakładek konta bywa pusty na tym ekranie
+.page__user-transaction--create {
+    .ptt-shop {
+        margin-top: 4px;
+    }
+}
+
+// =====================================================================
+// REQ / PROŚBY (Design 10)
+// =====================================================================
+.ptt-req {
+    .ptt-page__head {
+        // CTA po prawej, opis pośrodku
+        .ptt-btn {
+            margin-left: auto;
+        }
+    }
+}
+
+// --- pasek chipsów filtrów ------------------------------------------
+.ptt-fchips {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+}
+
+.ptt-fchip {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 11px;
+    background: transparent;
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+    color: var(--ptt-fg-2);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+        border-color: var(--ptt-line-ui);
+        color: var(--ptt-fg);
+    }
+}
+
+.ptt-fchip--on {
+    background: var(--ptt-surface-3);
+    border-color: var(--ptt-line-ui);
+    color: var(--ptt-fg);
+    font-weight: 600;
+}
+
+.ptt-chips__sep {
+    width: 1px;
+    height: 20px;
+    background: var(--ptt-border);
+    margin: 0 3px;
+}
+
+.ptt-chips__note {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+}
+
+// --- tabela próśb ----------------------------------------------------
+.ptt-req__table {
+    width: 100% !important;
+
+    th {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--ptt-fg-4);
+    }
+
+    .ptt-req__th-num,
+    .ptt-req__th-stan {
+        text-align: right;
+    }
+
+    .ptt-req__th-num {
+        width: 110px;
+    }
+
+    .ptt-req__th-stan {
+        width: 140px;
+    }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+.ptt-req__name {
+    max-width: 0; // pozwala komórce się kurczyć zamiast rozpychać tabelę
+}
+
+.ptt-req__line {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    flex-wrap: wrap;
+
+    a {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ptt-fg);
+    }
+}
+
+.ptt-req__by {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+
+    .user-tag__link {
+        color: var(--ptt-fg-3) !important;
+        font-size: 12px;
+    }
+
+    .user-tag__link::before {
+        display: none;
+    }
+}
+
+// znacznik techniczny: obramowanie i tekst w jednym kolorze
+.ptt-tagchip {
+    font-size: 10px;
+    line-height: 14px;
+    padding: 0 3px;
+    border: 1px solid var(--ptt-fg-4);
+    border-radius: 1px;
+    color: var(--ptt-fg-4);
+    white-space: nowrap;
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-req__bounty,
+.ptt-req__votes {
+    text-align: right;
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+    color: var(--ptt-fg-2);
+    white-space: nowrap;
+}
+
+.ptt-req__stan {
+    text-align: right;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.ptt-stan--open    { color: var(--ptt-accent); }
+.ptt-stan--claim   { color: var(--ptt-warn); }
+.ptt-stan--pending { color: var(--ptt-x2); }
+.ptt-stan--filled  { color: var(--ptt-green); }
+
+// panel statystyk pod listą — kompaktowy pasek zamiast długiej listy
+.ptt-req__component + .panelV2,
+.page__requests > .panelV2:last-of-type {
+    .key-value {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 24px;
+    }
+}
+
+// pasek statystyk pod listą próśb: etykieta i wartość rozdzielone
+.page__requests .key-value__group {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+
+    dt {
+        color: var(--ptt-fg-4);
+        font-size: 12px;
+    }
+
+    dd {
+        margin: 0;
+        font-family: var(--ptt-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 12px;
+        color: var(--ptt-fg-2);
+    }
+}
+
+// =====================================================================
+// FORUM (Design 05)
+// =====================================================================
+.ptt-forum__acts {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+
+    form {
+        margin: 0;
+    }
+}
+
+.ptt-forum__cat {
+    margin-bottom: 14px;
+
+    .ptt-pane__title a {
+        color: var(--ptt-fg-3);
+
+        &:hover {
+            color: var(--ptt-fg);
+            text-decoration: none;
+        }
+    }
+}
+
+// --- wiersz działu ---------------------------------------------------
+.ptt-dzial {
+    display: grid;
+    grid-template-columns: 1fr 116px 300px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &:hover {
+        background: var(--ptt-surface-2);
+    }
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+}
+
+.ptt-dzial__main {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    min-width: 0;
+}
+
+.ptt-dzial__dot {
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    margin-top: 6px;
+    border-radius: 1px;
+    background: var(--ptt-line-ui);
+}
+
+.ptt-dzial__dot--live {
+    background: var(--ptt-accent);
+}
+
+.ptt-dzial__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ptt-dzial__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ptt-fg) !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+        color: var(--ptt-red-text) !important;
+        text-decoration: none;
+    }
+}
+
+.ptt-dzial__desc {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ptt-dzial__counts {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.ptt-dzial__last {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-left: 12px;
+    border-left: 1px solid var(--ptt-line);
+
+    @media (max-width: 900px) {
+        padding-left: 15px;
+        border-left: 0;
+    }
+}
+
+.ptt-dzial__last-name {
+    font-size: 12px;
+    color: var(--ptt-fg-2) !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+        color: var(--ptt-red-text) !important;
+    }
+}
+
+.ptt-dzial__last-meta {
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    a {
+        color: var(--ptt-fg-4);
+    }
+}
+
+// --- wiersz wątku na liście -----------------------------------------
+.ptt-watek {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &:hover {
+        background: var(--ptt-surface-2);
+    }
+
+    @media (max-width: 900px) {
+        flex-wrap: wrap;
+    }
+}
+
+.ptt-watek__body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.ptt-watek__line {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.ptt-watek__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ptt-fg) !important;
+
+    &:hover {
+        color: var(--ptt-red-text) !important;
+        text-decoration: none;
+    }
+}
+
+.ptt-watek--read .ptt-watek__name {
+    font-weight: 400;
+    color: var(--ptt-fg-3) !important;
+}
+
+.ptt-watek__meta {
+    margin-top: 1px;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+
+    a {
+        color: var(--ptt-fg-4);
+    }
+}
+
+.ptt-watek__nums {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-left: auto;
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+}
+
+.ptt-watek__num {
+    color: var(--ptt-fg-2);
+    white-space: nowrap;
+}
+
+.ptt-watek__num--dim {
+    color: var(--ptt-fg-4);
+    width: 64px;
+    text-align: right;
+}
+
+.ptt-watek__num--last {
+    color: var(--ptt-fg-3);
+    width: 150px;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    a {
+        color: var(--ptt-fg-3);
+    }
+}
+
+// --- odznaki i tagi wątku -------------------------------------------
+.ptt-odznaka {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 14px;
+    padding: 0 3px;
+    border-radius: 1px;
+    white-space: nowrap;
+}
+
+.ptt-odznaka--pin {
+    color: var(--ptt-accent);
+    border: 1px solid var(--ptt-accent);
+}
+
+.ptt-odznaka--lock {
+    color: var(--ptt-fg-4);
+    border: 1px solid var(--ptt-line-ui);
+}
+
+.ptt-etyk {
+    font-size: 10px;
+    line-height: 14px;
+    padding: 0 3px;
+    border-radius: 1px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ptt-etyk--ok   { color: var(--ptt-green); border: 1px solid var(--ptt-green); }
+.ptt-etyk--err  { color: var(--ptt-red-text); border: 1px solid var(--ptt-red-text); }
+.ptt-etyk--warn { color: var(--ptt-warn); border: 1px solid var(--ptt-warn); }
+.ptt-etyk--fl   { color: var(--ptt-fl); border: 1px solid var(--ptt-fl); }
+
+// --- rozwijany panel pełnych filtrów --------------------------------
+.ptt-more {
+    margin-top: 14px;
+    background: var(--ptt-surface);
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+}
+
+.ptt-more__toggle {
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-3);
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+
+    &::before {
+        content: '+ ';
+        color: var(--ptt-fg-4);
+    }
+}
+
+.ptt-more[open] .ptt-more__toggle::before {
+    content: '− ';
+}
+
+.ptt-more__body {
+    padding: 0 12px 12px;
+    border-top: 1px solid var(--ptt-line);
+
+    // panele silnika w środku tracą własne ramki — rolę ramki pełni <details>
+    .panelV2 {
+        background: transparent;
+        border: 0;
+    }
+
+    .panel__heading {
+        padding-left: 0;
+    }
+}
+
+.ptt-forum__list {
+    margin-bottom: 12px;
+}
+
+// widok listy wątków jest renderowany prosto w <main> (bez <article>),
+// więc kontener musi sam zadbać o pełną szerokość i pionowy układ
+.ptt-forum--list {
+    display: block;
+    width: 100%;
+}
+
+// --- post na wątku: układ Design bez ruszania markupu ----------------
+// (komponent silnika ma header + aside + content + footer — wystarczy grid)
+.post {
+    display: grid;
+    grid-template-columns: 148px minmax(0, 1fr);
+    grid-template-areas:
+        'autor naglowek'
+        'autor tresc'
+        'autor stopka';
+    gap: 4px 12px;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--ptt-line);
+    background: transparent;
+
+    @media (max-width: 900px) {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'autor'
+            'naglowek'
+            'tresc'
+            'stopka';
+    }
+}
+
+.post__header {
+    grid-area: naglowek;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+
+.post__datetime {
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ptt-fg-4);
+}
+
+.post__aside {
+    grid-area: autor;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding-right: 12px;
+    border-right: 1px solid var(--ptt-line);
+
+    @media (max-width: 900px) {
+        flex-direction: row;
+        align-items: center;
+        gap: 9px;
+        padding-right: 0;
+        padding-bottom: 8px;
+        border-right: 0;
+        border-bottom: 1px solid var(--ptt-line);
+    }
+}
+
+.post__figure {
+    margin: 0;
+}
+
+.post__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+    border: 1px solid var(--ptt-border);
+    object-fit: cover;
+}
+
+.post__author .user-tag__link {
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.post__author-title {
+    margin: 0;
+    font-size: 10.5px;
+    color: var(--ptt-fg-4);
+}
+
+.post__author-join,
+.post__author-topics,
+.post__author-posts {
+    display: flex;
+    gap: 5px;
+    margin: 0;
+    font-size: 11px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+
+    dt,
+    dd {
+        margin: 0;
+    }
+
+    dt a {
+        color: var(--ptt-fg-4);
+    }
+}
+
+.post__content {
+    grid-area: tresc;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ptt-fg-2);
+    max-width: 82ch;
+
+    // cytat jak w Design: pasek z lewej na tle surface-2
+    blockquote {
+        margin: 6px 0;
+        padding: 5px 0 5px 10px;
+        border-left: 2px solid var(--ptt-line-ui);
+        background: var(--ptt-surface-2);
+        font-size: 12.5px;
+        color: var(--ptt-fg-3);
+        line-height: 1.55;
+    }
+}
+
+.post__footer {
+    grid-area: stopka;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--ptt-line);
+}
+
+.post__signature {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--ptt-fg-4);
+}
+
+// pasek narzędzi posta: dyskretny, pokazuje się przy najechaniu
+.post__toolbar-overflow {
+    margin-left: auto;
+    color: var(--ptt-fg-4);
+}
+
+// kolumna autora: bez własnego tła — rolę tła pełni wiersz posta
+.post__aside {
+    background: transparent !important;
+    border-radius: 0;
+}
+
+// widok wątku: przyciski narzędzi w railu stonowane do rozmiaru reszty motywu
+.page__forum-topic--show {
+    .panelV2 .form__button--filled {
+        height: 26px;
+        padding: 0 11px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    // pasek narzędzi posta: ikony dopiero przy najechaniu na post
+    .post__toolbar {
+        opacity: 0;
+        transition: opacity 0.12s ease;
+    }
+
+    .post:hover .post__toolbar,
+    .post:focus-within .post__toolbar {
+        opacity: 1;
+    }
+}
+
+// =====================================================================
+// SPOŁECZNOŚĆ (Design 14)
+// =====================================================================
+.ptt-spol__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ptt-spol__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    tr {
+        border-bottom: 1px solid var(--ptt-line);
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        &:hover {
+            background: var(--ptt-surface-2);
+        }
+    }
+
+    td {
+        padding: 7px 8px;
+        font-size: 12.5px;
+    }
+}
+
+.ptt-spol__nick {
+    padding-left: 12px !important;
+
+    a {
+        color: var(--ptt-fg) !important;
+    }
+}
+
+.ptt-spol__rola {
+    font-size: 12px;
+}
+
+.ptt-spol__stan {
+    padding-right: 12px !important;
+    text-align: right;
+    font-size: 12px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.ptt-spol__on {
+    color: var(--ptt-green);
+}
+
+.ptt-spol__chmura {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+}
+
+.ptt-osoba {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 7px 2px 3px;
+    border: 1px solid var(--ptt-border);
+    border-radius: 2px;
+    font-size: 12px;
+    color: var(--ptt-fg-2) !important;
+
+    &:hover {
+        border-color: var(--ptt-line-ui);
+        color: var(--ptt-fg) !important;
+        text-decoration: none;
+    }
+}
+
+.ptt-osoba__ini {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 1px;
+    background: var(--ptt-surface-3);
+    border: 1px solid var(--ptt-border);
+    font-size: 9px;
+    color: var(--ptt-fg-4);
+    font-family: var(--ptt-mono);
+}
+
+.ptt-spol__label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ptt-fg-4);
+}
+
+.ptt-grupa__tag {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ptt-fg);
+    font-family: var(--ptt-mono);
+}
+
+.ptt-grupa__ile {
+    font-size: 12px;
+    color: var(--ptt-fg-3);
+    font-family: var(--ptt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// =====================================================================
+// ZASADY I POMOC (Design 13) — układ; treści stron zostają z bazy
+// =====================================================================
+.ptt-pomoc .ptt-card__title a {
+    color: var(--ptt-fg) !important;
+
+    &:hover {
+        color: var(--ptt-red-text) !important;
+        text-decoration: none;
+    }
+}
+
+.ptt-pomoc__tresc {
+    padding: 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ptt-fg-2);
+
+    h1, h2, h3 {
+        margin: 16px 0 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ptt-fg);
+    }
+
+    ol, ul {
+        margin: 6px 0;
+        padding-left: 22px;
+    }
+
+    li {
+        margin: 3px 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0;
+
+        td, th {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--ptt-line);
+            text-align: left;
+        }
+    }
+
+    code, pre {
+        font-family: var(--ptt-mono);
+        font-size: 12px;
+        background: var(--ptt-surface-2);
+        border: 1px solid var(--ptt-border);
+        border-radius: 2px;
+        padding: 1px 4px;
+    }
+
+    blockquote {
+        margin: 8px 0;
+        padding: 6px 0 6px 10px;
+        border-left: 2px solid var(--ptt-line-ui);
+        background: var(--ptt-surface-2);
+        color: var(--ptt-fg-3);
+    }
+}
+
+.ptt-pomoc .ptt-page__head .ptt-fchip {
+    margin-left: auto;
+}
