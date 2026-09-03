@@ -1128,3 +1128,9 @@ dialog {
     height: 100%;
     background-color: var(--pt-accent);
 }
+
+// etykiety pól: silnik rysuje im pigułkę (promień 50% 8px) — bez tła nie ma czego zaokrąglać
+.form__label,
+.form__label--floating {
+    border-radius: 0;
+}

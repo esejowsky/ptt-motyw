@@ -1288,3 +1288,66 @@ main.page__torrent--show > article > ul.torrent__tags > li {
         width: 100% !important;
     }
 }
+
+
+// --- reguły odtworzone ze starego motywu (wypadły przy porcjowaniu) ---
+main.page__torrent--show > article > .luxury-tech-section, main.page__torrent--show > article > .luxury-desc-section, main.page__torrent--show > article > .luxury-comments-section, main.page__torrent--show > article > .luxury-thanks-panel, main.page__torrent--show > article > .luxury-tools-container, main.page__torrent--show > article > .modo-luxury-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+// specyfikacja staffu: font inline „Inter", kolory inline, promienie 5–8 px, cienie → paleta
+main.page__torrent--show .tech-content-table-wrapper,
+main.page__torrent--show .tech-content-table-wrapper * {
+    font-family: var(--pt-sans) !important;
+    box-shadow: none !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper div {
+    border-radius: var(--pt-radius) !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper div[style*='background'] {
+    background-color: var(--pt-surface-2) !important;
+    background-image: none !important;
+    border-color: var(--pt-line) !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper div[style*='color'],
+main.page__torrent--show .tech-content-table-wrapper span[style*='color']:not([style*='background']) {
+    color: var(--pt-fg-2) !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper [style*='font-size: 0.7'],
+main.page__torrent--show .tech-content-table-wrapper [style*='letter-spacing'] {
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--show .thank-user-pill .user-name,
+main.page__torrent--show .thank-user-pill {
+    text-shadow: none !important;
+}
+
+main.page__torrent--show .modo-system-info,
+main.page__torrent--show .torrent-icons .fa-heart {
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--show .pttrg-flag-shine,
+main.page__torrent--show .pttrg-text-move {
+    animation: none !important;
+    text-shadow: none !important;
+}
+
+main.page__torrent--show .tools-side-indicator,
+main.page__torrent--show .header-accent,
+main.page__torrent--show .pttrg-flag-wave-wrapper,
+main.page__torrent--show .pttrg-flag-ribbon,
+main.page__torrent--show .pttrg-flag-content {
+    box-shadow: none !important;
+    filter: none !important;
+}

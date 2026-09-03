@@ -122,7 +122,7 @@
 .topic-listing__post-stats dt,
 .topic-listing__view-stats dt {
     font-family: var(--pt-sans);
-    font-size: 9.5px;
+    font-size: 10.5px;
     font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -937,7 +937,7 @@ main.page__topic--show .panel__actions .form__label--floating {
 main.page__topic--show .panel__actions .form__text:focus ~ .form__label--floating,
 main.page__topic--show .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating {
     top: 0;
-    font-size: 9.5px;
+    font-size: 10.5px;
     color: var(--pt-red-fg);
     background: var(--pt-surface-2);
 }

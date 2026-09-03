@@ -289,3 +289,7 @@ main.page__torrent--create .upload-form .form__group > small {
         padding: 10px;
     }
 }
+
+main.page__torrent--create .upload-warning {
+    box-shadow: none !important;
+}

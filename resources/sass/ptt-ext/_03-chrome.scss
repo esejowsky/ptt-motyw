@@ -1143,3 +1143,17 @@ body > a[style] > :last-child {
     color: var(--pt-warn) !important;
 }
 
+
+// pasek celu Donate: silnik daje promień 8 px i gradient — płaski pasek 2 px
+.top-nav__dropdown > a .progress,
+.top-nav__dropdown > a .progress-bar {
+    border-radius: 0 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+// ikona portu w pasku statystyk: bez zielonej poświaty (kolor stanu zostaje)
+.ratio-bar__portcheck i,
+#nav-port-icon {
+    text-shadow: none !important;
+}
