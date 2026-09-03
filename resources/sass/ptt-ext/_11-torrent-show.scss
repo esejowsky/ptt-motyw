@@ -1317,24 +1317,9 @@ main.page__torrent--show .tech-content-table-wrapper div[style*='background'] {
     border-color: var(--pt-line) !important;
 }
 
-main.page__torrent--show .tech-content-table-wrapper div[style*='color'],
-main.page__torrent--show .tech-content-table-wrapper span[style*='color']:not([style*='background']) {
-    color: var(--pt-fg-2) !important;
-}
-
-main.page__torrent--show .tech-content-table-wrapper [style*='font-size: 0.7'],
-main.page__torrent--show .tech-content-table-wrapper [style*='letter-spacing'] {
-    color: var(--pt-fg-4) !important;
-}
-
 main.page__torrent--show .thank-user-pill .user-name,
 main.page__torrent--show .thank-user-pill {
     text-shadow: none !important;
-}
-
-main.page__torrent--show .modo-system-info,
-main.page__torrent--show .torrent-icons .fa-heart {
-    color: var(--pt-fg-4) !important;
 }
 
 main.page__torrent--show .pttrg-flag-shine,

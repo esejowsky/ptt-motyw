@@ -621,7 +621,6 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     font-weight: 600 !important;
     letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
-    color: var(--pt-fg-3) !important;
 }
 
 main.page__home > article > div[style*='justify-content:center'] > a > div:nth-child(3) {
@@ -631,7 +630,6 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     font-variant-numeric: tabular-nums;
     font-size: 16px !important;
     font-weight: 600 !important;
-    color: var(--pt-fg) !important;
 }
 
 // premiery kinowe: nagłówek panelu bez Orbitrona, treść to iframe (nie do ostylowania)
@@ -659,26 +657,8 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     border-bottom: 1px solid var(--pt-border) !important;
 }
 
-#mqw-header > span:first-child {
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.06em !important;
-    color: var(--pt-fg-3) !important;
-}
-
-#mqw-arrow {
-    color: var(--pt-fg-4) !important;
-}
-
 #mqw-body {
     padding: 11px 12px 12px !important;
-}
-
-#mqw-quote {
-    font-size: 13px !important;
-    color: var(--pt-fg-2) !important;
-    border-left: 2px solid var(--pt-accent) !important;
-    padding-left: 10px !important;
 }
 
 #mqw-input {
@@ -691,116 +671,33 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     font-size: 12.5px !important;
 }
 
-#mqw-btn {
-    height: var(--pt-h-26) !important;
-    padding: 0 12px !important;
-    background: var(--pt-accent) !important;
-    border: 1px solid var(--pt-accent) !important;
-    border-radius: var(--pt-radius) !important;
-    color: var(--pt-accent-on) !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
-    box-shadow: none !important;
-}
-
-#mqw-solved-info,
-#mqw-winners,
-#mqw-user-result,
-#mqw-loading {
-    font-size: 11.5px !important;
-    color: var(--pt-fg-4) !important;
-}
-
 // czat: pole systemowe, pasek narzędzi i przyciski fraz (markup staffu) w palecie
-.ptt-system-box {
-    margin: 0 0 6px !important;
-    background: var(--pt-surface-2) !important;
-    border: 1px solid var(--pt-line) !important;
-    border-radius: var(--pt-radius) !important;
-    box-shadow: none !important;
-}
-
-.ptt-system-box__header {
-    padding: 5px 10px !important;
-    background: transparent !important;
-    border-bottom: 1px solid var(--pt-line) !important;
-    color: var(--pt-fg-4) !important;
-    font-size: 10.5px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-}
-
-.ptt-system-box__list {
-    margin: 0 !important;
-    padding: 4px 0 !important;
-}
-
-.ptt-system-box__item,
-.ptt-system-box__item * {
-    color: var(--pt-fg-3) !important;
-    font-size: 12px !important;
-    line-height: 1.45 !important;
-}
-
-.ptt-system-box__item b {
-    font-weight: 600 !important;
-    color: var(--pt-fg) !important;
-}
-
-.ptt-system-count,
-.ptt-system-toggle {
-    color: var(--pt-fg-4) !important;
-    font-size: 10.5px !important;
-}
-
-.ptt-toolbar button,
-.ptt-toolbar button b,
-.ptt-emoji-toggle,
-.ptt-quote-btn,
-.ptt-mention-btn,
-.ptt-phrase-btn,
-.ptt-badge-btn {
-    height: var(--pt-h-22) !important;
-    padding: 0 8px !important;
-    background: var(--pt-surface-3) !important;
-    border: 1px solid var(--pt-border) !important;
-    border-radius: var(--pt-radius) !important;
-    box-shadow: none !important;
-    color: var(--pt-fg-2) !important;
-    font-size: 11.5px !important;
-    font-weight: 500 !important;
-    text-shadow: none !important;
-}
-
-.ptt-toolbar button b {
-    height: auto !important;
-    padding: 0 !important;
-    background: transparent !important;
-    border: 0 !important;
-}
-
-.ptt-toolbar button:hover,
-.ptt-phrase-btn:hover {
-    border-color: var(--pt-line-ui) !important;
-    color: var(--pt-fg) !important;
-}
-
 // top użytkownicy: numer miejsca bez czerwonej ramki i cienia
-.top-users__place {
-    border: 1px solid var(--pt-border) !important;
-    border-radius: 1px !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    color: var(--pt-fg-4) !important;
-}
-
 // karty wiadomości bez zaokrągleń silnika
 .article-preview {
     border-radius: 0 !important;
 }
 
 // wyróżnienie FL w nazwie (złota gwiazdka staffu) → badge freeleech
+
+// czat i widżety staffu: kolory z produkcji zostają; tylko geometria i cienie w rytmie motywu
+.ptt-system-box,
+.ptt-toolbar,
+.top-users__place {
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+}
+
+.ptt-toolbar button,
+.ptt-phrase-btn,
+.ptt-badge-btn {
+    height: var(--pt-h-22) !important;
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+    font-size: 11.5px !important;
+}
+
+// złota gwiazdka FL w nazwie: kolor zostaje, bez poświaty, w rytmie badge
 .fl-star-badge {
     display: inline-flex !important;
     align-items: center !important;
@@ -808,9 +705,7 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     height: 16px !important;
     margin-left: 6px !important;
     padding: 0 5px !important;
-    background: color-mix(in srgb, var(--pt-fl) 14%, transparent) !important;
     border-radius: 1px !important;
-    color: var(--pt-fl) !important;
     font-size: 9px !important;
     font-weight: 700 !important;
     letter-spacing: 0.05em !important;
@@ -820,30 +715,6 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
 
 .fl-star-badge i,
 .fl-star-badge span {
-    color: var(--pt-fl) !important;
     font-size: 9px !important;
     text-shadow: none !important;
-}
-
-// drobiazgi widżetów staffu: kropka statusu, licznik miejsc, przyciski nagłówka czatu, pasek narzędzi
-#live-stream-offline-card span,
-#live-stream-online-banner span {
-    background: var(--pt-fg-4) !important;
-}
-
-#mqw-slots,
-#mqw-slots * {
-    color: var(--pt-fg-4) !important;
-}
-
-#chatbox_header .form__standard-icon-button {
-    border-color: transparent !important;
-    background: transparent !important;
-}
-
-.ptt-toolbar {
-    border-radius: var(--pt-radius) !important;
-    background: var(--pt-surface-2) !important;
-    border: 1px solid var(--pt-line) !important;
-    box-shadow: none !important;
 }

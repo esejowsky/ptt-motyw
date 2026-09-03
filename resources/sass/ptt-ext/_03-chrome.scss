@@ -1116,30 +1116,8 @@ body > a[href*='staff-application'] span {
     padding: 6px 16px 6px 10px !important;
 }
 
-// paski promo PT: kolor tylko na CTA (akcent), tekst neutralny
-body > a[href*='selliptv'],
-body > a[href*='selliptv'] i,
-body > a[href*='selliptv'] > div > div:last-child > div:first-child,
-body > a[href*='staff-application'],
-body > a[href*='staff-application'] i,
-body > a[href*='staff-application'] span {
-    color: var(--pt-fg-2) !important;
-}
-
-body > a[href*='selliptv'] > div > div:last-child > div:nth-child(2) {
-    color: var(--pt-fg-4) !important;
-}
-
-body > a[style] > :last-child {
-    color: var(--pt-accent) !important;
-    border-color: var(--pt-accent) !important;
-}
 
 // pasek statystyk: strzałki góra/dół w kolorach znaczenia, reszta neutralna (Design 02)
-.top-nav__ratio-bar a > i {
-    color: var(--pt-fg-4) !important;
-}
-
 .ratio-bar__uploaded i,
 .ratio-bar__seeding i {
     color: var(--pt-ok) !important;
@@ -1147,6 +1125,15 @@ body > a[style] > :last-child {
 
 .ratio-bar__downloaded i,
 .ratio-bar__leeching i {
+    color: var(--pt-warn) !important;
+}
+
+.ratio-bar__tokens i {
+    color: var(--pt-fl) !important;
+}
+
+.ratio-bar__points i,
+.ratio-bar__bon i {
     color: var(--pt-warn) !important;
 }
 
@@ -1179,4 +1166,26 @@ body > a[style] > :last-child {
     background-color: #b91b27;
     border-color: #b91b27;
     color: var(--pt-accent-on);
+}
+
+// paski promo PT: kolory jak na produkcji (IPTV bursztyn, rekrutacja niebieski), CTA w kolorze paska
+body > a[href*='selliptv'],
+body > a[href*='selliptv'] i,
+body > a[href*='selliptv'] > div > div:last-child > div:first-child {
+    color: var(--pt-warn) !important;
+}
+
+body > a[href*='selliptv'] > div > div:last-child > div:nth-child(2) {
+    color: var(--pt-fg-3) !important;
+}
+
+body > a[href*='staff-application'],
+body > a[href*='staff-application'] i,
+body > a[href*='staff-application'] span {
+    color: var(--pt-info) !important;
+}
+
+body > a[style] > :last-child {
+    color: inherit !important;
+    border-color: currentColor !important;
 }

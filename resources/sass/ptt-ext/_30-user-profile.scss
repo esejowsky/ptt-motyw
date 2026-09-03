@@ -750,37 +750,19 @@ main.page__user-profile--show .profile-hero__permissions > span {
     font-size: 11px !important;
 }
 
-main.page__user-profile--show .profile-hero__info-group span span,
-main.page__user-profile--show .profile-hero__info-group b {
-    border: 0 !important;
-    color: var(--pt-fg) !important;
-}
-
 main.page__user-profile--show .key-value__group dt,
 main.page__user-profile--show .key-value__group dt abbr {
     font-size: 12px !important;
-    color: var(--pt-fg-4) !important;
     text-decoration: none !important;
 }
 
 main.page__user-profile--show .key-value__group dd {
     font-size: 12.5px !important;
-    color: var(--pt-fg) !important;
 }
 
 #port-check-body span {
     border-radius: 1px !important;
     font-size: 12px !important;
-}
-
-#port-check-body span[style*='color: #ccc'],
-#port-check-body > div > span:first-child {
-    color: var(--pt-fg-2) !important;
-}
-
-#port-check-body span[style*='color: #888'],
-#port-check-body > div > span:nth-child(2) {
-    color: var(--pt-fg-4) !important;
 }
 
 main.page__user-profile--show .profile-hero div,
