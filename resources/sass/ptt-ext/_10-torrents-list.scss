@@ -1798,25 +1798,13 @@ main.page__torrent-pending--index .torrent--rejected {
 // tytuł #e3e3e3 · linia 2 #969696 · uploader #34b5e9 · format/liczby #b5b5b5
 // S #6ecf8b · L #e8b45c · ukończenia #34b5e9 · ikony akcji #969696 · th #969696
 // badge: tekst w kolorze + tło tego koloru ~14 %, bez ramki
-// Mockup listy NIE ma kolumny plakatu.
+// Kolumna plakatu zostaje (decyzja Konrada: „była fajna").
 // =====================================================================
-.torrent-search--list__headers,
-.torrent-search--list__row {
-    grid-template-columns: minmax(0, 1fr) $col-format $col-rating $col-size $col-num $col-num $col-completed $col-age $col-buttons;
-    grid-template-areas: 'overview format rating size seeders leechers completed age buttons';
-}
-
-.torrent-search--list__poster,
-.torrent-search--list__poster-header {
-    display: none !important;
-}
-
 .torrent-search--list__headers > th,
 .torrent-search--list__no-poster-headers > th {
     color: var(--pt-fg-4);
 }
 
-.torrent-search--list__name-header,
 .torrent-search--list__overview {
     padding-left: 12px !important;
 }
@@ -1994,4 +1982,63 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
     font-family: var(--pt-mono);
     font-size: 11px !important;
     color: var(--pt-fg-4) !important;
+}
+
+// =====================================================================
+// PRODUKCJA PT — czarna tabela: staff daje .data-table-wrapper tło rgba(13,15,17,.8),
+// ramkę i promień 8 px; do tego ujemny margines z resetu wypychał ją poza panel.
+// Tabela ma być przezroczysta wewnątrz panelu wyników, a panel — jak każdy inny.
+// =====================================================================
+.torrent-search__results .data-table-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.torrent-search__results table.data-table,
+.torrent-search__results table.data-table > thead,
+.torrent-search__results table.data-table > tbody {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.torrent-search__results {
+    background-color: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+}
+
+.torrent-search--list__headers,
+.torrent-search--list__no-poster-headers {
+    background-color: var(--pt-surface-2) !important;
+}
+
+.torrent-search--list__row,
+.torrent-search--list__no-poster-row {
+    background-color: transparent !important;
+}
+
+.torrent-search--list__row:hover,
+.torrent-search--list__no-poster-row:hover {
+    background-color: var(--pt-surface-2) !important;
+}
+
+// portal staffu: bez pudełka — szukajka i wyniki to dwa osobne panele jak w Design
+.search-portal-box {
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.search-portal-box .torrent-search__filters.compact-search {
+    margin: 0 0 var(--pt-gap) !important;
+    padding: 11px 12px 12px !important;
+    background-color: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
 }
