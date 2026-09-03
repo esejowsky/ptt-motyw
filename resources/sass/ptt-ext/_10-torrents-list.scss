@@ -207,7 +207,7 @@ $col-buttons: 84px;
 // przypięte: lewy pasek akcentu i ledwie widoczny podkład na całym wierszu
 .torrent-search--list__sticky-row {
     background-color: var(--pt-red-a12);
-    box-shadow: inset 2px 0 0 var(--pt-red);
+    box-shadow: inset 2px 0 0 var(--pt-accent);
 }
 
 .torrent-search--list__sticky-row:hover {
@@ -224,7 +224,7 @@ $col-buttons: 84px;
 }
 
 .torrent-search--list__sticky-row:has(.torrent-icons__freeleech) {
-    box-shadow: inset 2px 0 0 var(--pt-red);
+    box-shadow: inset 2px 0 0 var(--pt-accent);
 }
 
 // ---------------------------------------------------------------------
@@ -1614,4 +1614,95 @@ main.page__torrent-pending--index .torrent--rejected {
 .torrent-search--list__poster > a {
     height: 44px !important;
     line-height: 0;
+}
+
+// kolory liczb na PT (staff wpisuje inline #2ecc71/#e74c3c/#3498db): semantyka Design
+.torrent-search--list__seeders span,
+.torrent-search--list__seeders a {
+    color: var(--pt-ok) !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+}
+
+.torrent-search--list__leechers span,
+.torrent-search--list__leechers a {
+    color: var(--pt-warn) !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+}
+
+.torrent-search--list__completed span,
+.torrent-search--list__completed a {
+    color: var(--pt-fg-3) !important;
+    font-size: 12.5px !important;
+    font-weight: 400 !important;
+}
+
+.torrent-search--list__size span,
+.torrent-search--list__age span {
+    font-weight: 500 !important;
+    opacity: 1 !important;
+}
+
+.torrent-search--list__size span {
+    color: var(--pt-fg-2) !important;
+    font-size: 12.5px !important;
+}
+
+.torrent-search--list__age span {
+    color: var(--pt-fg-4) !important;
+    font-size: 11.5px !important;
+}
+
+// ocena: neutralna — procent fg-2, opis fg-4, gwiazdka wyciszona
+.torrent-search--list__rating span,
+.torrent-search--list__rating div {
+    color: var(--pt-fg-2) !important;
+    font-weight: 500 !important;
+    text-shadow: none !important;
+}
+
+.torrent-search--list__rating svg {
+    width: 10px !important;
+    height: 10px !important;
+    opacity: 0.5;
+}
+
+.torrent-search--list__rating svg,
+.torrent-search--list__rating svg * {
+    fill: var(--pt-fg-4) !important;
+    color: var(--pt-fg-4) !important;
+}
+
+.torrent-search--list__rating .ptt-mega-super,
+.torrent-search--list__rating span + span,
+.torrent-search--list__rating div > span:last-child:not(:only-child) {
+    color: var(--pt-fg-4) !important;
+    font-weight: 400 !important;
+    font-size: 10px !important;
+}
+
+// druga linia: inline kolory staffu (#5b7ba3, #a0825a…) → neutralne; grupa uploadera zostaje
+.torrent-search--list__overview > div > div:last-child [style*='color'] {
+    color: var(--pt-fg-4) !important;
+}
+
+.torrent-search--list__overview > div > div:last-child .user-tag__link {
+    color: var(--pt-fg-3) !important;
+}
+
+// ikony liczb w komórkach: wyciszone, bez kolorów staffu
+.torrent-search--list__size svg,
+.torrent-search--list__seeders svg,
+.torrent-search--list__leechers svg,
+.torrent-search--list__completed svg,
+.torrent-search--list__age svg,
+.torrent-search--list__size svg *,
+.torrent-search--list__seeders svg *,
+.torrent-search--list__leechers svg *,
+.torrent-search--list__completed svg *,
+.torrent-search--list__age svg * {
+    fill: var(--pt-fg-4) !important;
+    stroke: var(--pt-fg-4) !important;
+    color: var(--pt-fg-4) !important;
 }

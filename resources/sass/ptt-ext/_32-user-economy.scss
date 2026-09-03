@@ -337,9 +337,9 @@ $aktywne: 'main.page__user-peers--index.page__user-peers--index';
 }
 
 #{$sklep} .data-table .form__button:hover {
-    background: var(--pt-red);
-    border-color: var(--pt-red);
-    color: #fff;
+    background: var(--pt-accent);
+    border-color: var(--pt-accent);
+    color: var(--pt-accent-on);
     filter: none;
 }
 

@@ -549,9 +549,9 @@ main.page__user-profile--show .profile-hero .form__button {
 
 main.page__user-profile--show .profile-hero .form__button--filled,
 main.page__user-profile--show .profile-hero a[class*='button'][style*='background'] {
-    background-color: var(--pt-red) !important;
-    border-color: var(--pt-red) !important;
-    color: #fff !important;
+    background-color: var(--pt-accent) !important;
+    border-color: var(--pt-accent) !important;
+    color: var(--pt-accent-on) !important;
     box-shadow: none !important;
 }
 

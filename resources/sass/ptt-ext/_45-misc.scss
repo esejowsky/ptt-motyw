@@ -38,19 +38,19 @@ section.error {
     gap: 6px;
     height: var(--pt-h-28);
     padding: 0 12px;
-    background-color: var(--pt-red);
-    border: 1px solid var(--pt-red);
+    background-color: var(--pt-accent);
+    border: 1px solid var(--pt-accent);
     border-radius: var(--pt-radius);
-    color: #fff;
+    color: var(--pt-accent-on);
     font-size: 12.5px;
     font-weight: 600;
     text-decoration: none;
 }
 
 .error__home-link:hover {
-    background-color: #b91b27;
-    border-color: #b91b27;
-    color: #fff;
+    background-color: #ff8189;
+    border-color: #ff8189;
+    color: var(--pt-accent-on);
     text-decoration: none;
 }
 

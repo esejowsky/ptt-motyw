@@ -632,7 +632,7 @@ main.page__torrent--show .panel__tab:hover {
 }
 
 main.page__torrent--show .panel__tab--active {
-    border-bottom: 2px solid var(--pt-red);
+    border-bottom: 2px solid var(--pt-accent);
     color: var(--pt-fg);
 }
 
@@ -788,7 +788,7 @@ main.page__torrent--show .tools-badge {
 // kolorowe „akcenty” przy nagłówkach: cyjanowy pasek i pomarańczowa listwa
 main.page__torrent--show .header-accent {
     width: 2px !important;
-    background: var(--pt-red) !important;
+    background: var(--pt-accent) !important;
 }
 
 main.page__torrent--show .tools-side-indicator {

@@ -142,7 +142,7 @@ main.page__home > article {
 
 .chatbox .panel__tab--active {
     color: var(--pt-fg);
-    border-bottom: 2px solid var(--pt-red);
+    border-bottom: 2px solid var(--pt-accent);
     background-color: var(--pt-surface-3);
 }
 
@@ -578,7 +578,7 @@ main.page__home > article {
 }
 
 #live-stream-online-banner {
-    border-left-color: var(--pt-red) !important;
+    border-left-color: var(--pt-accent) !important;
     color: var(--pt-fg) !important;
 }
 
@@ -677,7 +677,7 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
 #mqw-quote {
     font-size: 13px !important;
     color: var(--pt-fg-2) !important;
-    border-left: 2px solid var(--pt-red) !important;
+    border-left: 2px solid var(--pt-accent) !important;
     padding-left: 10px !important;
 }
 
@@ -694,10 +694,10 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
 #mqw-btn {
     height: var(--pt-h-26) !important;
     padding: 0 12px !important;
-    background: var(--pt-red) !important;
-    border: 1px solid var(--pt-red) !important;
+    background: var(--pt-accent) !important;
+    border: 1px solid var(--pt-accent) !important;
     border-radius: var(--pt-radius) !important;
-    color: #fff !important;
+    color: var(--pt-accent-on) !important;
     font-size: 12.5px !important;
     font-weight: 600 !important;
     box-shadow: none !important;

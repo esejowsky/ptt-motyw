@@ -105,7 +105,7 @@
 
     blockquote {
         padding: 6px 10px;
-        border-left: 2px solid var(--pt-red);
+        border-left: 2px solid var(--pt-accent);
         border-radius: 0;
         background-color: var(--pt-surface-2);
         color: var(--pt-fg-3);
@@ -209,7 +209,7 @@
     .bbcode-rendered__note {
         padding: 6px 10px;
         border: 0;
-        border-left: 2px solid var(--pt-red);
+        border-left: 2px solid var(--pt-accent);
         border-radius: 0;
         background-color: var(--pt-surface-2);
         font-size: 12.5px;

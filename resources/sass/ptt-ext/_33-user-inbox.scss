@@ -112,7 +112,7 @@ main.page__user-conversation--index .panel__tab:hover {
 
 main.page__user-conversation--index .panel__tab--active {
     color: var(--pt-fg);
-    border-bottom: 2px solid var(--pt-red);
+    border-bottom: 2px solid var(--pt-accent);
 }
 
 // =====================================================================
@@ -398,7 +398,7 @@ main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(5) >
 
 main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(5) > i.fa-times {
     font-size: 11px;
-    color: var(--pt-red);
+    color: var(--pt-accent);
 }
 
 // =====================================================================
@@ -421,7 +421,7 @@ main.page__user-conversation--index
     > tbody
     > tr:has(> td:nth-child(5) > i.fa-times)
     > td:first-child {
-    border-left-color: var(--pt-red);
+    border-left-color: var(--pt-accent);
 }
 
 main.page__user-conversation--index
@@ -460,7 +460,7 @@ main.page__user-notification--index .data-table > tbody > tr > td.notification--
 }
 
 main.page__user-notification--index .data-table > tbody > tr > td.notification--unread {
-    border-left: 2px solid var(--pt-red) !important;
+    border-left: 2px solid var(--pt-accent) !important;
 }
 
 // tytuł nieprzeczytanego powiadomienia w pełnej bieli i półgrubo — to jedyne

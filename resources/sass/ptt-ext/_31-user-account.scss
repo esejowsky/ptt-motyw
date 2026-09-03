@@ -530,7 +530,7 @@ $konto: 'main[class^="page__user-"]:not(.page__user-profile--show):not(.page__us
     border: 0;
     border-radius: 2px;
     background-color: var(--pt-surface-3);
-    color: var(--pt-red);
+    color: var(--pt-accent);
     appearance: none;
 }
 
@@ -540,12 +540,12 @@ $konto: 'main[class^="page__user-"]:not(.page__user-profile--show):not(.page__us
 }
 
 #{$konto} .achievement__progress::-webkit-progress-value {
-    background-color: var(--pt-red);
+    background-color: var(--pt-accent);
     border-radius: 2px;
 }
 
 #{$konto} .achievement__progress::-moz-progress-bar {
-    background-color: var(--pt-red);
+    background-color: var(--pt-accent);
     border-radius: 2px;
 }
 

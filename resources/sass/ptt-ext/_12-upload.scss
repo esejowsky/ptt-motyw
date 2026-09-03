@@ -92,7 +92,7 @@ main.page__torrent--create .upload-warning {
     padding: 10px 12px !important;
     background: var(--pt-surface-2) !important;
     border: 1px solid var(--pt-border) !important;
-    border-left: 2px solid var(--pt-red) !important;
+    border-left: 2px solid var(--pt-accent) !important;
     border-radius: var(--pt-radius) !important;
     font-size: 12px !important;
     line-height: 1.55 !important;
@@ -132,14 +132,14 @@ main.page__torrent--create .upload-warning button[style],
 main.page__torrent--create .panelV2 > div[style*='text-align:center'] > a[style] {
     height: 28px !important;
     padding: 0 12px !important;
-    background: var(--pt-red) !important;
-    border: 1px solid var(--pt-red) !important;
+    background: var(--pt-accent) !important;
+    border: 1px solid var(--pt-accent) !important;
     border-radius: var(--pt-radius) !important;
     font-family: var(--pt-sans) !important;
     font-size: 12px !important;
     font-weight: 600 !important;
     letter-spacing: 0 !important;
-    color: #fff !important;
+    color: var(--pt-accent-on) !important;
     box-shadow: none !important;
 }
 
@@ -261,9 +261,9 @@ main.page__torrent--create .upload-form .form__group > small {
 // przycisk wysyłki jako główne CTA
 .upload-form .form__button[type='submit'],
 .upload-form > .form__group:last-child > .form__button {
-    background-color: var(--pt-red);
-    border-color: var(--pt-red);
-    color: #fff;
+    background-color: var(--pt-accent);
+    border-color: var(--pt-accent);
+    color: var(--pt-accent-on);
     font-weight: 600;
     height: var(--pt-h-28);
     padding: 0 14px;

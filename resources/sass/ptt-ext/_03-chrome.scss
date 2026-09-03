@@ -166,11 +166,11 @@ body::before {
 
 // kropka „nieprzeczytane" jest SVG-iem z kolorem w atrybucie
 .top-nav svg circle[stroke='#b6b6b6'] {
-    stroke: var(--pt-red);
+    stroke: var(--pt-accent);
 }
 
 .top-nav svg circle[fill='#b6b6b6'] {
-    fill: var(--pt-red);
+    fill: var(--pt-accent);
 }
 
 // =====================================================================
@@ -376,7 +376,7 @@ body::before {
 .top-nav__dropdown--active > a,
 .top-nav__dropdown > a[aria-current],
 .top-nav__dropdown:has(> ul > li > a[aria-current]) > a {
-    border-bottom-color: var(--pt-red);
+    border-bottom-color: var(--pt-accent);
     color: var(--pt-fg);
     font-weight: 600;
 }
@@ -398,7 +398,7 @@ body::before {
 
 .top-nav__dropdown > a .progress-bar {
     height: 2px;
-    background-color: var(--pt-red) !important;
+    background-color: var(--pt-accent) !important;
     border-bottom: 0 !important;
 }
 
@@ -688,17 +688,17 @@ body::before {
 // „Upload" żyje w nawigacji wtórnej — jedyna pozycja w barwie akcentu
 .nav-tab__link[href$='/torrents/create'],
 .nav-tab__link[href$='/upload'] {
-    background-color: var(--pt-red);
-    border-color: var(--pt-red);
-    color: #fff;
+    background-color: var(--pt-accent);
+    border-color: var(--pt-accent);
+    color: var(--pt-accent-on);
     font-weight: 600;
 }
 
 .nav-tab__link[href$='/torrents/create']:hover,
 .nav-tab__link[href$='/upload']:hover {
-    background-color: #b91b27;
-    border-color: #b91b27;
-    color: #fff;
+    background-color: #ff8189;
+    border-color: #ff8189;
+    color: var(--pt-accent-on);
 }
 
 .nav-tab-menu__items {
@@ -1057,4 +1057,57 @@ body > a[href*='staff-application'] span {
     body > a[style] > :last-child {
         margin-left: 0 !important;
     }
+}
+
+// ikony w pozycjach menu rozwijanych: staff wymusza 32×32 — w PT 14 px, bez pola
+.top-nav .top-nav__dropdown > ul > li > a > i,
+.top-nav .top-nav__dropdown > ul > li > form > button > i {
+    display: inline-flex !important;
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    color: var(--pt-fg-4) !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+.top-nav .top-nav__dropdown > ul > li > a,
+.top-nav .top-nav__dropdown > ul > li > form > button {
+    min-height: 0 !important;
+    padding: 6px 16px 6px 10px !important;
+}
+
+// paski promo PT: kolor tylko na CTA (akcent), tekst neutralny
+body > a[href*='selliptv'],
+body > a[href*='selliptv'] i,
+body > a[href*='selliptv'] > div > div:last-child > div:first-child,
+body > a[href*='staff-application'],
+body > a[href*='staff-application'] i,
+body > a[href*='staff-application'] span {
+    color: var(--pt-fg-2) !important;
+}
+
+body > a[href*='selliptv'] > div > div:last-child > div:nth-child(2) {
+    color: var(--pt-fg-4) !important;
+}
+
+body > a[style] > :last-child {
+    color: var(--pt-accent) !important;
+    border-color: var(--pt-accent) !important;
+}
+
+// pasek statystyk: strzałki góra/dół w kolorach znaczenia, reszta neutralna (Design 02)
+.top-nav__ratio-bar a > i {
+    color: var(--pt-fg-4) !important;
+}
+
+.ratio-bar__uploaded i,
+.ratio-bar__seeding i {
+    color: var(--pt-ok) !important;
+}
+
+.ratio-bar__downloaded i,
+.ratio-bar__leeching i {
+    color: var(--pt-warn) !important;
 }

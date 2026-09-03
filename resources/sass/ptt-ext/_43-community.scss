@@ -528,7 +528,7 @@ main.page__poll--index .data-table > tbody > tr > td > a > i {
 }
 
 main.page__poll--index .data-table > tbody > tr:hover > td > a > i {
-    color: var(--pt-red);
+    color: var(--pt-accent);
 }
 
 /* =====================================================================
@@ -597,7 +597,7 @@ main.page__poll--show .form__checkbox {
     width: 13px;
     height: 13px;
     margin: 0;
-    accent-color: var(--pt-red);
+    accent-color: var(--pt-accent);
     color-scheme: dark;
 }
 
