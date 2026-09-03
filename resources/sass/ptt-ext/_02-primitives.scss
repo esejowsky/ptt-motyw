@@ -563,7 +563,9 @@ a.form__button {
 }
 
 // ---------------------------------------------------------------------
-// Paginacja: przyciski 24 px, bieżąca strona wypełniona
+// Paginacja: pola 24 px, mono, bieżąca wypełniona. Silnik/PT dają klasę
+// pagination__next zarówno <li>, jak i <a> w środku — pudełko rysuje
+// WYŁĄCZNIE link (albo wyłączone <li> bez linku), nigdy oba.
 // ---------------------------------------------------------------------
 .pagination {
     display: flex;
@@ -576,16 +578,7 @@ a.form__button {
     color: var(--pt-fg-4);
 }
 
-.pagination__items {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.pagination__page-wrapper,
+.pagination__items,
 .pagination__pages {
     display: flex;
     align-items: center;
@@ -595,26 +588,47 @@ a.form__button {
     list-style: none;
 }
 
-.pagination__pages > li,
-.pagination__previous,
-.pagination__next {
-    list-style: none;
+.pagination__page-wrapper {
+    display: flex;
+    align-items: center;
     margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
+// kontenery <li>: bez własnego pudełka (bieżąca i wielokropek SĄ pudełkiem)
+.pagination__pages > li:not(.pagination__current):not(.pagination__ellipsis),
+li.pagination__previous:not(.pagination__previous--disabled),
+li.pagination__next:not(.pagination__next--disabled) {
+    display: flex;
+    align-items: center;
+    height: auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    list-style: none;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    line-height: 1;
+}
+
+// pudełka: link strony, bieżąca, wielokropek, linki poprzedni/następny
 .pagination__link,
 .pagination__current,
 .pagination__ellipsis,
-.pagination__previous > a,
-.pagination__next > a,
-.pagination__previous > span,
-.pagination__next > span {
+li.pagination__previous > a,
+li.pagination__next > a,
+li.pagination__previous--disabled,
+li.pagination__next--disabled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: var(--pt-h-24);
     height: var(--pt-h-24);
-    padding: 0 7px;
+    padding: 0 8px;
     background-color: transparent;
     border: 1px solid transparent;
     border-radius: var(--pt-radius);
@@ -623,12 +637,13 @@ a.form__button {
     font-variant-numeric: tabular-nums;
     font-size: 12px;
     line-height: 1;
+    white-space: nowrap;
     text-decoration: none;
 }
 
 .pagination__link:hover,
-.pagination__previous > a:hover,
-.pagination__next > a:hover {
+li.pagination__previous > a:hover,
+li.pagination__next > a:hover {
     background-color: var(--pt-surface-2);
     border-color: var(--pt-border);
     color: var(--pt-fg);
@@ -643,22 +658,25 @@ a.form__button {
 }
 
 .pagination__ellipsis {
-    color: var(--pt-fg-4);
     min-width: 0;
+    padding: 0 4px;
+    color: var(--pt-fg-4);
 }
 
-.pagination__previous--disabled,
-.pagination__next--disabled {
-    opacity: 0.4;
+li.pagination__previous--disabled,
+li.pagination__next--disabled {
+    color: var(--pt-fg-4);
+    opacity: 0.5;
 }
 
-// silnik dorysowuje strzałki pseudo-elementami — zostawiamy tekstowe
+// strzałki dorysowywane pseudo-elementami przez silnik — tekst PT ma już ‹ ›
 .pagination__previous::before,
+.pagination__previous::after,
+.pagination__next::before,
 .pagination__next::after,
-li.pagination__next:not(.pagination__next--disabled):not(:hover)::before,
-li.pagination__previous--disabled::before,
-li.pagination__next--disabled::after {
-    content: none;
+li.pagination__previous > a::before,
+li.pagination__next > a::after {
+    content: none !important;
 }
 
 // ---------------------------------------------------------------------
