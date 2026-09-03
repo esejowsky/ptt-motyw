@@ -1,0 +1,151 @@
+// =====================================================================
+// 45 · DROBNE STRONY — błąd 404/403, napisy, MediaHub
+// =====================================================================
+@use '00-tokens' as *;
+
+// ---------------------------------------------------------------------
+// Strona błędu: bez nagłówka serwisu — tylko panel na środku
+// ---------------------------------------------------------------------
+section.error {
+    max-width: 520px;
+    margin: 12vh auto 0;
+    padding: 22px 24px;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    text-align: center;
+}
+
+.error__heading {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--pt-fg);
+}
+
+.error__body {
+    margin: 0 auto 14px;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+    color: var(--pt-fg-3);
+}
+
+.error__home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: var(--pt-h-28);
+    padding: 0 12px;
+    background-color: var(--pt-red);
+    border: 1px solid var(--pt-red);
+    border-radius: var(--pt-radius);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.error__home-link:hover {
+    background-color: #b91b27;
+    border-color: #b91b27;
+    color: #fff;
+    text-decoration: none;
+}
+
+// ---------------------------------------------------------------------
+// Napisy: tabela bez klas w komórkach — szerokości po pozycji
+// ---------------------------------------------------------------------
+.page__subtitle--index .data-table-wrapper {
+    overflow-x: auto;
+}
+
+.page__subtitle--index .data-table {
+    width: 100%;
+    table-layout: auto;
+}
+
+.page__subtitle--index .data-table th:first-child,
+.page__subtitle--index .data-table td:first-child {
+    width: 36px;
+    padding-right: 0;
+}
+
+.page__subtitle--index .data-table td:nth-child(2) {
+    min-width: 240px;
+    font-weight: 500;
+    color: var(--pt-fg);
+}
+
+.page__subtitle--index .data-table td:nth-child(2) a {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.page__subtitle--index .data-table td .category__icon,
+.page__subtitle--index .data-table td > i {
+    font-size: 14px !important; // rozmiar w atrybucie style
+    color: var(--pt-fg-4);
+}
+
+// ---------------------------------------------------------------------
+// MediaHub: kafle jako panele, tytuł 15 px, licznik mono
+// ---------------------------------------------------------------------
+.mediahub-card__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--pt-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mediahub-card__list-item {
+    margin: 0;
+    list-style: none;
+}
+
+.mediahub-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    height: auto;
+    min-height: 72px;
+    padding: 12px 14px;
+    background-color: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+    color: var(--pt-fg);
+    text-align: left;
+    text-decoration: none;
+    transition: border-color 0.12s ease;
+}
+
+.mediahub-card:hover {
+    border-color: var(--pt-line-ui);
+    text-decoration: none;
+}
+
+.mediahub-card__heading {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+    text-transform: none;
+    color: var(--pt-fg);
+}
+
+.mediahub-card__subheading {
+    margin: 0;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--pt-fg-4);
+}

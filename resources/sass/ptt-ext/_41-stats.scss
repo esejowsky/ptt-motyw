@@ -1,22 +1,7 @@
-/* ==== STATYSTYKI ====
-   Cel:     /stats i wszystkie podstrony w języku PT — kafle KPI zamiast wierszy dl,
-            płaskie chipy zamiast podkreślanych zakładek, gęste tabele rankingowe.
-   Kotwice: .stats__panels, .panel--grid-item, .key-value, .key-value__group,
-            .key-value__group--nested, .nav-tabsV2, .nav-tabV2, .nav-tab--active,
-            .nav-tab__link, .nav-tab--active__link, .data-table, .stats__groups-table,
-            .stats__requirements-table, .stats__perks-table, .user-stat-card,
-            .overview__*, .trending-poster__download-count
-   Ubytki:  (1) kolumny liczbowe w tabelach rankingowych nie mają własnych klas —
-                mono/tabular łapiemy po `td:first-child` (ranga), `td:last-child`
-                i `td[style*='text-align: right']`; kolumna „bounty" w /stats/bountied
-                zostaje bez mono, bo jest w środku tabeli i nic jej nie odróżnia;
-            (2) brak danych na paski udziału kategorii z Design 11 (silnik podaje
-                samą liczbę torrentów, bez sumy odniesienia w markupie) — zostaje lista;
-            (3) brak wykresu ruchu — silnik nie renderuje szeregu czasowego,
-                livewire/stats/* zwraca wyłącznie wartości zagregowane;
-            (4) grupy zagnieżdżone nie mają w markupie podsumowania (dt niesie tylko
-                nazwę sekcji), więc nagłówek sekcji jest bez wartości zbiorczej.
-   ==================================================================== */
+// =====================================================================
+// 41 · STATYSTYKI — zakładki, kafle, rankingi, przegląd roczny
+// =====================================================================
+@use '00-tokens' as *;
 
 // =====================================================================
 // ZAKŁADKI — chipy (silnik stylował tylko <a>, <li> zostawił bez niczego)
@@ -571,3 +556,229 @@ main[class*='page__yearly-overview--'] {
         }
     }
 }
+
+
+// --- korekty z produkcji PT ---
+// =====================================================================
+// STATYSTYKI — kafle mają kończyć się tam, gdzie kończą się dane
+// Silnik trzyma `.panel--grid-item { height: 100% }`, więc wszystkie cztery
+// panele /stats rosły do wysokości najdłuższego (zmierzone: treść 684/369/
+// 221/234 px, panel zawsze 718 px → do 500 px pustki pod trzema z nich).
+// =====================================================================
+
+.stats__panels {
+    align-items: start;
+}
+
+.stats__panels > .panelV2,
+.stats__panels > .panel--grid-item {
+    height: auto;
+}
+
+// =====================================================================
+// STATYSTYKI — wstęp „Kochamy statystyki" ma być stopką strony, nie panelem
+// Wzorzec ma w tym miejscu nagłówek strony; skoro markup daje panel,
+// przynajmniej odbieramy mu wagę nagłówka panelu.
+// =====================================================================
+
+.page__stats--index > article > .panelV2:first-of-type > .panel__heading {
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--pt-fg-4);
+}
+
+// =====================================================================
+// STATYSTYKI — tytuł panelu w jednej pionowej linii z komórkami tabeli
+// Zmierzone: tytuł startował na x=46 (padding 7px 5px), a komórki na x=53
+// (padding 6px 12px) — 7 px rozjazdu na każdym panelu.
+// =====================================================================
+
+main[class*='page__stats--'] .panelV2 > .panel__heading,
+main.page__request--index .panelV2 > .panel__heading,
+main.page__user-notification--index .panelV2 > .panel__heading,
+main.page__user-conversation--index .panelV2 > .panel__heading,
+main.page__user-wish--index .panelV2 > .panel__heading,
+main.page__user-transaction--create .panelV2 > .panel__heading,
+main.page__user-conversation--index .panel__header > .panel__heading,
+main.page__user-wish--index .panel__header > .panel__heading {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+// tytuł wewnątrz nagłówka z akcjami nie może dokładać drugiego tła i promienia
+main.page__user-conversation--index .panel__header > .panel__heading,
+main.page__user-wish--index .panel__header > .panel__heading {
+    background-color: transparent;
+    border-radius: 0;
+}
+
+// =====================================================================
+// STATYSTYKI — kolumny liczbowe rankingów w monospace i do prawej
+// Wszystkie rankingi użytkowników mają układ „# | użytkownik | liczby",
+// więc od trzeciej kolumny w prawo jest już wyłącznie liczba (sprawdzone
+// w widokach: bankers, downloaded, leechers, messages, seeders, seedsize,
+// seedtime, upload-snatches, uploaded, uploaders, bountied).
+// Zmierzone przed: „94.61 PiB" system-ui, text-align: start.
+// =====================================================================
+
+.page__stats--bankers .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--downloaded .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--leechers .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--messages .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--seeders .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--seedsize .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--seedtime .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--upload-snatches .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--uploaded .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--uploaders .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--bountied .data-table > tbody > tr > td:nth-child(n + 3),
+.page__stats--clients .data-table > tbody > tr > td:nth-child(n + 2) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: right;
+    color: var(--pt-fg);
+}
+
+.page__stats--bankers .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--downloaded .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--leechers .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--messages .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--seeders .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--seedsize .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--seedtime .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--upload-snatches .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--uploaded .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--uploaders .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--bountied .data-table > thead > tr > th:nth-child(n + 3),
+.page__stats--clients .data-table > thead > tr > th:nth-child(n + 2) {
+    text-align: right;
+}
+
+// kolumna z nazwą (druga) ma zostać tekstem — nie chcemy jej ciągnąć w prawo
+.page__stats--bankers .data-table > tbody > tr > td:nth-child(2),
+.page__stats--uploaded .data-table > tbody > tr > td:nth-child(2),
+.page__stats--downloaded .data-table > tbody > tr > td:nth-child(2) {
+    text-align: left;
+}
+
+// /stats/groups: kolumna liczby użytkowników do prawej krawędzi
+.page__stats--groups .stats__groups-table > tbody > tr > td:nth-child(2),
+.page__stats--groups .stats__groups-table > thead > tr > th:nth-child(2),
+.page__stats--groups .data-table > tbody > tr > td:nth-child(2),
+.page__stats--groups .data-table > thead > tr > th:nth-child(2) {
+    text-align: right;
+}
+
+// =====================================================================
+// STATYSTYKI — hover na wierszu, nie na komórce
+// (tło zostaje na td, bo tabela silnika maluje td; ale sterujemy nim z tr)
+// =====================================================================
+
+main[class*='page__stats--'] .data-table > tbody > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+// =====================================================================
+// REQ — pasek podsumowania pod listą próśb
+// Zmierzone przed: dl bez paddingu, wiersz 13 px, etykieta na x=41 (klejona
+// do ramki panelu), wartość na x=1361 (przy przeciwległej krawędzi) — para
+// „etykieta ↔ wartość" była nieczytelna, bo dzieliło je 1358 px.
+// Wzorzec (ref/A_req.png) ma tu rząd komórek rozdzielonych pionową kreską.
+// =====================================================================
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    padding: 0;
+    margin: 0;
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 7px;
+    align-items: baseline;
+    width: auto;
+    padding: 7px 14px;
+    border-right: 1px solid var(--pt-line);
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group:last-child {
+    border-right: 0;
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group > dt {
+    flex: 0 0 auto;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group > dd {
+    flex: 0 0 auto;
+    margin: 0;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pt-fg);
+}
+
+// =====================================================================
+// REQ — stan prośby czytany kolorem tekstu, nie kropką
+// Markup: `<i class="fas fa-circle text-*"></i> Niewypełnione` w ostatniej
+// komórce. Wzorzec pokazuje sam napis w barwie stanu, bez kropki.
+// =====================================================================
+
+main.page__request--index .data-table > tbody > tr > td > i.fa-circle {
+    display: none;
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle) {
+    text-align: right;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+main.page__request--index .data-table > thead > tr > th:last-child {
+    text-align: right;
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-red) {
+    color: var(--pt-red-fg);
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-blue) {
+    color: var(--pt-warn);
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-purple) {
+    color: var(--pt-x2);
+}
+
+main.page__request--index .data-table > tbody > tr > td:has(> i.fa-circle.text-green) {
+    color: var(--pt-ok);
+}
+
+// tytuł prośby to główna treść wiersza — ma być jasny, nie czerwony
+main.page__request--index .data-table > tbody > tr > td:first-child > a {
+    color: var(--pt-fg);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+main.page__request--index .data-table > tbody > tr > td:first-child > a:hover {
+    color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE — ściana czerwieni w kolumnie tytułu
+// Globalne `a { color: var(--color-blue) }` (u nas --pt-red-fg) barwi każdy
+// tytuł w tabeli; przy 25 wierszach cała kolumna świeci na czerwono.
+// Czerwień zostaje na hoverze, gdzie faktycznie coś znaczy.
+// =====================================================================

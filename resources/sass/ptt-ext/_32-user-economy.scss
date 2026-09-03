@@ -1,46 +1,116 @@
-/* ==== BON, ZAPROSZENIA, PREZENTY, HISTORIA KONTA ====
-   Cel:     zamknąć ekonomię konta (zarobki BON, sklep, prezenty, zaproszenia,
-            historia i aktywne torrenty, obserwujący) w jednym rytmie: gęste
-            tabele bez poziomego przewijania, liczby w monospace z tabular-nums,
-            a sklep BON jako płaskie karty z ceną jako najgłośniejszym elementem.
-   Kotwice: main.page__user-earning--index, main.page__user-transaction--create,
-            main.page__user-gift--index, main.page__user-gift--create,
-            main.page__user-invite--index, main.page__user-invite-tree--index,
-            main.page__user-follower--index, main.page__user-following--index,
-            main.page__user-torrents--index, main.page__user-peers--index,
-            .data-table (thead/tbody/tfoot), .data-table-wrapper, .data-table__actions,
-            .user-earnings__*, .user-torrents__*, .user-active__*,
-            .user-search__avatar, .key-value, .panelV2, .panel__body, .form__button.
-   Ubytki:  1) /users/{nick}/history i /users/{nick}/peers na produkcji zwracają
-               404 — silnik trzyma te widoki pod /users/{nick}/torrents (historia
-               pobrań) i /users/{nick}/active (aktywne peery). Stylujemy te dwa.
-            2) Nagłówki „Cost”, „Hourly”, „Daily”, „Weekly”, „Monthly”, „Stat”,
-               „Average”, „Total”, „Count”, „Invite tree”, „Ancestors” oraz stany
-               puste „No invitees”, „No followers”, „Not following” są w Blade
-               po angielsku na sztywno, bez wywołania __(). CSS nie tłumaczy.
-            3) /earnings z zaznaczonym „Rozszerzone statystyki” dokłada cztery
-               kolumny (Daily/Weekly/Monthly + Hourly) — zmierzone 1251 px przy
-               kolumnie 1058 px. Domyślny widok mieści się co do piksela, tryb
-               rozszerzony zostaje z przewijaniem wewnątrz panelu; bez usunięcia
-               kolumn po stronie serwera nie da się tego zmieścić.
-            4) Kolumna „Postęp” na /active to gotowy tekst („100%”), nie liczba
-               w atrybucie — CSS nie zrobi z niej paska postępu. To samo dotyczy
-               paska „ile zostało do wymaganego czasu seedowania”: tej wartości
-               w markupie w ogóle nie ma.
-            5) /users/{nick}/invites/create przy zerowej puli zaproszeń robi
-               przekierowanie na stronę główną — formularza nie ma czego stylować.
-            6) Na liście prezentów nie da się odróżnić „dostałem” od „wysłałem”
-               inaczej niż czytając dwie kolumny nicków — w markupie nie ma flagi
-               kierunku ani klasy na wierszu.
-            7) Wiersze tabeli stawek z zerem torrentów niczym się nie różnią od
-               aktywnych — liczba jest treścią komórki, a CSS nie selekcjonuje
-               po tekście.
-            8) Sklep BON: przestawienie tabeli na siatkę kart (display: grid)
-               zdejmuje elementom rolę tabeli w drzewie dostępności. Zamiana jest
-               świadoma — wariant tabelaryczny miał 877 px pustego pasa między
-               nazwą a ceną. Powrót do tabeli to jedna reguła (sekcja 3).
-   ==================================================================== */
+// =====================================================================
+// 32 · EKONOMIA — sklep BON, zarobki, prezenty, zaproszenia, obserwujący
+// =====================================================================
+@use '00-tokens' as *;
 
+// =====================================================================
+// 04 · SKLEP BON (users.transactions.create)
+// =====================================================================
+
+main.page__user-transaction--create .data-table > thead > tr > th {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td {
+    padding: 6px 12px;
+    font-size: 12.5px;
+    vertical-align: middle;
+}
+
+// nazwa przedmiotu bierze całą wolną szerokość, cena i akcja są wąskie
+main.page__user-transaction--create .data-table > tbody > tr > td:first-child {
+    width: 100%;
+    color: var(--pt-fg);
+}
+
+// cena w BON — liczba, więc mono i do prawej
+main.page__user-transaction--create .data-table > thead > tr > th:nth-child(2),
+main.page__user-transaction--create .data-table > tbody > tr > td:nth-child(2) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:nth-child(2) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-warn);
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+main.page__user-transaction--create .data-table .form__button {
+    padding: 4px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 16px;
+    border-radius: var(--pt-radius);
+}
+
+// wyszarzony przycisk = przedmiot już aktywny albo zablokowany
+main.page__user-transaction--create .data-table .form__button:disabled {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-border);
+    color: var(--pt-fg-4);
+    cursor: not-allowed;
+}
+
+// stan konta w railu — to liczba, ma być czytelna z daleka
+main.page__user-transaction--create .sidebar2 > aside > .panelV2:first-of-type > .panel__body {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    color: var(--pt-warn);
+    padding: 10px 12px;
+}
+
+// =====================================================================
+// 05 · STRONY POMOCY I STATYCZNE (pages.index, pages.show, staff)
+// =====================================================================
+
+
+// =====================================================================
+// SKLEP BON — ostrzeżenie i saldo w rytmie reszty railu
+// =====================================================================
+
+main.page__user-transaction--create .panelV2:last-of-type > .panel__body {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--pt-fg-3);
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:last-child {
+    text-align: right;
+}
+
+main.page__user-transaction--create .data-table > tbody > tr > td:last-child form {
+    display: inline-block;
+    margin: 0;
+}
+
+// =====================================================================
+// WĄSKI EKRAN — rankingi i pasek podsumowania nie mogą rozpychać strony
+// =====================================================================
+
+@media (max-width: 900px) {
+    main.page__request--index .page__requests > .panelV2:last-of-type > .key-value > .key-value__group {
+        padding: 6px 10px;
+    }
+
+    main.page__user-conversation--index .panel__tab {
+        padding: 7px 10px;
+    }
+}
+
+
+// --- zarobki / prezenty / zaproszenia (mierzone na PT) ---
 // Reguły rytmu tabel dla całej rodziny `page__user-*` stoją w _pt-konto.scss
 // pod selektorem o wadze (0,4,4). Żeby nadpisać z nich kolor, rozmiar czy
 // padding, potrzeba wagi wyższej — stąd podwojona klasa strony w prefiksach

@@ -1,0 +1,1302 @@
+// =====================================================================
+// 10 · LISTA TORRENTÓW — widok listy, przypięte, widoki karty/plakaty/grupy
+//
+// Silnik renderuje <tr> jako CSS Grid z grid-area na każdej komórce,
+// więc przestawiamy siatkę. Każda zmiana grid-template na wierszu MUSI
+// mieć bliźniaczą na __headers (nagłówki mają własne klasy).
+//
+// Ubytki w czystym silniku: kodek, gatunki, rok, grupa, flagi języków —
+// na PT niesie je własny markup bez klas w komórce nazwy (sekcja na końcu).
+// =====================================================================
+@use '00-tokens' as *;
+
+// szerokości kolumn (Design 01; ocena 72 bo na PT ma dwie linie,
+// wiek 104 bo silnik pisze „2 tygodnie temu")
+$col-poster: 44px;
+$col-format: 88px;
+$col-rating: 72px;
+$col-size: 84px;
+$col-num: 46px;
+$col-completed: 52px;
+$col-age: 118px;
+$col-buttons: 84px;
+
+// ---------------------------------------------------------------------
+// Kontener: tabela jako blok, żeby wiersz-grid dostał szerokość panelu
+// ---------------------------------------------------------------------
+.page__torrents,
+.torrent-search__filters,
+.torrent-search__results {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.torrent-search__results {
+    overflow: hidden;
+}
+
+.torrent-search__results .data-table-wrapper,
+.torrent-search__results table.data-table,
+.torrent-search__results table.data-table > thead,
+.torrent-search__results table.data-table > tbody {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.torrent-search__results .panel__header {
+    padding: 7px 12px;
+}
+
+// paginacja wewnątrz panelu wyników: nad i pod tabelą, w rytmie panelu
+.torrent-search__results > .pagination,
+.torrent-search__results .panel__body > .pagination {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.torrent-search__results > .data-table-wrapper + .pagination,
+.torrent-search__results .data-table-wrapper ~ .pagination {
+    border-bottom: 0;
+    border-top: 1px solid var(--pt-border);
+}
+
+// ---------------------------------------------------------------------
+// Siatka wiersza (wariant z plakatem i bez)
+// ---------------------------------------------------------------------
+.torrent-search--list__headers,
+.torrent-search--list__row {
+    display: grid;
+    grid-template-columns: $col-poster minmax(0, 1fr) $col-format $col-rating $col-size $col-num $col-num $col-completed $col-age $col-buttons;
+    grid-template-areas: 'poster overview format rating size seeders leechers completed age buttons';
+    align-items: center;
+    width: 100%;
+}
+
+.torrent-search--list__no-poster-headers,
+.torrent-search--list__no-poster-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) $col-format $col-rating $col-size $col-num $col-num $col-completed $col-age $col-buttons;
+    grid-template-areas: 'overview format rating size seeders leechers completed age buttons';
+    align-items: center;
+    width: 100%;
+}
+
+.torrent-search--list__poster-header { grid-area: poster; }
+.torrent-search--list__name-header { grid-area: overview; }
+.torrent-search--list__format-header { grid-area: format; }
+.torrent-search--list__ratings-header { grid-area: rating; }
+.torrent-search--list__size-header { grid-area: size; }
+.torrent-search--list__seeders-header { grid-area: seeders; }
+.torrent-search--list__leechers-header { grid-area: leechers; }
+.torrent-search--list__completed-header { grid-area: completed; }
+.torrent-search--list__age-header { grid-area: age; }
+.torrent-search--list__actions-header { grid-area: buttons; }
+
+.torrent-search--list__poster { grid-area: poster; }
+.torrent-search--list__overview { grid-area: overview; }
+.torrent-search--list__format { grid-area: format; }
+.torrent-search--list__rating { grid-area: rating; }
+.torrent-search--list__size { grid-area: size; }
+.torrent-search--list__seeders { grid-area: seeders; }
+.torrent-search--list__leechers { grid-area: leechers; }
+.torrent-search--list__completed { grid-area: completed; }
+.torrent-search--list__age { grid-area: age; }
+.torrent-search--list__buttons { grid-area: buttons; }
+
+// ---------------------------------------------------------------------
+// Nagłówek tabeli
+// ---------------------------------------------------------------------
+.torrent-search--list__headers,
+.torrent-search--list__no-poster-headers {
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.torrent-search--list__headers > th,
+.torrent-search--list__no-poster-headers > th {
+    padding: 6px 10px;
+    background: transparent;
+    border: 0;
+    color: var(--pt-fg-3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 16px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.torrent-search--list__headers > th[role*='button'],
+.torrent-search--list__no-poster-headers > th[role*='button'] {
+    cursor: pointer;
+}
+
+.torrent-search--list__headers > th[role*='button']:hover,
+.torrent-search--list__no-poster-headers > th[role*='button']:hover {
+    color: var(--pt-fg);
+}
+
+.torrent-search--list__headers > th > .fa-sort,
+.torrent-search--list__headers > th > .fa-sort-up,
+.torrent-search--list__headers > th > .fa-sort-down {
+    margin-left: 3px;
+    font-size: 9px;
+    color: var(--pt-fg-4);
+}
+
+// etykieta „Poster" zabierałaby miejsce nazwie, a kolumna jest oczywista
+.torrent-search--list__poster-header {
+    font-size: 0 !important;
+    overflow: hidden;
+}
+
+.torrent-search--list__name-header {
+    padding-left: 12px;
+}
+
+.torrent-search--list__ratings-header,
+.torrent-search--list__size-header,
+.torrent-search--list__seeders-header,
+.torrent-search--list__leechers-header,
+.torrent-search--list__completed-header,
+.torrent-search--list__age-header,
+.torrent-search--list__actions-header {
+    text-align: right;
+}
+
+.torrent-search--list__seeders-header > i:first-child,
+.torrent-search--list__leechers-header > i:first-child,
+.torrent-search--list__completed-header > i:first-child {
+    font-size: 11px;
+}
+
+// ---------------------------------------------------------------------
+// Wiersz: tło i kreska WYŁĄCZNIE na tr; komórki przezroczyste
+// ---------------------------------------------------------------------
+.torrent-search--list__row,
+.torrent-search--list__no-poster-row {
+    background-color: transparent;
+    border-bottom: 1px solid var(--pt-line);
+    transition: background-color 0.1s ease;
+}
+
+.torrent-search--list__row:last-child,
+.torrent-search--list__no-poster-row:last-child {
+    border-bottom: 0;
+}
+
+.torrent-search--list__row:hover,
+.torrent-search--list__no-poster-row:hover {
+    background-color: var(--pt-surface-2);
+}
+
+.torrent-search--list__row > td,
+.torrent-search--list__no-poster-row > td {
+    padding: 6px 10px;
+    background: transparent !important; // silnik daje tło komórkom (różne wysokości → plamy)
+    border: 0;
+    align-self: center;
+    min-width: 0;
+}
+
+// przypięte: lewy pasek akcentu i ledwie widoczny podkład na całym wierszu
+.torrent-search--list__sticky-row {
+    background-color: var(--pt-red-a12);
+    box-shadow: inset 2px 0 0 var(--pt-red);
+}
+
+.torrent-search--list__sticky-row:hover {
+    background-color: var(--pt-red-a18);
+}
+
+// stany wiersza z markupu silnika
+.torrent-search--list__row:has(.torrent-icons__double-upload) {
+    box-shadow: inset 2px 0 0 var(--pt-x2);
+}
+
+.torrent-search--list__row:has(.torrent-icons__freeleech):not(.torrent-search--list__sticky-row) {
+    box-shadow: inset 2px 0 0 var(--pt-fl);
+}
+
+.torrent-search--list__sticky-row:has(.torrent-icons__freeleech) {
+    box-shadow: inset 2px 0 0 var(--pt-red);
+}
+
+// ---------------------------------------------------------------------
+// Plakat 30×44 — jedyna grafika w wierszu
+// ---------------------------------------------------------------------
+.torrent-search--list__poster {
+    padding: 2px 0 2px 12px !important;
+}
+
+.torrent-search--list__poster > a {
+    display: block;
+    line-height: 0;
+}
+
+.torrent-search--list__poster-img {
+    display: block;
+    width: 30px;
+    height: 44px;
+    border-radius: 1px;
+    object-fit: cover;
+    background-color: var(--pt-surface-3);
+}
+
+// ---------------------------------------------------------------------
+// Nazwa (13,5 px / 500) + druga linia (12 px): uploader · znaczniki
+// ---------------------------------------------------------------------
+.torrent-search--list__overview {
+    padding-left: 12px !important;
+    overflow: hidden;
+}
+
+.torrent-search--list__overview > div {
+    display: grid;
+    grid-template-areas: 'name' 'meta';
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2px;
+    align-items: center;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.torrent-search--list__name {
+    grid-area: name;
+    display: block;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    color: var(--pt-fg);
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.torrent-search--list__name:hover {
+    color: var(--pt-red-fg);
+    text-decoration: none;
+}
+
+// uploader i znaczniki w jednym rzędzie
+.torrent-search--list__uploader {
+    grid-area: meta;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    justify-self: start;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--list__uploader .user-tag__link {
+    color: var(--pt-fg-3) !important; // kolor grupy siedzi w atrybucie style
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.torrent-search--list__uploader .user-tag__link::before {
+    font-size: 10px;
+    color: var(--pt-fg-4);
+    margin-right: 4px;
+}
+
+.torrent-search--list__uploader .user-tag__link:hover {
+    color: var(--pt-red-fg) !important;
+    text-decoration: none;
+}
+
+.torrent-icons {
+    grid-area: meta;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-self: start;
+    margin-left: 0;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+// uploader i ikony dzielą obszar „meta" — układamy je w jednym rzędzie
+.torrent-search--list__overview > div:has(> .torrent-search--list__uploader) > .torrent-icons {
+    grid-area: auto;
+    grid-row: 2;
+    grid-column: 1;
+}
+
+.torrent-search--list__overview > div:has(> .torrent-search--list__uploader) {
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-areas: 'name name' 'meta icons';
+    column-gap: 10px;
+}
+
+.torrent-search--list__overview > div:has(> .torrent-search--list__uploader) > .torrent-icons {
+    grid-area: icons;
+    grid-row: auto;
+    grid-column: auto;
+}
+
+// znaczniki jako badge z tekstem (Design 09), ikona zostaje jako glif
+.torrent-icons > i,
+.torrent-icons > a > i,
+.torrent-icons > span > i {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 16px;
+    padding: 0 5px;
+    border: 1px solid var(--pt-border);
+    border-radius: 1px;
+    color: var(--pt-fg-3);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 14px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.torrent-icons > i::after,
+.torrent-icons > a > i::after {
+    font-family: var(--pt-sans);
+    font-weight: 700;
+}
+
+.torrent-icons__freeleech {
+    border-color: var(--pt-fl) !important;
+    color: var(--pt-fl) !important;
+}
+
+.torrent-icons__freeleech::after {
+    content: 'FL';
+}
+
+.torrent-icons__double-upload {
+    border-color: var(--pt-x2) !important;
+    color: var(--pt-x2) !important;
+}
+
+.torrent-icons__double-upload::after {
+    content: '2×UP';
+}
+
+.torrent-icons__internal {
+    border-color: var(--pt-border) !important;
+    color: var(--pt-fg-2) !important;
+}
+
+.torrent-icons__internal::after {
+    content: 'Internal';
+}
+
+.torrent-icons__personal-release::after {
+    content: 'Personal';
+}
+
+.torrent-icons__featured::after {
+    content: 'Wyróżniony';
+}
+
+.torrent-icons__featured {
+    border-color: var(--pt-warn) !important;
+    color: var(--pt-warn) !important;
+}
+
+.torrent-icons__bumped::after {
+    content: 'Podbity';
+}
+
+.torrent-icons__highspeed::after {
+    content: 'Highspeed';
+}
+
+.torrent-icons__refundable::after {
+    content: 'Refund';
+}
+
+.torrent-icons__trump::after,
+.torrent-icons__torrent-trump::after {
+    content: 'Trump';
+}
+
+.torrent-icons__sticky {
+    color: var(--pt-red-fg) !important;
+    border-color: var(--pt-red-a50) !important;
+}
+
+// komentarze: liczba z markupu, bez dodatkowego tekstu
+.torrent-icons__comments {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 10.5px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--pt-fg-4);
+}
+
+.torrent-icons > a {
+    display: inline-flex;
+    text-decoration: none;
+}
+
+.torrent-icons > a:hover > i {
+    color: var(--pt-fg);
+}
+
+// ---------------------------------------------------------------------
+// Format: rozdzielczość + typ, mono 11,5; ikona kategorii mała z lewej
+// ---------------------------------------------------------------------
+.torrent-search--list__format > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.torrent-search--list__category {
+    flex: 0 0 auto;
+    line-height: 0;
+}
+
+.torrent-search--list__category img,
+.torrent-search--list__category i {
+    max-height: 14px;
+    font-size: 13px !important; // rozmiar siedzi w atrybucie style
+    padding: 0 !important;
+    color: var(--pt-fg-4);
+    opacity: 1;
+}
+
+.torrent-search--list__resolution-and-type {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent; // silnik rysuje tu chip z tłem
+    border: 0;
+    border-radius: 0;
+}
+
+.torrent-search--list__resolution,
+.torrent-search--list__type {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.torrent-search--list__type {
+    color: var(--pt-fg-4);
+}
+
+// ---------------------------------------------------------------------
+// Liczby: mono, tabelarycznie, do prawej; kolor tylko tam, gdzie znaczy
+// ---------------------------------------------------------------------
+.torrent-search--list__rating,
+.torrent-search--list__size,
+.torrent-search--list__seeders,
+.torrent-search--list__leechers,
+.torrent-search--list__completed,
+.torrent-search--list__age {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.torrent-search--list__rating,
+.torrent-search--list__rating > span {
+    color: var(--pt-fg-3);
+    font-size: 12px;
+}
+
+.torrent-search--list__size {
+    color: var(--pt-fg-2);
+}
+
+.torrent-search--list__seeders > a,
+.torrent-search--list__leechers > a,
+.torrent-search--list__completed > a {
+    display: inline;
+    height: auto;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.torrent-search--list__seeders {
+    color: var(--pt-ok);
+}
+
+.torrent-search--list__leechers {
+    color: var(--pt-warn);
+}
+
+// brak seedów = jedyny alarm w kolumnie
+.torrent-search--list__seeders:has(> a:is([data-zero], .text-danger)),
+.torrent-search--list__seeders.torrent-search--list__seeders--dead {
+    color: var(--pt-red-fg);
+}
+
+.torrent-search--list__completed {
+    color: var(--pt-fg-3);
+}
+
+.torrent-search--list__completed > a {
+    font-weight: 400;
+}
+
+.torrent-search--list__age {
+    padding-right: 6px !important;
+    color: var(--pt-fg-4);
+    font-size: 11.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// silnik dokłada wielowarstwowy text-shadow na wskaźnikach aktywności
+.torrent-activity-indicator--seeding,
+.torrent-activity-indicator--leeching,
+.torrent-activity-indicator--completed {
+    text-shadow: none;
+}
+
+// ---------------------------------------------------------------------
+// Akcje: 3 płaskie ikony 22 px, wyrównane do prawej
+// ---------------------------------------------------------------------
+.torrent-search--list__buttons {
+    padding-left: 0 !important;
+}
+
+.torrent-search--list__buttons > div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+}
+
+.torrent-search--list__buttons .form__standard-icon-button {
+    width: var(--pt-h-22);
+    height: var(--pt-h-22);
+    min-height: 0;
+    padding: 0;
+    line-height: 1;
+    color: var(--pt-fg-4);
+    font-size: 11px;
+}
+
+.torrent-search--list__buttons .form__standard-icon-button:hover {
+    color: var(--pt-fg);
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-border);
+}
+
+.torrent-search--list__file {
+    color: var(--pt-fg-2);
+}
+
+// ---------------------------------------------------------------------
+// Wyszukiwarka kompaktowa nad listą — jako panel „Filtry" (Design 01)
+// ---------------------------------------------------------------------
+.torrent-search__filters.compact-search {
+    padding: 11px 12px 12px;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+.torrent-search__filters .compact-search__visible-default .form__text {
+    height: var(--pt-h-28);
+    line-height: 26px;
+}
+
+.torrent-search__filters .compact-search__visible-default .form__standard-icon-button {
+    width: var(--pt-h-28);
+    height: var(--pt-h-28);
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-line-ui);
+    color: var(--pt-fg-2);
+}
+
+.torrent-search__filters .form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 9px 12px;
+    align-items: end;
+}
+
+.torrent-search__filters .form > .form__group--short-horizontal,
+.torrent-search__filters .form > .form__group--horizontal {
+    display: contents;
+}
+
+.torrent-search__filters .form .form__fieldset {
+    grid-column: 1 / -1;
+}
+
+.torrent-search__filters .form .form__legend {
+    font-size: 11px;
+}
+
+.torrent-search__filters .form > .form__group:has(> .form__button),
+.torrent-search__filters .form > .form__button {
+    grid-column: 1 / -1;
+    justify-self: end;
+}
+
+// ---------------------------------------------------------------------
+// Widoki KARTY / PLAKATY / GRUPOWANIA — zweryfikowane na dev i PT
+// ---------------------------------------------------------------------
+.torrent-search--card__results {
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 10px;
+    padding: 12px;
+}
+
+.torrent-card {
+    min-width: 0;
+    height: 258px;
+    background: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+    grid-template-rows: 26px 206px 26px;
+    /* kolumna plakatu na sztywno — gdy TMDb nie odda okładki, pudełko z alt
+       rozpychało siatkę karty i tekst tracił połowę szerokości */
+    grid-template-columns: 138px minmax(0, 1fr);
+}
+
+.torrent-card:hover {
+    border-color: var(--pt-line-ui);
+}
+
+/* pasek górny i dolny to nagłówki panelu w miniaturze */
+.torrent-card__header,
+.torrent-card__footer {
+    align-items: center;
+    padding: 0 10px;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+    background: var(--pt-surface-2);
+}
+
+.torrent-card__header {
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.torrent-card__footer {
+    border-top: 1px solid var(--pt-line);
+}
+
+.torrent-card__left-header,
+.torrent-card__right-header,
+.torrent-card__left-footer,
+.torrent-card__right-footer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    margin: 0;
+}
+
+.torrent-card__meta-separator {
+    color: var(--pt-line-ui);
+}
+
+/* kategoria niesie znaczenie — jedyny akcent w pasku */
+.torrent-card__category {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+/* liczby zawsze monospace z tabular-nums, żeby kolumny kart się zgadzały */
+.torrent-card__size,
+.torrent-card__seeds,
+.torrent-card__leeches,
+.torrent-card__completed,
+.torrent-card__rating {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* kolorystyka peerów jak w statystykach: żywe / pobierające / ukończone */
+.torrent-card__seeds.torrent__seeder-count {
+    color: var(--pt-ok);
+}
+
+.torrent-card__leeches.torrent__leecher-count {
+    color: var(--pt-warn);
+}
+
+.torrent-card__completed.torrent__times-completed-count {
+    color: var(--pt-fg-3);
+}
+
+.torrent-card__aside,
+.torrent-card__figure {
+    height: 206px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.torrent-card__image {
+    display: block;
+    width: 100%;
+    height: 206px;
+    object-fit: cover;
+    /* zastępcze tło i drobny krój na wypadek braku okładki (zostaje alt) */
+    background: var(--pt-surface-2);
+    font-size: 10px;
+    color: var(--pt-fg-4);
+}
+
+.torrent-card__body {
+    gap: 6px;
+    padding: 8px 10px;
+    min-width: 0;
+    color: var(--pt-fg-2);
+}
+
+.torrent-card__title {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.torrent-card__link {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--pt-fg);
+    /* dwie linie tytułu i koniec — inaczej opis wypada poza kartę */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.torrent-card__link:hover {
+    color: var(--pt-red-fg);
+}
+
+.torrent-card__rating {
+    color: var(--pt-warn);
+    font-size: 11px;
+}
+
+.torrent-card__genre {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--pt-fg-4);
+}
+
+.torrent-card__genre:hover {
+    color: var(--pt-red-fg);
+}
+
+.torrent-card__genre-item:not(:last-child):after {
+    color: var(--pt-line-ui);
+}
+
+/* opis: silnik daje mu własny pasek przewijania w karcie o stałej
+   wysokości — zamiast tego ucinamy go czysto na pełnej linii */
+.torrent-card__plot {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--pt-fg-2);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+}
+
+.torrent-card__footer time {
+    font-family: var(--pt-mono);
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+/* pobieranie w stopce: płaska ikona, nie pudełko */
+.torrent-card__right-footer .form__standard-icon-button {
+    height: 22px;
+    min-height: 22px;
+    padding: 0 6px;
+    background: transparent;
+    border: 0;
+    color: var(--pt-fg-4);
+}
+
+.torrent-card__right-footer .form__standard-icon-button:hover {
+    color: var(--pt-red-fg);
+    background: var(--pt-surface-3);
+}
+
+
+/* =====================================================================
+   5 · WIDOK „PLAKAT” (używa go też /trending)
+   Po co: plakaty przychodzą w różnych proporcjach, a podpisy mają od
+   jednej do trzech linii — rzędy siatki rozjeżdżały się schodkowo.
+   Wymuszamy kadr 2:3 i stałą wysokość podpisu, wtedy rzędy stoją równo.
+   ===================================================================== */
+
+.torrent-search--poster__results {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px 10px;
+    align-items: start;
+    padding: 12px;
+}
+
+.torrent-search--poster__result {
+    max-width: none;
+    min-width: 0;
+}
+
+.torrent-search--poster__result > figure {
+    margin: 0;
+}
+
+.torrent-search--poster__poster {
+    /* proporcja siedzi na KOTWICY, nie na <img> — zepsuty obrazek nie ma
+       rozmiaru własnego i przy aspect-ratio na <img> rósł do wysokości
+       tekstu alt (293 px zamiast 232), łamiąc rząd siatki */
+    display: block;
+    aspect-ratio: 2 / 3;
+    background: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+.torrent-search--poster__poster > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    font-size: 10px;
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--poster__poster:hover {
+    border-color: var(--pt-red-fg);
+}
+
+.torrent-search--poster__caption {
+    margin: 6px 0 0;
+    row-gap: 2px;
+}
+
+.torrent-search--poster__title {
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--pt-fg);
+    /* dwie linie na sztywno — to one wyrównują dolne krawędzie rzędu */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.6em;
+}
+
+.torrent-search--poster__release-date {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--pt-fg-4);
+}
+
+
+/* =====================================================================
+   6 · TRENDING — licznik pobrań na plakacie
+   Po co: silnik daje granatowe kółko z zieloną obwódką i cieniem, czyli
+   trzy rzeczy naraz spoza palety PT. Ma być płaskim znacznikiem z liczbą.
+   ===================================================================== */
+
+.trending-poster__download-count {
+    width: auto;
+    min-width: 24px;
+    height: 20px;
+    margin: 4px;
+    padding: 0 5px;
+    line-height: 18px;
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    color: var(--pt-fg);
+    background: var(--pt-surface-3);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+}
+
+
+/* =====================================================================
+   7 · WIDOK „GRUPOWANIA”
+   Po co: każda grupa była kartą z promieniem 8 px, cieniem i marginesem
+   16/12 px, przez co wcinała się względem panelu; opis w nagłówku o stałej
+   wysokości 90 px urywał się w połowie linii i dostawał pasek przewijania.
+   ===================================================================== */
+
+.torrent-search--grouped__results {
+    padding: 12px;
+}
+
+.torrent-search--grouped__result {
+    margin: 0 0 8px;
+    background: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+}
+
+.torrent-search--grouped__result:last-child {
+    margin-bottom: 0;
+}
+
+.torrent-search--grouped__header {
+    height: auto;
+    min-height: 90px;
+    background: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.torrent-search--grouped__title-name {
+    padding: 8px 0 0 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.torrent-search--grouped__title-year {
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--grouped__directors {
+    padding: 8px 0 0 10px;
+    font-family: inherit;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--grouped__director {
+    font-size: 11px;
+    color: var(--pt-fg-3);
+}
+
+.torrent-search--grouped__director:hover {
+    color: var(--pt-red-fg);
+}
+
+/* opis ucięty na pełnych trzech liniach zamiast urwanej czwartej */
+.torrent-search--grouped__plot {
+    margin: 4px 10px 8px;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--pt-fg-2);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.torrent-search--grouped__genres {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+    align-content: flex-start;
+    gap: 4px;
+    margin: 8px 10px;
+    /* silnik narzuca tu Helvetica Neue — samo inherit na etykiecie nie pomoże,
+       bo dziedziczy właśnie z tego kontenera */
+    font-family: var(--pt-sans);
+}
+
+/* gatunek to etykieta, nie pigułka */
+.torrent-search--grouped__genre {
+    padding: 2px 7px;
+    font-family: var(--pt-sans);
+    font-size: 10px;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+    background: transparent;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+.torrent-search--grouped__genre:hover {
+    color: var(--pt-fg);
+    border-color: var(--pt-line-ui);
+    backdrop-filter: none;
+}
+
+/* rozwijane sezony/odcinki w rytmie 12 px */
+.torrent-search--grouped__dropdown {
+    background: transparent;
+    font-size: 12px;
+}
+
+.torrent-search--grouped__dropdown > summary {
+    padding: 5px 8px 5px 16px;
+    font-size: 12px;
+    color: var(--pt-fg-2);
+    border-top: 1px solid var(--pt-line);
+}
+
+.torrent-search--grouped__dropdown > summary:hover {
+    background: var(--pt-surface-2);
+    color: var(--pt-fg);
+}
+
+/* ---- tabela w grupie ---------------------------------------------------
+   Silnik pasuje całe <tbody> (odd/even) na dwa różne tła — w płaskim PT
+   to zbędny szum. Zgodnie z zasadą: tło i kreska siedzą na WIERSZU,
+   komórki zostają przezroczyste. */
+.torrent-search--grouped__torrents {
+    border-width: 0;
+}
+
+.torrent-search--grouped__torrents > tbody:nth-child(odd),
+.torrent-search--grouped__torrents > tbody:nth-child(even) {
+    background: transparent;
+}
+
+.torrent-search--grouped__torrents > tbody > tr {
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.torrent-search--grouped__torrents > tbody:last-child > tr:last-child {
+    border-bottom: 0;
+}
+
+.torrent-search--grouped__torrents > tbody > tr:hover {
+    background: var(--pt-surface-2);
+}
+
+.torrent-search--grouped__torrents > tbody > tr > th,
+.torrent-search--grouped__torrents > tbody > tr > td {
+    background: transparent;
+    border-bottom: 0;
+    padding: 4px 6px;
+    /* silnik trzyma tu min-height: 36px — wiersz PT ma 28-30 px */
+    min-height: 28px;
+    font-size: 12.5px;
+}
+
+th.torrent-search--grouped__type {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+h3.torrent-search--grouped__name {
+    font-size: 12.5px;
+}
+
+td.torrent-search--grouped__size,
+td.torrent-search--grouped__seeders,
+td.torrent-search--grouped__leechers,
+td.torrent-search--grouped__completed,
+td.torrent-search--grouped__age {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+td.torrent-search--grouped__size {
+    color: var(--pt-fg-2);
+}
+
+td.torrent-search--grouped__seeders {
+    color: var(--pt-ok);
+}
+
+td.torrent-search--grouped__leechers {
+    color: var(--pt-warn);
+}
+
+td.torrent-search--grouped__completed {
+    color: var(--pt-fg-3);
+}
+
+td.torrent-search--grouped__age {
+    color: var(--pt-fg-4);
+}
+
+/* ikony akcji w wierszu grupy: płaskie, jak w widoku listy */
+.torrent-search--grouped__download a,
+.torrent-search--grouped__bookmark button,
+.torrent-search--grouped__edit a {
+    width: auto;
+    padding: 3px 5px;
+    border: 0;
+    background: transparent;
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--grouped__download a:hover,
+.torrent-search--grouped__bookmark button:hover,
+.torrent-search--grouped__edit a:hover {
+    color: var(--pt-red-fg);
+    filter: none;
+}
+
+
+/* =====================================================================
+   8 · OCZEKUJĄCE TORRENTY (/torrents/pending)
+   Po co: tabela nosi tło i dolną kreskę na KOMÓRKACH — przy komórce
+   wyższej od sąsiadek daje to poszarpaną linię. Przenosimy jedno i drugie
+   na wiersz i dokładamy hover, którego strona w ogóle nie miała.
+   ===================================================================== */
+
+main.page__torrent-pending--index .data-table > tbody > tr > td {
+    background: transparent;
+    border-bottom: 0;
+    padding: 6px 8px;
+}
+
+main.page__torrent-pending--index .data-table > tbody > tr {
+    background: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__torrent-pending--index .data-table > tbody > tr:hover {
+    background: var(--pt-surface-2);
+}
+
+/* kolumny 5 i 6 to rozmiar i wiek — liczby zawsze w monospace */
+main.page__torrent-pending--index .data-table > tbody > tr > td:nth-child(5),
+main.page__torrent-pending--index .data-table > tbody > tr > td:nth-child(6) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pt-fg-3);
+}
+
+/* statusy silnika stoją na słowach kluczowych CSS (green/yellow/orange/red) —
+   przekładamy je na paletę PT, kolor niesie znaczenie tylko na tekście */
+main.page__torrent-pending--index .torrent--approved {
+    color: var(--pt-ok);
+}
+
+main.page__torrent-pending--index .torrent--pending {
+    color: var(--pt-info);
+}
+
+main.page__torrent-pending--index .torrent--postponed {
+    color: var(--pt-warn);
+}
+
+main.page__torrent-pending--index .torrent--rejected {
+    color: var(--pt-red-fg);
+}
+
+
+// ---------------------------------------------------------------------
+// Oczekujące / moderacja — ta sama lista, dodatkowe tagi statusu
+// ---------------------------------------------------------------------
+.torrent-search--list__row .torrent__pending,
+.torrent-search--list__row .torrent__postponed,
+.torrent-search--list__row .torrent__rejected {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+// ---------------------------------------------------------------------
+// Wąskie ekrany — lista bez plakatu i formatu, liczby w drugim rzędzie
+// ---------------------------------------------------------------------
+@media (max-width: $bp-m) {
+    .torrent-search--list__headers,
+    .torrent-search--list__no-poster-headers {
+        display: none;
+    }
+
+    .torrent-search--list__row,
+    .torrent-search--list__no-poster-row {
+        grid-template-columns: minmax(0, 1fr) $col-size $col-num $col-num 80px;
+        grid-template-areas:
+            'overview overview overview overview buttons'
+            'format size seeders leechers buttons';
+        row-gap: 0;
+    }
+
+    .torrent-search--list__buttons {
+        padding: 0 6px 0 0 !important;
+    }
+
+    .torrent-search--list__buttons > div {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 2px;
+        max-width: 74px;
+    }
+
+    .torrent-search--list__poster,
+    .torrent-search--list__rating,
+    .torrent-search--list__completed,
+    .torrent-search--list__age {
+        display: none;
+    }
+
+    .torrent-search--list__format > div {
+        flex-direction: row;
+    }
+
+    .torrent-search--list__resolution-and-type {
+        flex-direction: row;
+        gap: 6px;
+    }
+
+    .torrent-search--list__overview {
+        padding-bottom: 0 !important;
+    }
+}
+
+// grupowanie: nazwy wydań w kolorze tekstu, nie akcentu
+.torrent-search--grouped__torrents a:not(.form__standard-icon-button) {
+    color: var(--pt-fg);
+}
+
+.torrent-search--grouped__torrents a:not(.form__standard-icon-button):hover {
+    color: var(--pt-red-fg);
+}

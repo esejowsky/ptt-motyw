@@ -1,0 +1,310 @@
+// =====================================================================
+// 12 · UPLOAD — formularz wysyłki w panelach + rail (Design 07)
+// =====================================================================
+@use '00-tokens' as *;
+
+main.page__torrent--create > article,
+main.page__torrent--create .sidebar2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--pt-gap);
+    align-items: start;
+}
+
+main.page__torrent--create aside {
+    position: sticky;
+    top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pt-gap);
+}
+
+@media (max-width: $bp-m) {
+    main.page__torrent--create > article,
+    main.page__torrent--create .sidebar2 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    main.page__torrent--create aside {
+        position: static;
+    }
+
+}
+
+// ---------------------------------------------------------------------
+// reguły z poprzedniego motywu (zmierzone na dev)
+// ---------------------------------------------------------------------
+.upload > .panel__body {
+    padding: 12px 14px;
+}
+
+.upload-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.upload-form {
+    gap: 10px;
+    margin: 0;
+    width: 100%;
+}
+
+// formularz uploadu jest długi i wąskolinijkowy — dwie stałe kolumny czytają się
+// lepiej niż silnikowe auto-fit (przy 240 px minimum potrafiło zrobić 3-4 kolumny)
+.upload-form .form__group--horizontal:not([style*='display: none']) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+    align-items: start;
+}
+
+.upload-form .form__group--vertical:not([style*='display: none']) {
+    gap: 6px;
+}
+
+.upload-form-file {
+    font-size: 12px;
+}
+
+// edytor opisu dziedziczy tło panelu, żeby nie tworzyć drugiej jasnej płyty
+.upload-form .bbcode-input,
+.upload-form .bbcode-input__tab-pane {
+    background: transparent;
+}
+
+// wiersz z przyciskiem wysyłki — bez zawijania na całą szerokość
+.upload-form > .form__group:has(> .form__button) {
+    margin-top: 2px;
+}
+
+// =====================================================================
+// 10 · WĄSKIE EKRANY
+// =====================================================================
+
+
+
+
+// ---------------------------------------------------------------------
+// markup staffu PT (ostrzeżenie, rail narzędzi) — produkcja
+// ---------------------------------------------------------------------
+main.page__torrent--create .upload-warning {
+    margin: 12px 14px !important;
+    padding: 10px 12px !important;
+    background: var(--pt-surface-2) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-left: 2px solid var(--pt-red) !important;
+    border-radius: var(--pt-radius) !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+main.page__torrent--create .upload-warning > div {
+    gap: 12px !important;
+}
+
+// nagłówki ostrzeżenia szły 1 rem / 800 w czerwieni spoza palety
+main.page__torrent--create .upload-warning h4[style] {
+    margin: 0 0 4px !important;
+    font-family: var(--pt-sans) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    color: var(--pt-red-fg) !important;
+}
+
+main.page__torrent--create .upload-warning p[style] {
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+// kreska rozdzielająca wersję PL i EN — z kropkowanej na zwykłą linię PT
+main.page__torrent--create .upload-warning div[style*='dashed'] {
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--pt-line) !important;
+    opacity: 1 !important;
+}
+
+// dwa przyciski PT wstawione inline: „Rozumiem” (button) i „System Rezerwacji” (a)
+main.page__torrent--create .upload-warning button[style],
+main.page__torrent--create .panelV2 > div[style*='text-align:center'] > a[style] {
+    height: 28px !important;
+    padding: 0 12px !important;
+    background: var(--pt-red) !important;
+    border: 1px solid var(--pt-red) !important;
+    border-radius: var(--pt-radius) !important;
+    font-family: var(--pt-sans) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+main.page__torrent--create .panelV2 > div[style*='text-align:center'] {
+    padding: 0 14px 12px !important;
+}
+
+main.page__torrent--create .upload-title {
+    padding: 6px 12px !important;
+}
+
+// rail: informacje i narzędzia w rytmie kolumny formularza
+main.page__torrent--create article.sidebar2 {
+    gap: 12px !important;
+}
+
+main.page__torrent--create aside .panelV2 {
+    margin-top: 0 !important;
+}
+
+main.page__torrent--create aside .panel__heading {
+    padding: 6px 12px !important;
+}
+
+main.page__torrent--create aside .panel__body {
+    padding: 10px 12px !important;
+    font-size: 12.5px !important;
+    line-height: 1.55 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+main.page__torrent--create aside .panel__body > p {
+    margin: 0 0 8px !important;
+}
+
+// osobisty adres announce — to dane, więc monospace i łamanie w dowolnym miejscu
+main.page__torrent--create aside .panel__body > p > a {
+    font-family: var(--pt-mono) !important;
+    font-size: 11.5px !important;
+    color: var(--pt-red-fg) !important;
+    word-break: break-all;
+}
+
+// lista narzędzi: wiersze 26 px zamiast 45 px, ikony w rozmiarze tekstu
+main.page__torrent--create aside .panel__body > a[style] {
+    gap: 8px !important;
+    padding: 5px 0 !important;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__torrent--create aside .panel__body > a[style]:last-child {
+    border-bottom: 0;
+}
+
+// ikonki narzędzi szły 24 px w czterech barwach spoza palety — zostaje
+// rozróżnienie kolorem, ale już na tokenach PT i w rozmiarze tekstu
+main.page__torrent--create aside .panel__body > a[style] > i {
+    width: 16px !important;
+    font-size: 13px !important;
+}
+
+main.page__torrent--create aside .panel__body > a[style] > span {
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+main.page__torrent--create aside .panel__body > a[style]:hover > span {
+    color: var(--pt-red-fg) !important;
+}
+
+/* =====================================================================
+   12 · UPLOAD — pola formularza
+   Po co: natywny przycisk „Choose File” wyglądał jak systemowy; pola
+   plikowe stały poza rytmem pozostałych kontrolek (26 px vs 30 px).
+   Alpine ukrywa część grup inline (display:none), więc żadna reguła
+   układu nie może dotykać kontenerów bez zastrzeżenia :not([style…]).
+   ===================================================================== */
+main.page__torrent--create .upload-form .form__file {
+    height: 28px !important;
+    padding: 0 !important;
+    font-size: 12.5px !important;
+    color: var(--pt-fg-3) !important;
+}
+
+main.page__torrent--create .upload-form .form__file::file-selector-button {
+    height: 26px;
+    margin-right: 8px;
+    padding: 0 10px;
+    background: var(--pt-surface-3);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-family: var(--pt-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pt-fg-2);
+    cursor: pointer;
+}
+
+main.page__torrent--create .upload-form .form__file:hover::file-selector-button {
+    border-color: var(--pt-red-fg);
+    color: var(--pt-fg);
+}
+
+// podpowiedzi pod polami („Numeric digits only.”) — meta, nie treść
+main.page__torrent--create .upload-form .form__help,
+main.page__torrent--create .upload-form .form__group > small {
+    font-size: 11px !important;
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--show section.meta {
+        grid-template-columns: 110px minmax(0, 1fr) auto !important;
+        gap: 6px 12px !important;
+    }
+
+main.page__torrent--show ul.torrent__tags {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+main.page__torrent--show ul.torrent__tags > li {
+        border-top: 1px solid var(--pt-line);
+    }
+
+main.page__torrent--show ul.torrent__tags > li:nth-child(-n + 2) {
+        border-top: 0;
+    }
+
+main.page__torrent--show .luxury-meta-grid {
+        flex-direction: column;
+    }
+
+main.page__torrent--show menu.torrent__buttons .form__button {
+        width: 100% !important;
+    }
+
+// przycisk wysyłki jako główne CTA
+.upload-form .form__button[type='submit'],
+.upload-form > .form__group:last-child > .form__button {
+    background-color: var(--pt-red);
+    border-color: var(--pt-red);
+    color: #fff;
+    font-weight: 600;
+    height: var(--pt-h-28);
+    padding: 0 14px;
+}
+
+@media (max-width: $bp-m) {
+    .form__group--horizontal:not([style*='display: none']),
+    .upload-form .form__group--horizontal:not([style*='display: none']) {
+        grid-template-columns: 1fr;
+    }
+    .form__group--short-horizontal:not([style*='display: none']) {
+        grid-template-columns: 1fr;
+    }
+    .compact-search__visible-default {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .pagination__items,
+    .pagination__pages {
+        justify-content: center;
+    }
+    .upload > .panel__body {
+        padding: 10px;
+    }
+}

@@ -1,15 +1,7 @@
-/* ==== FORUM: DZIAŁY, WĄTKI, POSTY ====
-   Cel:     spłaszczyć forum silnika do rytmu PT — gęste wiersze działów i wątków
-            z licznikami mono oraz post w układzie „kolumna autora | treść".
-   Kotwice: .subforum-listings/.subforum-listing__*, .topic-listings/.topic-listing__*,
-            .topic-tags/.topic-tag--*, .topic-posts, .post + .post__* (aside, header,
-            content, footer, toolbar, avatar, author*), .bbcode-rendered.
-   Ubytki:  brak w markupie danych na „kropkę stanu" działu (nowe/przeczytane) — kropka
-            jest zawsze neutralna; brak klasy na wierszu wątku dla przypięcia/zamknięcia
-            (silnik daje tylko ikonę w figure), więc wyróżnienie idzie przez :has() na
-            .fa-thumbtack/.fa-lock; brak licznika odpowiedzi w bloku „ostatni post" działu;
-            komponent x-user-tag wstawia inline background-image efektu grupy — zostaje.
-   ==================================================== */
+// =====================================================================
+// 20 · FORUM — działy, wątki, posty, tagi (dev) + korekty z produkcji PT
+// =====================================================================
+@use '00-tokens' as *;
 
 // =====================================================================
 // 09 · LISTA DZIAŁÓW (forum.index)
@@ -820,3 +812,233 @@ article.topic-listing:has(.fa-lock) .topic-listing__link {
         max-width: 100%;
     }
 }
+
+
+// --- korekty z produkcji PT (szerokość przy railu, wątek, formularz) ---
+// =====================================================================
+// 01 · SZEROKOŚĆ KOLUMNY TREŚCI PRZY RAILU
+// Silnik liczy kolumnę jako calc(100% - 300px), nie doliczając odstępu
+// flexa (10px). Przy pełnych 1360 px rail nie mieści się i kurczy do 290,
+// przez co ta sama strona ma raz 1060/290, raz 1050/300. Doliczamy odstęp,
+// żeby rail miał zawsze 300 px, a kolumna zaczynała się i kończyła równo.
+// =====================================================================
+main.page__forum--index .sidebar2 > div,
+main.page__forum-topic--index .sidebar2 > div,
+main.page__topic--index .sidebar2 > div,
+main.page__topic--show .sidebar2 > div,
+main.page__wiki--show .sidebar2 > div,
+main.page__page--show .sidebar2 > div {
+    max-width: calc(100% - 310px);
+}
+
+// =====================================================================
+// 02 · LISTA WĄTKÓW — dwie linie zamiast trzech
+// Nagłówek wiersza jest kolumną flexa, więc etykiety tematu lądują
+// w osobnej linii między tytułem a autorem i wiersz rośnie do 70 px.
+// We wzorcu etykieta stoi obok tytułu, a pod spodem jest tylko
+// „autor · kiedy" — układamy wiersz flexa i łamiemy go dopiero
+// przed blokiem autora.
+// =====================================================================
+main.page__forum-topic--index .topic-listing__header,
+main.page__topic--index .topic-listing__header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 8px;
+    row-gap: 1px;
+}
+
+main.page__forum-topic--index .topic-listing__heading,
+main.page__topic--index .topic-listing__heading {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+main.page__forum-topic--index .topic-listing__header > .topic-tags,
+main.page__topic--index .topic-listing__header > .topic-tags {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+// blok „autor · kiedy" zawsze od nowej linii, niezależnie od liczby etykiet
+main.page__forum-topic--index .topic-listing__created-post,
+main.page__topic--index .topic-listing__created-post {
+    flex: 1 0 100%;
+}
+
+// Podpisy liczników („Odpowiedzi", „Wyświetleń") mają 70–71 px, a kolumny
+// po 56 px — podpis wychodzi w lewo poza swoją kolumnę i oba zlewają się
+// w „ODPOWIEDZWYŚWIETLEŃ". Poszerzamy obie kolumny do 74 px; próg 901 px,
+// żeby nie przebić wąskiego układu z _forum.scss.
+@media (min-width: 901px) {
+    main.page__forum-topic--index .topic-listing,
+    main.page__topic--index .topic-listing {
+        grid-template-columns: 26px minmax(0, 1fr) 74px 74px 170px;
+    }
+}
+
+// =====================================================================
+// 03 · WĄTEK — nagłówek panelu jest tytułem tematu, nie etykietą sekcji
+// Globalnie .panel__heading to wersaliki 11–12 px; dla tytułu wątku
+// (i aktualności, sekcja 09) czyta się to jak krzyk, więc na tych dwóch
+// ekranach wracamy do normalnej wielkości liter.
+// =====================================================================
+main.page__topic--show .panel__header > .panel__heading {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--pt-fg);
+    padding: 0;
+}
+
+main.page__topic--show .panelV2 > .panel__header {
+    padding: 6px 12px;
+    gap: 12px;
+    align-items: center;
+}
+
+// Pole szukania w nagłówku: etykieta pływająca jest w motywie statyczna
+// (podpis nad polem) i podnosi pasek z 32 do 55 px. W nagłówku panelu
+// nie ma na to miejsca, więc lokalnie wracamy do etykiety NA polu —
+// dokładnie tak, jak robi to .compact-search w filtrach.
+main.page__topic--show .panel__actions {
+    padding: 0;
+    gap: 8px;
+}
+
+main.page__topic--show .panel__actions .form__group {
+    display: block;
+    position: relative;
+    min-width: 0;
+}
+
+main.page__topic--show .panel__actions .form__text {
+    height: 26px;
+    width: 176px;
+    padding: 0 9px;
+    font-size: 12px;
+}
+
+main.page__topic--show .panel__actions .form__label--floating {
+    position: absolute;
+    top: 50%;
+    left: 7px;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: 0 3px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--pt-fg-4);
+    background: transparent;
+    pointer-events: none;
+}
+
+main.page__topic--show .panel__actions .form__text:focus ~ .form__label--floating,
+main.page__topic--show .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating {
+    top: 0;
+    font-size: 9.5px;
+    color: var(--pt-red-fg);
+    background: var(--pt-surface-2);
+}
+
+// =====================================================================
+// 04 · WĄTEK — posty na pełnej szerokości panelu
+// Silnik daje panelowi z listą postów padding 20 px, przez co kreski
+// między postami i pionowa linia kolumny autora są wcięte względem
+// ramki panelu. Post ma własny padding 11/12 px, więc panel oddaje swój.
+// =====================================================================
+main.page__topic--show .sidebar2 > div > .panelV2 > .panel__body {
+    padding: 0;
+    font-size: 12.5px;
+}
+
+
+// =====================================================================
+// 05 · WĄTEK — rail boczny (statystyki, akcje, etykiety)
+// Panele railu mają silnikowy padding 20 px i zero odstępu między
+// formularzami, przez co trzy czerwone przyciski zlewają się w jeden
+// blok. Zbijamy padding do rytmu PT i rozdzielamy akcje.
+// =====================================================================
+main.page__topic--show .sidebar2 > aside .panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+}
+
+main.page__topic--show .sidebar2 > aside .key-value {
+    padding: 8px 12px;
+}
+
+main.page__topic--show .sidebar2 > aside .key-value__group {
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 0;
+}
+
+main.page__topic--show .sidebar2 > aside .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__topic--show .sidebar2 > aside .key-value dd {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--pt-fg-2);
+    text-align: right;
+}
+
+// nick autora zostaje w foncie proporcjonalnym — to nie liczba
+main.page__topic--show .sidebar2 > aside .key-value dd:has(a) {
+    font-family: var(--pt-sans);
+}
+
+// akcje rozdzielone odstępem; wysokości guzika nie ruszamy — 28 px to
+// wspólna miara wszystkich przycisków motywu
+main.page__topic--show .sidebar2 > aside .form {
+    gap: 6px;
+}
+
+// lista etykiet: 32 px na wiersz to za dużo na siedem pozycji.
+// Wyrównanie do środka tylko tam, gdzie w wierszu jest checkbox —
+// w polach z etykietą-podpisem (np. „Priority") zepchnęłoby podpis
+// na środek pola.
+main.page__topic--show .sidebar2 > aside .form__group:has(> .form__checkbox) {
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+main.page__topic--show .sidebar2 > aside .form__group:has(> .form__checkbox) > label {
+    font-size: 12.5px;
+    line-height: 18px;
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// 06 · WĄTEK — formularz odpowiedzi
+// Formularz pod panelem to goły <form> bez klasy: edytor, zgoda
+// „Anonimowy?" i przycisk stykają się bez odstępu.
+// =====================================================================
+main.page__topic--show .sidebar2 > div > form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+// zgoda „Anonimowy?" w jednej linii z checkboxem; nie ruszamy grup bez
+// checkboxa, bo w polu treści etykieta jest podpisem nad polem i wyrównanie
+// do środka zepchnęłoby ją na sam środek edytora
+main.page__topic--show .sidebar2 > div > form .form__group:has(> .form__checkbox) {
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+main.page__topic--show .sidebar2 > div > form .form__group:has(> .form__checkbox) > .form__label {
+    font-size: 12.5px;
+    color: var(--pt-fg-3);
+}
+

@@ -1,39 +1,36 @@
-/* ==== NAWIGACJA GÓRNA, WYSZUKIWARKA, BREADCRUMBS I STOPKA ====
-   Cel:     przebudowa nagłówka Galactic w trzy płaskie pasy PT (statystyki / marka + szukajka / menu),
-            prostokątne dropdowny, cienka nawigacja wtórna i stopka w kolumnach na tle strony.
-   Kotwice: .top-nav, .top-nav__left, .top-nav__right, .top-nav__main-menus, .top-nav__dropdown,
-            .top-nav__ratio-bar, .top-nav__icon-bar, .top-nav__branding, .top-nav__site-logo,
-            .quick-search*, .secondary-nav, .breadcrumbsV2, .breadcrumbV2, .breadcrumb--active,
-            .nav-tab__link, .nav-tab--active__link, .footer*, .ratio-bar__*
-   Ubytki:  – waniliowy silnik NIE oznacza aktywnej pozycji w menu górnym (brak klasy `is-active`
-              i brak `aria-current` na .top-nav__dropdown > a), więc czerwone podkreślenie aktywnej
-              pozycji da się zrobić tylko na nawigacji wtórnej (.nav-tab--active__link) i na hoverze
-              menu górnego; ostylowanie aktywnego działu wymagałoby zmiany w top-nav.blade.php.
-            – godło/orzeł PT: markup daje wyłącznie <img src="/favicon.ico">, nie ma elementu na maskę,
-              więc zostaje ikona serwisu (nie odtwarzamy dwukolorowego orła z wzorca).
-            – pasek postępu zbiórki (.progress w menu „Donate") ma kolory w atrybucie style,
-              zdejmowalne tylko hurtowym !important — zostawiony bez zmian.
-            – .footer__copyright w waniliowym markupie to jeden ciąg tekstu bez <span>-ów
-              (nasz blade dokłada .footer__esej/.footer__pt), więc stylujemy go tylko jako całość.
-   ==================================================== */
+// =====================================================================
+// 03 · CHROM — pas flagi, nagłówek w trzech pasach (statystyki 30 px,
+//      marka 56 px, menu 40 px), nawigacja wtórna, stopka.
+//
+// Silnik składa nagłówek w jeden rząd (.top-nav). Przepisujemy siatkę
+// i przypinamy jego bloki do własnych obszarów — bez zmian w markupie.
+// =====================================================================
+@use '00-tokens' as *;
 
-// =====================================================================
-// GÓRNY PASEK — szkielet
-// Silnik składa nagłówek w jeden 48-px rząd; PT potrzebuje trzech pasów,
-// więc przepisujemy szablon siatki i przypinamy istniejące bloki do
-// własnych obszarów. Nazwy obszarów silnika (left/menus/right/toggle)
-// przestają istnieć, dlatego każdy blok dostaje nowy grid-area.
-// =====================================================================
+// pas flagi na samej górze okna
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    height: 3px;
+    z-index: 2000;
+    background: linear-gradient(90deg, var(--pt-white) 0 50%, var(--pt-red) 50% 100%);
+    pointer-events: none;
+}
+
+// ---------------------------------------------------------------------
+// Szkielet nagłówka
+// ---------------------------------------------------------------------
 .top-nav {
     background-color: var(--pt-bg);
-    border-bottom: 1px solid var(--pt-border);
+    border-bottom: 1px solid var(--pt-line);
     box-shadow: none;
     column-gap: 0;
+    margin-top: 3px; // pod pasem flagi
 }
 
 // =====================================================================
-// PAS 1 — statystyki konta. Silnik trzyma je w .top-nav__right razem
-// z nickiem i ikonami; wystarczy zrobić z tego jeden wiersz.
+// PAS 1 — statystyki konta (lewo), nick i ikony (prawo). 30 px, surface-2.
 // =====================================================================
 .top-nav__right {
     display: flex;
@@ -41,6 +38,7 @@
     justify-content: flex-start;
     column-gap: 14px;
     min-width: 0;
+    font-size: 12px;
 }
 
 // podwojona klasa, bo silnik deklaruje ratio-bar przez .top-nav__ratio-bar.top-nav__ratio-bar
@@ -49,11 +47,10 @@
     flex-wrap: nowrap;
     align-items: center;
     column-gap: 16px;
-    margin: 0 auto 0 0; // statystyki w lewo, nick i ikony spychane w prawo
+    margin: 0 auto 0 0;
     padding: 0;
     min-width: 0;
     overflow-x: auto;
-    font-size: 11.5px;
     scrollbar-width: none;
 }
 
@@ -66,7 +63,6 @@
     align-items: center;
 }
 
-// liczby zawsze monospaced i tabelarycznie — kolumny cyfr nie skaczą przy zmianie wartości
 .top-nav__ratio-bar a {
     display: inline-flex;
     align-items: center;
@@ -74,52 +70,47 @@
     color: var(--pt-fg-2);
     font-family: var(--pt-mono);
     font-variant-numeric: tabular-nums;
-    font-size: 11.5px;
-    text-decoration: none;
-}
-
-.top-nav__ratio-bar a:hover {
-    color: var(--pt-fg);
-}
-
-// silnik wpisuje kolory ikon na sztywno (#00bc8c, #ff4373, #ffc00a, #0096bc) —
-// sprowadzamy je do semantyki PT, kolor tylko na ikonie, nie na liczbie
-.ratio-bar__uploaded i,
-.ratio-bar__seeding i {
-    color: var(--pt-ok);
-    font-size: 10.5px;
-}
-
-.ratio-bar__downloaded i,
-.ratio-bar__leeching i {
-    color: var(--pt-warn);
-    font-size: 10.5px;
-}
-
-.ratio-bar__tokens i {
-    color: var(--pt-fl);
-    font-size: 10.5px;
-}
-
-.ratio-bar__points i,
-.ratio-bar__ratio i,
-.ratio-bar__buffer i {
-    color: var(--pt-fg-4);
-    font-size: 10.5px;
-}
-
-// nick — silnik ukrywa go poniżej 1900 px; w PT jest częścią pasa statystyk
-.top-nav__username--highresolution {
-    display: inline-flex;
-    align-items: center;
-    column-gap: 5px;
     font-size: 12px;
     text-decoration: none;
     white-space: nowrap;
 }
 
-// kolor rangi i „efekt" grupy wchodzą inline w atrybucie style — jedyny sposób
-// na spójny pasek to je przebić (dozwolony przypadek !important)
+.top-nav__ratio-bar a:hover {
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+// silnik wpisuje kolory ikon na sztywno — kolor tylko na ikonie, nie na liczbie
+.top-nav__ratio-bar a > i {
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+}
+
+.ratio-bar__uploaded i,
+.ratio-bar__seeding i {
+    color: var(--pt-ok);
+}
+
+.ratio-bar__downloaded i,
+.ratio-bar__leeching i {
+    color: var(--pt-warn);
+}
+
+.ratio-bar__tokens i {
+    color: var(--pt-fl);
+}
+
+// nick — silnik ukrywa go poniżej 1900 px; u nas jest w pasie statystyk
+.top-nav__username--highresolution {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 6px;
+    font-size: 12.5px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+// kolor rangi i „efekt" grupy wchodzą inline w atrybucie style
 .top-nav__username--highresolution .text-bold,
 .top-nav__username .text-bold {
     color: var(--pt-fg) !important;
@@ -133,11 +124,11 @@
     -webkit-text-fill-color: var(--pt-red-fg) !important;
 }
 
-// ikony po prawej — Galactic robi z nich okrągłe bąble o wysokości 32 px
+// ikony po prawej — Galactic robi z nich okrągłe bąble
 .top-nav__icon-bar {
     display: flex;
     align-items: center;
-    column-gap: 12px;
+    column-gap: 14px;
     margin: 0;
     padding: 0;
 }
@@ -157,25 +148,23 @@
     color: var(--pt-red-fg);
 }
 
-// awatar — kwadrat w rytmie ikon
 .top-nav__profile-image {
-    width: 18px;
-    height: 18px;
-    border-radius: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--pt-radius);
     object-fit: cover;
     vertical-align: middle;
 }
 
 .top-nav__profile-image-private-icon.top-nav__profile-image-private-icon {
-    background: var(--pt-bg);
+    background: var(--pt-surface-2);
     height: 12px;
     line-height: 12px;
     font-size: 9px;
     color: var(--pt-fg-4);
 }
 
-// kropka „nieprzeczytane" jest SVG-iem z kolorem w atrybucie fill/stroke —
-// atrybut prezentacyjny przebijamy zwykłą właściwością CSS, bez !important
+// kropka „nieprzeczytane" jest SVG-iem z kolorem w atrybucie
 .top-nav svg circle[stroke='#b6b6b6'] {
     stroke: var(--pt-red);
 }
@@ -185,32 +174,34 @@
 }
 
 // =====================================================================
-// PAS 2 — marka i wyszukiwarka
+// PAS 2 — marka i wyszukiwarka. 56 px.
 // =====================================================================
 .top-nav__left {
     display: flex;
     align-items: center;
-    column-gap: 22px;
-    min-width: 0; // szukajka ma się kurczyć, a nie rozpychać pasek
+    column-gap: 24px;
+    min-width: 0;
 }
 
 .top-nav__branding {
     display: flex;
     align-items: center;
     column-gap: 9px;
-    font-size: 16px;
     color: var(--pt-fg);
     text-decoration: none;
 }
 
-// wysokość ikony jest w atrybucie style="height: 35px" — inaczej się jej nie zbije
+.top-nav__branding:hover {
+    text-decoration: none;
+}
+
+// wysokość ikony jest w atrybucie style="height: 35px"
 .top-nav__branding img {
-    height: 24px !important;
+    height: 30px !important;
     width: auto;
 }
 
-// logotyp silnika to tekst wypełniony gradientem (background-clip: text) —
-// zdejmujemy cały mechanizm, inaczej nazwa świeci fioletem także w stopce
+// logotyp silnika to tekst wypełniony gradientem (background-clip: text)
 .top-nav__site-logo {
     background: none;
     background-image: none;
@@ -219,23 +210,22 @@
     color: var(--pt-fg);
     text-shadow: none;
     font-family: var(--pt-sans);
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
+// szukajka: pole 28 px + przycisk-ikona zlepione w jedną kontrolkę
 .quick-search {
     flex: 1 1 auto;
     min-width: 0;
-    max-width: 460px;
+    max-width: 520px;
     display: flex;
     align-items: center;
 }
 
-// silnik owija pole w absolutnie pozycjonowany kontener bez szerokości —
-// pole zwisa i ma szerokość domyślnego <input>; wracamy do przepływu
 .quick-search .quick-search__inputs,
 .quick-search:active .quick-search__inputs,
 .quick-search:focus-within .quick-search__inputs {
@@ -247,7 +237,6 @@
     border-radius: 0;
 }
 
-// obwódka-poświata wokół całej szukajki po fokusie — niezgodna z płaskim PT
 .quick-search:active,
 .quick-search:focus-within {
     box-shadow: none;
@@ -258,15 +247,16 @@
 .quick-search:active .quick-search__input,
 .quick-search:focus-within .quick-search__input {
     width: 100%;
-    height: 28px;
-    padding: 0 10px;
-    background-color: var(--pt-surface);
+    height: var(--pt-h-28);
+    padding: 0 9px;
+    background-color: var(--pt-surface-2);
     border: 1px solid var(--pt-border);
     border-radius: var(--pt-radius);
     color: var(--pt-fg);
     font-family: var(--pt-sans);
     font-size: 12.5px;
     text-transform: none;
+    outline: none;
 }
 
 .quick-search__input::placeholder {
@@ -279,17 +269,15 @@
 }
 
 .quick-search__input:focus {
-    outline: none;
     border-color: var(--pt-red-fg);
 }
 
-// lista podpowiedzi — warstwa unosząca się nad treścią, więc jako jedyna
-// w tym pliku zachowuje cień (z tokenów), ale bez zaokrągleń
 .quick-search__results {
     top: calc(100% + 3px);
     background-color: var(--pt-surface);
     border: 1px solid var(--pt-border);
     border-radius: 0;
+    box-shadow: 0 8px 28px rgb(0 0 0 / 55%);
 }
 
 .quick-search__result {
@@ -314,6 +302,7 @@
 .quick-search__result-link:focus {
     background-color: var(--pt-surface-2);
     color: var(--pt-fg);
+    text-decoration: none;
 }
 
 .quick-search__image {
@@ -335,21 +324,16 @@
     color: var(--pt-fg);
 }
 
-.quick-search__result-year {
+.quick-search__result-year,
+.quick-search__result-type {
     color: var(--pt-fg-4);
     font-family: var(--pt-mono);
     font-variant-numeric: tabular-nums;
     font-size: 11px;
 }
 
-.quick-search__result-type {
-    color: var(--pt-fg-4);
-    font-size: 11px;
-}
-
 // =====================================================================
-// PAS 3 — menu główne. Płasko, wersalikami, bez tła pod pozycją;
-// jedyny sygnał stanu to czerwona linia pod pozycją.
+// PAS 3 — menu główne. 13 px, bez wersalików, aktywna = 600 + linia 2 px.
 // =====================================================================
 .top-nav__main-menus.top-nav__main-menus {
     display: flex;
@@ -361,7 +345,7 @@
 }
 
 .top-nav__dropdown {
-    position: relative; // bez tego menu rozwijane liczy pozycję od <body>
+    position: relative;
     display: flex;
 }
 
@@ -373,23 +357,52 @@
     padding: 0 13px;
     border-radius: 0;
     border-bottom: 2px solid transparent;
-    color: var(--pt-fg-3);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    color: var(--pt-fg-2);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
     white-space: nowrap;
 }
 
+.top-nav__dropdown > a:hover,
 .top-nav__dropdown:hover > a,
 .top-nav__dropdown:focus-within > a {
     background-color: transparent;
-    border-bottom-color: var(--pt-red);
     color: var(--pt-fg);
     text-decoration: none;
 }
 
-// znacznik powiadomienia w pozycji menu (SVG) — silnik wypycha go poza wiersz
+.top-nav__dropdown--active > a,
+.top-nav__dropdown > a[aria-current],
+.top-nav__dropdown:has(> ul > li > a[aria-current]) > a {
+    border-bottom-color: var(--pt-red);
+    color: var(--pt-fg);
+    font-weight: 600;
+}
+
+// „Donate": silnik wpisuje inline kolor lightcoral i pasek celu zbiórki —
+// tekst w rytmie menu, pasek jako 2 px podkreślenie w akcencie
+.top-nav__dropdown > a > .top-nav--left__container > .fa-fade {
+    color: inherit !important;
+    animation: none;
+}
+
+.top-nav__dropdown > a .progress {
+    height: 2px;
+    margin-top: 2px;
+    background-color: var(--pt-line) !important;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.top-nav__dropdown > a .progress-bar {
+    height: 2px;
+    background-color: var(--pt-red) !important;
+    border-bottom: 0 !important;
+}
+
+// znacznik powiadomienia w pozycji menu (SVG)
 .top-nav__dropdown > a > .top-nav--left__container > svg {
     top: -4px;
     right: -12px;
@@ -407,16 +420,15 @@
     row-gap: 0;
     background-color: var(--pt-surface);
     border: 1px solid var(--pt-border);
-    border-radius: 0;
+    border-radius: 0 0 var(--pt-radius) var(--pt-radius);
+    box-shadow: 0 8px 28px rgb(0 0 0 / 55%);
 }
 
-// menu konta/moderacji wisi przy prawej krawędzi, żeby nie wychodziło poza ekran
 .top-nav__icon-bar .top-nav__dropdown > ul {
     left: auto;
     right: 0;
 }
 
-// silnik rezerwuje 90 px pustego prawego marginesu w pozycji — kasujemy
 .top-nav__dropdown > ul > li > a,
 .top-nav__dropdown > ul > li > form > button {
     grid-template-columns: 16px minmax(0, 1fr);
@@ -438,7 +450,6 @@
     text-decoration: none;
 }
 
-// ikony pozycji: silnik daje im aspect-ratio 1 i border-radius 50% (bąbelki)
 .top-nav__dropdown > ul > li > a > i,
 .top-nav__dropdown > ul > li > form > button > i {
     aspect-ratio: auto;
@@ -459,7 +470,6 @@
     height: 12px;
 }
 
-// pozycja z nickiem na szczycie menu konta — służy za nagłówek panelu
 .top-nav__username.top-nav__username {
     padding: 7px 12px;
     border-bottom: 1px solid var(--pt-line);
@@ -473,45 +483,41 @@
 }
 
 // =====================================================================
-// UKŁAD TRZECH PASÓW — tylko od 768 px. Poniżej zostawiamy oryginalny
-// jednorzędowy nagłówek silnika razem z jego hamburgerem, bo tam
-// przebudowa siatki tylko psuje działający tryb mobilny.
+// UKŁAD TRZECH PASÓW — od 768 px. Poniżej zostaje jednorzędowy nagłówek
+// silnika z hamburgerem, bo tam przebudowa siatki psuje tryb mobilny.
 // =====================================================================
 @media (min-width: 768px) {
-    // podwojona klasa, żeby wygrać także z regułą .top-nav.mobile silnika
     .top-nav.top-nav {
         display: grid;
         grid-template:
-            'stats stats' 28px
-            'brand toggle' 54px
-            'menu menu' 34px
+            'stats stats' var(--pt-h-stats)
+            'brand toggle' var(--pt-h-brand)
+            'menu menu' 40px
             / minmax(0, 1fr) auto;
         align-items: center;
         max-height: none;
         overflow: visible;
-        padding: 0 max(16px, calc((100% - var(--pt-col)) / 2));
+        padding: 0 max(var(--pt-gutter), calc((100% - var(--pt-col)) / 2 + var(--pt-gutter)));
     }
 
     .top-nav__right {
         grid-area: stats;
-        height: 28px;
+        height: var(--pt-h-stats);
         border-bottom: 1px solid var(--pt-line);
     }
 
     .top-nav__left {
         grid-area: brand;
-        height: 54px;
+        height: var(--pt-h-brand);
         border-bottom: 1px solid var(--pt-line);
     }
 
     .top-nav__main-menus.top-nav__main-menus {
         grid-area: menu;
         flex-direction: row;
-        height: 34px;
+        height: 40px;
     }
 
-    // hamburger jest w tym układzie zbędny; gdyby Alpine wstawił klasę
-    // `mobile` powyżej 768 px, przycisk i tak nie ma własnego obszaru siatki
     .top-nav__toggle.top-nav__toggle {
         display: none;
     }
@@ -524,7 +530,7 @@
 
     .top-nav__dropdown > a {
         padding: 0 9px;
-        font-size: 11.5px;
+        font-size: 12.5px;
     }
 }
 
@@ -533,13 +539,10 @@
         padding: 0 12px;
     }
 
-    // silnik chowa statystyki na wąskim ekranie i pokazuje je dopiero
-    // po rozwinięciu hamburgera — nasza reguła display:flex to cofnęła
     .top-nav__ratio-bar.top-nav__ratio-bar:not(.mobile) {
         display: none;
     }
 
-    // to samo dla menu głównego — na telefonie otwiera je dopiero hamburger
     .top-nav__main-menus.top-nav__main-menus:not(.mobile) {
         display: none;
     }
@@ -555,8 +558,6 @@
         row-gap: 6px;
     }
 
-    // w trybie rozwiniętym silnik wsuwa podmenu w przepływ — pozycja musi
-    // wrócić do bloku, inaczej etykieta i lista stają obok siebie
     .top-nav__main-menus.mobile .top-nav__dropdown,
     .top-nav__icon-bar.mobile .top-nav__dropdown {
         display: block;
@@ -572,29 +573,36 @@
         min-width: 0;
         border: 0;
         background-color: transparent;
+        box-shadow: none;
     }
 }
 
 // =====================================================================
-// NAWIGACJA WTÓRNA — okruszki i zakładki działu w jednym cienkim pasie,
-// dosunięte do tej samej kolumny co treść.
+// NAWIGACJA WTÓRNA — okruszki (lewo) i zakładki działu (prawo) w jednym
+// cienkim pasie, w kolumnie treści.
 // =====================================================================
 .secondary-nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
     column-gap: 18px;
-    padding: 0 max(16px, calc((100% - var(--pt-col)) / 2));
-    background-color: var(--pt-bg);
-    border-bottom: 1px solid var(--pt-line);
+    @include pt-column;
+    padding-top: 6px;
+    padding-bottom: 0;
+    background-color: transparent;
+    border-bottom: 0;
     box-shadow: none;
 }
 
 .breadcrumbsV2 {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     min-width: 0;
-    font-size: 11.5px;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    list-style: none;
 }
 
 .breadcrumbV2,
@@ -603,8 +611,7 @@
     color: var(--pt-fg-4);
 }
 
-// separator silnika to znak Font Awesome ('\f105') zależny od wersji paczki —
-// zastępujemy zwykłym ukośnikiem, który wyrenderuje się zawsze
+// separator silnika to znak Font Awesome zależny od wersji paczki
 .breadcrumbV2:not(:first-child)::before,
 .breadcrumb--active:not(:first-child)::before {
     content: '/';
@@ -625,39 +632,73 @@
 
 .breadcrumb__link:hover {
     color: var(--pt-red-fg);
+    text-decoration: none;
 }
 
 .nav-tabsV2 {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    gap: 4px;
     min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-tabV2,
+.nav-tab--active {
+    margin: 0;
+    list-style: none;
 }
 
 .nav-tab__link,
 .nav-tab--active__link {
-    padding: 7px 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: var(--pt-h-24);
+    padding: 0 9px;
     background-color: transparent;
-    border-bottom: 2px solid transparent;
+    border: 1px solid transparent;
+    border-radius: var(--pt-radius);
     color: var(--pt-fg-3);
     font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .nav-tab__link:hover,
 .nav-tab--active__link:hover {
-    background-color: transparent;
+    background-color: var(--pt-surface-2);
+    border-color: var(--pt-border);
     color: var(--pt-fg);
-    filter: none; // silnik rozjaśnia tło o 120% — przy płaskim tle daje brud
+    filter: none;
     text-decoration: none;
 }
 
-// jedyna aktywna pozycja, jaką waniliowy markup faktycznie oznacza
 .nav-tab--active__link {
-    border-bottom-color: var(--pt-red);
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-line-ui);
     color: var(--pt-fg);
-    text-decoration: none;
+}
+
+// „Upload" żyje w nawigacji wtórnej — jedyna pozycja w barwie akcentu
+.nav-tab__link[href$='/torrents/create'],
+.nav-tab__link[href$='/upload'] {
+    background-color: var(--pt-red);
+    border-color: var(--pt-red);
+    color: #fff;
+    font-weight: 600;
+}
+
+.nav-tab__link[href$='/torrents/create']:hover,
+.nav-tab__link[href$='/upload']:hover {
+    background-color: #b91b27;
+    border-color: #b91b27;
+    color: #fff;
 }
 
 .nav-tab-menu__items {
@@ -666,100 +707,98 @@
     padding: 3px 0;
     background-color: var(--pt-surface);
     border: 1px solid var(--pt-border);
-    border-radius: 0;
+    border-radius: var(--pt-radius);
+    box-shadow: 0 8px 28px rgb(0 0 0 / 55%);
 }
 
 .nav-tab-menu__items .nav-tab__link,
 .nav-tab-menu__items .nav-tab--active__link {
+    height: auto;
     padding: 6px 14px;
-    border-bottom: 0;
-    text-transform: none;
-    letter-spacing: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     font-weight: 400;
 }
 
 // =====================================================================
-// STOPKA — kolumny linków na tle strony, oddzielone od treści jedną linią.
+// STOPKA — pięć kolumn w siatce (marka + 4 listy), pod spodem cienki pas.
 // =====================================================================
 .footer {
-    margin-top: 32px;
-    padding: 0 max(16px, calc((100% - var(--pt-col)) / 2));
+    margin-top: 28px;
+    padding: 0;
     background: var(--pt-bg);
     border-top: 1px solid var(--pt-border);
 }
 
 .footer__wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 22px 44px;
-    max-width: var(--pt-col);
-    margin: 0 auto;
-    padding: 18px 0 14px;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 1fr 1fr 1.1fr;
+    gap: 20px 26px;
+    align-items: start;
+    @include pt-column;
+    padding-top: 22px;
+    padding-bottom: 18px;
 }
 
 .footer__section {
-    flex: 0 1 auto;
-    min-width: 0;
     display: flex;
     flex-direction: column;
-    row-gap: 7px;
-}
-
-.footer__section:first-child {
-    flex: 1 1 240px;
+    row-gap: 6px;
+    min-width: 0;
 }
 
 .footer__section-title {
     display: flex;
     align-items: center;
     column-gap: 8px;
-    margin: 0 0 1px;
-    font-size: 10.5px;
-    font-weight: 400;
-    letter-spacing: 0.1em;
+    margin: 0 0 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--pt-fg-4);
 }
 
-// pierwsza kolumna to marka, a nie nagłówek listy — inny rytm
+.footer__section:first-child {
+    row-gap: 9px;
+}
+
 .footer__section:first-child .footer__section-title {
     font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: none;
+    letter-spacing: 0.09em;
     color: var(--pt-fg);
 }
 
 .footer__section:first-child .footer__section-title img {
     height: 20px !important; // wysokość siedzi w atrybucie style
     width: auto;
-    vertical-align: middle;
 }
 
 .footer__section:first-child .top-nav__site-logo {
     font-size: 13px;
 }
 
+.footer__tagline,
 .footer__section:first-child p {
     margin: 0;
     max-width: 36ch;
-    font-size: 11.5px;
-    line-height: 1.55;
+    font-size: 12px;
+    line-height: 1.5;
     color: var(--pt-fg-4);
 }
 
 .footer__section-list {
     display: flex;
     flex-direction: column;
-    row-gap: 5px;
+    row-gap: 6px;
     margin: 0;
     padding: 0;
     font-size: 12px;
+    list-style: none;
 }
 
 .footer__section-list li {
-    list-style: none;
     margin: 0;
 }
 
@@ -777,33 +816,42 @@
 .footer a:hover,
 .footer button:hover {
     color: var(--pt-red-fg);
+    text-decoration: none;
 }
 
 .footer__sub-footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 6px 18px;
-    width: 100%; // silnik daje 100vw — na stronie z pionowym paskiem wychodzi poza ekran
-    max-width: var(--pt-col);
-    margin: 0 auto;
-    padding: 9px 0 14px;
+    width: auto;
+    @include pt-column;
+    padding-top: 9px;
+    padding-bottom: 10px;
     border-top: 1px solid var(--pt-line);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
 }
 
-// „Time / Used / Load / Date" — telemetria renderowania, łamie rytm stopki
+// „Time / Used / Load / Date" — telemetria renderowania, zostaje mono i cicha
 .footer__stats {
-    display: none;
+    display: flex;
+    gap: 12px;
+    margin: 0;
+    color: var(--pt-fg-4);
+    font-size: 11.5px;
 }
 
-// „Built using: [logotypy]" — dekoracja silnika, w PT zbędna
 .footer__sub-footer .footer__icons {
     display: none;
 }
 
 .footer__copyright {
     margin: 0;
+    margin-left: auto;
     font-size: 11.5px;
     color: var(--pt-fg-4);
     text-align: right;
@@ -813,43 +861,200 @@
     font-size: 11.5px;
 }
 
-// =====================================================================
-// Wąskie ekrany — stopka i pas wtórny inaczej się nie mieszczą.
-// =====================================================================
-@media (max-width: 900px) {
+@media (max-width: $bp-m) {
     .secondary-nav {
-        flex-direction: column;
-        align-items: flex-start;
-        row-gap: 0;
-        padding: 0 12px;
-    }
-
-    .breadcrumbsV2 {
-        padding: 5px 0;
-    }
-
-    .nav-tabsV2 {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .footer {
-        padding: 0 12px;
+        flex-wrap: wrap;
+        row-gap: 6px;
     }
 
     .footer__wrapper {
-        gap: 18px 28px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .footer__section {
-        flex: 1 1 40%;
+    .footer__section:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: $bp-s) {
+    .footer__wrapper {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+// =====================================================================
+// PRODUKCJA PT — reguły zmierzone na polishtorrent.top
+// =====================================================================
+// PT wstrzykuje w <header> własny <style> z `height/width: 32px !important`
+// na ikonach; nasz arkusz ładuje się później, więc wygrywamy kolejnością
+.top-nav .top-nav__icon-bar > li > a > i {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 13px !important;
+}
+
+.top-nav .top-nav--right__icon-link svg {
+    top: -2px !important;
+    right: -2px !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.top-nav__icon-bar > li {
+    display: flex;
+    align-items: center;
+}
+
+.top-nav__icon-bar > .top-nav__dropdown > a {
+    display: flex;
+    align-items: center;
+    height: 22px;
+}
+
+.ratio-bar__portcheck i {
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+}
+
+// panele rozwijane siadają na linii pasa, z którego wychodzą
+.top-nav__main-menus > .top-nav__dropdown > ul {
+    top: 100%;
+}
+
+.top-nav__icon-bar > .top-nav__dropdown > ul {
+    top: calc(100% + 4px);
+}
+
+// na stronie głównej okruszki są puste — pas bez treści znika
+.secondary-nav:not(:has(li)) {
+    display: none;
+}
+
+// alert wydarzenia (freeleech / double upload) — licznik to liczby, więc mono
+.special-event-alert .alert__content strong {
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+.special-event-alert .alert__content > div {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// PASKI PROMOCYJNE PT (IPTV, rekrutacja)
+// Markup to gołe <a> bezpośrednio w <body>, całe malowane atrybutem style:
+// własne tła, 2-px ramki, promienie 4–6px, kafel ikony 40×40 i wypełnione
+// przyciski. Zmierzone: 65.1px + 42.6px wysokości i treść zaczynająca się
+// na x=24 zamiast x=40, czyli obok kolumny nagłówka. Nadpisanie stylu
+// inline wymaga !important — to jedyny sposób, jaki tu działa.
+// Paski zostają (staff ich chce), ale mają czytać się jak reszta motywu:
+// tło --pt-surface, jedna linia 1px pod spodem, kolor wyłącznie na tekście.
+// =====================================================================
+body > a[style] {
+    box-sizing: border-box;
+    min-height: 32px;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px 16px !important;
+    padding: 5px max(var(--pt-gutter), calc((100% - var(--pt-col)) / 2 + var(--pt-gutter))) !important;
+    background: var(--pt-surface) !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+    border-radius: 0 !important;
+    font-size: 12px !important;
+    text-decoration: none !important;
+}
+
+body > a[style]:hover {
+    background: var(--pt-surface-2) !important;
+}
+
+// zdejmujemy wypełnienia, ramki i zaokrąglenia z wnętrza pasków
+body > a[style] div,
+body > a[style] span {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+// kafel 40×40 wokół ikony — zostaje sama ikona
+body > a[style] div:has(> i) {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+body > a[style] span {
+    font-size: 12px !important;
+}
+
+body > a[style] i {
+    width: auto !important;
+    height: auto !important;
+    font-size: 12px !important;
+}
+
+// tytuł i podtytuł stały jeden pod drugim (2 wiersze = 65px);
+// w jednej linii pasek schodzi do 32px i trzyma rytm pozostałych pasów
+body > a[style] > div > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+}
+
+body > a[style] > div > div:last-child > div {
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+
+// CTA jako obrys w kolorze paska, dosunięty do prawej krawędzi kolumny
+body > a[style] > :last-child {
+    display: inline-flex !important;
+    align-items: center;
+    height: 20px;
+    margin-left: auto !important;
+    padding: 0 9px !important;
+    color: inherit !important;
+    border: 1px solid currentColor !important;
+    border-radius: var(--pt-radius) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+// dwa paski = dwa kolory semantyczne, wyłącznie na tekście i ikonie
+body > a[href*='selliptv'],
+body > a[href*='selliptv'] i,
+body > a[href*='selliptv'] > div > div:last-child > div:first-child {
+    color: var(--pt-warn) !important;
+}
+
+body > a[href*='selliptv'] > div > div:last-child > div:nth-child(2) {
+    color: var(--pt-fg-3) !important;
+}
+
+body > a[href*='staff-application'],
+body > a[href*='staff-application'] i,
+body > a[href*='staff-application'] span {
+    color: var(--pt-info) !important;
+}
+
+
+@media (max-width: $bp-m) {
+    body > a[style] {
+        align-items: flex-start !important;
+        padding-top: 7px !important;
+        padding-bottom: 7px !important;
     }
 
-    .footer__sub-footer {
-        justify-content: flex-start;
-    }
-
-    .footer__copyright {
-        text-align: left;
+    body > a[style] > :last-child {
+        margin-left: 0 !important;
     }
 }

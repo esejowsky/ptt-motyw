@@ -1,27 +1,7 @@
-/* ==== PROFIL UŻYTKOWNIKA ====
-   Cel:     spłaszczyć /users/{nick} do rytmu PT — hero z kwadratowym awatarem
-            i gęstym blokiem meta, obok wąski rail (280px) z kafelkami statystyk.
-   Kotwice: .page__user-profile--show, .sidebar2 (> div, > aside), .profileV2,
-            .profile__avatar/__username/__registration/__title/__about,
-            .panelV2, .panel__header, .panel__heading, .panel__actions, .panel__body,
-            .key-value, .key-value__group, .data-table, .data-table-wrapper,
-            .data-table__actions, .user-search__avatar, .application--*.
-   Ubytki:  1) Statystyki (ratio, upload, bufor, seedtime) siedzą w @yield('sidebar'),
-               czyli w gałęzi <aside>, a hero w @yield('main') — CSS nie przenosi węzłów
-               między gałęziami, więc paska statystyk POD hero (jak we wzorcu) nie ma.
-               Rekompensata: rail zwężony do 280px i zagęszczony, żeby liczby stały
-               czytelnie obok treści.
-            2) Wiersze .key-value nie mają klas per-metryka (dt to goły tekst), więc nie da
-               się semantycznie pokolorować ratio/bufora ani wyróżnić wartości ujemnych.
-            3) Nagłówek panelu hero („User Information") zostaje — w nim siedzą akcje
-               Edit/Delete/Report (.panel__actions); ukrycie header ukryłoby też je.
-            4) x-user-tag wstawia inline background-image (efekt grupy/donora) pod nick —
-               to celowy perk silnika, zostawiony bez zmian.
-            5) Brak w markupie chipa grupy, flagi kraju i liczników (osiągnięcia,
-               obserwujący) — grupa jest tylko jako inline color linku + title.
-            6) Zakładki (nav-tabs) renderują się w layoucie, poza tą stroną, i mają własne
-               reguły w _nav.scss — tutaj świadomie nie duplikowane.
-   ==================================================== */
+// =====================================================================
+// 30 · PROFIL UŻYTKOWNIKA — hero, statystyki, panele, rail
+// =====================================================================
+@use '00-tokens' as *;
 
 // =====================================================================
 // 01 · UKŁAD STRONY — treść + wąski rail

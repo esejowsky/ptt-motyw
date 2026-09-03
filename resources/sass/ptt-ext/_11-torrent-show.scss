@@ -1,0 +1,1267 @@
+// =====================================================================
+// 11 · STRONA TORRENTA — hero (section.meta), kafle statystyk, akcje,
+//      MediaInfo, opis, napisy, relacje, komentarze.
+//      Część A: markup silnika (dev). Część B: markup staffu PT
+//      (.luxury-*, .hero-*, .tech-*, .modo-*, .thanks-*) — reguły mierzone
+//      na produkcji; !important tylko tam, gdzie staff wstawia własne
+//      <style> z !important albo style="". Zero kotwic po hexach.
+// =====================================================================
+@use '00-tokens' as *;
+
+// ---------------------------------------------------------------------
+// A · markup silnika
+// ---------------------------------------------------------------------
+main.page__torrent--show > article {
+    gap: 12px;
+}
+
+// Nagłówki paneli w rytmie PT. Blok „Moderation" ma <h2 class="panel__heading">
+// bezpośrednio w .panelV2 (bez .panel__header), więc dostaje padding osobno.
+main.page__torrent--show .panel__header {
+    padding: 0;
+    border-bottom: 1px solid var(--pt-border);
+}
+
+main.page__torrent--show .panel__heading,
+main.page__torrent--show .panelV2 > .panel__heading {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+main.page__torrent--show .panel__heading > i {
+    margin-right: 5px;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+main.page__torrent--show .panel__body {
+    padding: 12px 14px;
+}
+
+// =====================================================================
+// 02 · HERO — panel metadanych (section.meta)
+//   Silnik trzyma tu siatkę z nazwanymi obszarami; nie ruszamy obszarów,
+//   tylko zwężamy plakat i spłaszczamy powierzchnię do panelu PT.
+// =====================================================================
+main.page__torrent--show > article > section.meta {
+    padding: 12px 14px;
+    gap: 8px 16px;
+    grid-template-columns: 168px minmax(0, 1fr) auto;
+    max-height: none;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-2);
+}
+
+// Backdrop wisi za całą stroną (position: absolute, z-index: -1). W płaskim
+// motywie ma tylko delikatnie barwić tło, nie robić za tapetę.
+main.page__torrent--show .meta__backdrop {
+    max-height: 380px;
+    object-fit: cover;
+    object-position: center top;
+    opacity: 0.45;
+}
+
+main.page__torrent--show .meta__poster {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--pt-line);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+}
+
+main.page__torrent--show .meta__title {
+    margin: 0;
+    font-family: var(--pt-sans);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show .meta__title-link:hover .meta__title {
+    color: var(--pt-red-fg);
+}
+
+main.page__torrent--show .meta__description {
+    margin: 2px 0 0;
+    max-height: 132px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+}
+
+// --- identyfikatory zewnętrzne (TMDB / IMDB / MAL / …) ---------------
+main.page__torrent--show .meta__ids {
+    margin: 2px 0 0;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+main.page__torrent--show ul.meta__ids .meta-id-tag {
+    padding: 3px 8px;
+    background-color: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-2);
+    font-size: 11.5px;
+    line-height: 15px;
+}
+
+main.page__torrent--show ul.meta__ids .meta-id-tag:hover {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-red-fg);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show ul.meta__ids .meta-id-tag img {
+    height: 14px;
+}
+
+// --- pasek cech dzieła (typ / język / czas / ocena) ------------------
+// Silnik rozdziela pozycje kropkami przez ::after — w PT są to pigułki,
+// więc kropki gasimy (podwojona klasa dobija specyficzność silnika).
+main.page__torrent--show ul.work__tags {
+    margin: 0;
+    gap: 5px;
+    align-items: center;
+}
+
+main.page__torrent--show ul.work__tags > li:not(:last-child)::after {
+    content: none;
+}
+
+main.page__torrent--show ul.work__tags > li > a,
+main.page__torrent--show ul.work__tags > li > span {
+    padding: 2px 8px;
+    background-color: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-2);
+    font-size: 11.5px;
+    line-height: 16px;
+}
+
+main.page__torrent--show ul.work__tags > li > a:hover {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-red-fg);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show .work__runtime-text,
+main.page__torrent--show .work__rating-text {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// --- obsada / ekipa / informacje dodatkowe ---------------------------
+main.page__torrent--show .meta__chips {
+    gap: 16px;
+}
+
+main.page__torrent--show .meta__chip-container {
+    flex: 1 1 200px;
+    min-width: 0;
+    height: auto;
+    max-height: 260px;
+    padding-top: 15px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+main.page__torrent--show .meta__heading {
+    font-family: var(--pt-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--pt-fg-4);
+}
+
+main.page__torrent--show .meta-chip {
+    gap: 2px 10px;
+    padding: 4px 10px 4px 4px;
+    grid-template-columns: 30px auto;
+    border-radius: var(--pt-radius);
+}
+
+main.page__torrent--show .meta-chip:hover {
+    background-color: var(--pt-surface-2);
+}
+
+main.page__torrent--show .meta-chip__image,
+main.page__torrent--show .meta-chip__icon {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    border-width: 1px;
+    border-radius: var(--pt-radius);
+}
+
+main.page__torrent--show .meta-chip__name {
+    font-family: var(--pt-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show .meta-chip__value {
+    font-family: var(--pt-sans);
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: var(--pt-fg-4);
+}
+
+// --- menu „trzy kropki" nad plakatem ---------------------------------
+// Silnik daje tło wyłącznie w @supports (not backdrop-filter), a tokeny PT
+// zerują filtr — bez tej reguły lista wisiałaby przezroczysta nad treścią.
+main.page__torrent--show .meta__dropdown {
+    background: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+}
+
+main.page__torrent--show .meta__dropdown > li > a,
+main.page__torrent--show .meta__dropdown > li > form > button {
+    min-width: 160px;
+    padding: 6px 12px;
+    border-radius: 0;
+    font-family: var(--pt-sans);
+    font-size: 12.5px;
+    color: var(--pt-fg-2);
+}
+
+main.page__torrent--show .meta__dropdown-button {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// 03 · KARTA RELEASU — nazwa + statystyki + akcje jako jeden blok
+//   To trzy osobne dzieci <article> (h1, ul, menu). Ujemny margines kasuje
+//   gap flexa, dzięki czemu czytają się jako jedna karta bez zmian w Blade.
+// =====================================================================
+main.page__torrent--show > article > h1.torrent__name,
+main.page__torrent--show > article > ul.torrent__tags {
+    margin-bottom: -12px;
+}
+
+main.page__torrent--show > article > h1.torrent__name {
+    margin-top: 0;
+    padding: 10px 12px;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-bottom: 0;
+    border-radius: var(--pt-radius) var(--pt-radius) 0 0;
+    font-family: var(--pt-mono);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    text-align: left;
+    color: var(--pt-fg);
+    overflow-wrap: anywhere;
+}
+
+// --- pasek statystyk: każde <li> to kafel etykieta + wartość ---------
+main.page__torrent--show > article > ul.torrent__tags {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+    gap: 0;
+    padding: 0;
+    // silnik ustawia align-items: baseline — kafle miałyby różną wysokość
+    align-items: stretch;
+    overflow: hidden;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    // linię pod nazwą rysuje już border-top pierwszego rzędu kafli
+    border-top: 0;
+    border-bottom: 0;
+    font-size: 12.5px;
+}
+
+// kropki-separatory silnika nie mają sensu w siatce kafli
+main.page__torrent--show ul.torrent__tags > li:not(:last-child)::after {
+    content: none;
+}
+
+main.page__torrent--show ul.torrent__tags > li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 6px 12px;
+    border-top: 1px solid var(--pt-line);
+    border-right: 1px solid var(--pt-line);
+    white-space: normal;
+}
+
+// ostatni kafel dotyka ramki panelu — bez własnej kreski, żeby nie dublować linii
+main.page__torrent--show ul.torrent__tags > li:last-child {
+    border-right: 0;
+}
+
+// etykieta kafla — silnik jej nie renderuje, dokładamy ją tutaj
+main.page__torrent--show ul.torrent__tags > li::before {
+    font-family: var(--pt-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+main.page__torrent--show li.torrent__category::before {
+    content: 'Kategoria';
+}
+main.page__torrent--show li.torrent__resolution::before {
+    content: 'Rozdzielczość';
+}
+main.page__torrent--show li.torrent__region::before {
+    content: 'Region';
+}
+main.page__torrent--show li.torrent__type::before {
+    content: 'Typ';
+}
+main.page__torrent--show li.torrent__distributor::before {
+    content: 'Dystrybutor';
+}
+main.page__torrent--show li.torrent__size::before {
+    content: 'Rozmiar';
+}
+main.page__torrent--show li.torrent__seeders::before {
+    content: 'Seedy';
+}
+main.page__torrent--show li.torrent__leechers::before {
+    content: 'Leecze';
+}
+main.page__torrent--show li.torrent__completed::before {
+    content: 'Ukończenia';
+}
+main.page__torrent--show li.torrent__uploader::before {
+    content: 'Uploader';
+}
+main.page__torrent--show li.torrent__uploaded-at::before {
+    content: 'Dodano';
+}
+// ostatni kafel to <li> bez klasy z ikonami freeleech / x2 / internal
+main.page__torrent--show ul.torrent__tags > li:not([class])::before {
+    content: 'Znaczniki';
+}
+
+// wartość kafla — liczby zawsze monospace o stałej szerokości cyfry
+main.page__torrent--show ul.torrent__tags > li > a,
+main.page__torrent--show ul.torrent__tags > li > span,
+main.page__torrent--show ul.torrent__tags > li > time {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    font-family: var(--pt-mono);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.35;
+    color: var(--pt-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+main.page__torrent--show ul.torrent__tags > li > a:hover {
+    background-color: transparent;
+    border-radius: 0;
+    color: var(--pt-red-fg);
+}
+
+// przy etykiecie ikonka strzałki/ptaszka jest już zbędna
+main.page__torrent--show li.torrent__seeders > a > i,
+main.page__torrent--show li.torrent__leechers > a > i,
+main.page__torrent--show li.torrent__completed > a > i {
+    display: none;
+}
+
+// kategoria/typ/rozdzielczość to etykiety tekstowe, nie liczby
+main.page__torrent--show li.torrent__category > a,
+main.page__torrent--show li.torrent__resolution > a,
+main.page__torrent--show li.torrent__region > a,
+main.page__torrent--show li.torrent__type > a,
+main.page__torrent--show li.torrent__distributor > a,
+main.page__torrent--show li.torrent__uploaded-at > time {
+    font-family: var(--pt-sans);
+}
+
+// nick uploadera niesie inline kolor grupy z x-user-tag — zostawiamy go,
+// prostujemy tylko krój i rozmiar wokół niego
+main.page__torrent--show li.torrent__uploader .user-tag,
+main.page__torrent--show li.torrent__uploader .user-tag__link {
+    font-family: var(--pt-sans);
+    font-size: 12.5px;
+}
+
+main.page__torrent--show li.torrent__uploader {
+    overflow: hidden;
+}
+
+// „ostatnia aktywność seedów" niesie własną etykietę w treści — pełna szerokość
+main.page__torrent--show li.torrent__activity {
+    grid-column: 1 / -1;
+}
+
+main.page__torrent--show li.torrent__activity > .torrent__activity-link {
+    font-family: var(--pt-sans);
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: normal;
+}
+
+main.page__torrent--show ul.torrent__tags > li:not([class]) .torrent-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+// --- akcje: płaskie prostokąty w jednym rzędzie ----------------------
+// Silnik robi z <menu> i z każdego <li> siatkę auto-fit minmax(120px, 1fr),
+// przez co przyciski rozciągają się na całą szerokość. Wracamy do flexa.
+main.page__torrent--show > article > menu.torrent__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 8px 12px;
+    list-style-type: none;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: 0 0 var(--pt-radius) var(--pt-radius);
+}
+
+main.page__torrent--show > article > menu.torrent__buttons > li {
+    display: block;
+    width: auto;
+    margin: 0;
+}
+
+main.page__torrent--show menu.torrent__buttons .form__button {
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: var(--pt-radius);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+main.page__torrent--show menu.torrent__buttons .form__button--outlined {
+    background-color: transparent;
+    border: 1px solid var(--pt-border);
+    color: var(--pt-fg-2);
+}
+
+main.page__torrent--show menu.torrent__buttons .form__button--outlined:hover {
+    border-color: var(--pt-red-fg);
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show menu.torrent__buttons .form__button > i {
+    font-size: 11px;
+}
+
+// =====================================================================
+// 04 · MEDIAINFO — surowy zrzut + sparsowana specyfikacja
+// =====================================================================
+// surowy zrzut: blok terminalowy, przycięty do rozsądnej wysokości
+main.page__torrent--show .torrent-mediainfo-dump pre,
+main.page__torrent--show .mediainfo__encode-settings pre,
+main.page__torrent--show .bbcode-rendered pre {
+    padding: 10px 12px;
+    max-height: 360px;
+    overflow: auto;
+    background-color: var(--pt-bg);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-family: var(--pt-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--pt-fg-3);
+}
+
+main.page__torrent--show .torrent-mediainfo-dump {
+    margin-bottom: 12px;
+}
+
+// sparsowana specyfikacja: kolumny zamiast rozjeżdżającego się flex-wrapa
+main.page__torrent--show .mediainfo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 24px;
+    padding: 10px 12px;
+    background-color: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    color: var(--pt-fg-2);
+}
+
+// sekcje, które w silniku miały flex-basis: 100%, w siatce biorą cały wiersz
+main.page__torrent--show .mediainfo__filename,
+main.page__torrent--show .mediainfo__subtitles,
+main.page__torrent--show .mediainfo__encode-settings {
+    grid-column: 1 / -1;
+}
+
+main.page__torrent--show .mediainfo > section {
+    min-width: 0;
+    max-width: 100%;
+    width: auto;
+}
+
+main.page__torrent--show .mediainfo h3 {
+    margin: 0 0 5px;
+    font-family: var(--pt-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--pt-fg-4);
+}
+
+main.page__torrent--show .mediainfo__filename {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--pt-line);
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show .mediainfo dl {
+    gap: 0 12px;
+    margin: 0;
+}
+
+main.page__torrent--show .mediainfo dt {
+    padding: 2px 0;
+    padding-right: 0;
+    font-family: var(--pt-sans);
+    font-size: 11.5px;
+    text-align: left;
+    color: var(--pt-fg-4);
+}
+
+main.page__torrent--show .mediainfo dd {
+    padding: 2px 0;
+    min-width: 0;
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-2);
+    overflow-wrap: anywhere;
+}
+
+// flagi języków — bez zaokrągleń, z cienką ramką jak reszta motywu
+main.page__torrent--show .mediainfo img {
+    border: 1px solid var(--pt-line);
+    border-radius: 1px;
+    vertical-align: -2px;
+}
+
+main.page__torrent--show .mediainfo__subtitles h3 {
+    padding-right: 12px;
+}
+
+// wewnątrz encode settings <pre> ma już własne tło — nie dublujemy ramki sekcji
+main.page__torrent--show .mediainfo__encode-settings pre {
+    margin: 0;
+}
+
+// =====================================================================
+// 05 · OPIS I POZOSTAŁE PANELE
+// =====================================================================
+main.page__torrent--show .panel__body.bbcode-rendered {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--pt-fg-2);
+}
+
+main.page__torrent--show .bbcode-rendered img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--pt-line);
+    border-radius: var(--pt-radius);
+}
+
+// NFO w oknie dialogowym — stały krój, żeby ASCII-art się nie rozjechał
+main.page__torrent--show .torrent__nfo-pre {
+    padding: 10px 12px;
+    background-color: var(--pt-bg);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-3);
+}
+
+// --- zakładki „Relations" --------------------------------------------
+// Silnik ustawia tabom background-color na token *foreground* (jasnoszary),
+// więc trzeba je jawnie wygasić.
+main.page__torrent--show .panel__tabs {
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+main.page__torrent--show .panel__tab {
+    padding: 6px 12px;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--pt-fg-3);
+}
+
+main.page__torrent--show .panel__tab:hover {
+    color: var(--pt-fg);
+}
+
+main.page__torrent--show .panel__tab--active {
+    border-bottom: 2px solid var(--pt-red);
+    color: var(--pt-fg);
+}
+
+// --- tabele (pliki, napisy, audyty, raporty, pobrania) ---------------
+main.page__torrent--show .data-table th {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+main.page__torrent--show .data-table td {
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// 06 · WĄSKIE EKRANY
+//   Poniżej 900 px plakat + treść w jednej kolumnie rozjeżdżają hero,
+//   a kafle statystyk robią się jednoznakowe.
+// =====================================================================
+@media (max-width: 900px) {
+    main.page__torrent--show > article > section.meta {
+        grid-template-columns: 110px minmax(0, 1fr) auto;
+        gap: 6px 12px;
+    }
+
+    main.page__torrent--show .meta__title {
+        font-size: 15px;
+    }
+
+    main.page__torrent--show .meta__chip-container {
+        max-height: 200px;
+    }
+
+    main.page__torrent--show > article > ul.torrent__tags {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    main.page__torrent--show .mediainfo {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    main.page__torrent--show > article > menu.torrent__buttons {
+        padding: 8px;
+    }
+
+    main.page__torrent--show menu.torrent__buttons .form__button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+// ---------------------------------------------------------------------
+// B · markup staffu PT (produkcja)
+// ---------------------------------------------------------------------
+main.page__torrent--show > article > .luxury-meta-grid {
+    margin: 0 !important;
+}
+
+// dwie wewnętrzne ramy hero i karty releasu — do zera, zostaje ramka sekcji
+main.page__torrent--show .hero-outer-frame,
+main.page__torrent--show .hero-inner-frame {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+// ozdobniki ramy: narożne „wsporniki” 16 px oraz wodne znaki „WSTĘP / RELEASE /
+// 2160P” w 7–9 rem. W płaskim motywie to szum — wszystkie są absolutne, więc
+// jedna reguła zdejmuje komplet, nie ruszając .hero-render-wrapper (relative).
+main.page__torrent--show .hero-inner-frame > div[style*='position: absolute'] {
+    display: none !important;
+}
+
+// pasek „taśmy ostrzegawczej” (repeating-linear-gradient 45deg) pod hero
+main.page__torrent--show div[style*='repeating-linear-gradient'] {
+    display: none !important;
+}
+
+/* =====================================================================
+   2 · NAGŁÓWKI SEKCJI — jeden wzór dla siedmiu różnych pasków
+   Po co: staff daje im padding 12–15px/20px (wysokość 47 px), literę 800
+   z odstępem 1.5–2 px i kolor #00d2ff / #3498db, którego nie ma w palecie.
+   PT: 6px 12px, 11px/600/uppercase/ls .06em, --pt-fg-3, tło --pt-surface-2.
+   UWAGA: .tech-header-simple w karcie releasu NIE jest nagłówkiem — staff
+   trzyma w nim całą treść karty. Rozróżniam po zawartości (h1 releasu).
+   ===================================================================== */
+main.page__torrent--show .tech-header-simple:not(:has(h1.torrent__name_new)),
+main.page__torrent--show .desc-header,
+main.page__torrent--show .comments-header,
+main.page__torrent--show .modo-luxury-header {
+    padding: 6px 12px !important;
+    background: var(--pt-surface-2) !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+    border-radius: 0 !important;
+    color: var(--pt-fg-3) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+main.page__torrent--show .tech-title-main:not(:has(h1.torrent__name_new)),
+main.page__torrent--show .tools-title,
+main.page__torrent--show .modo-label,
+main.page__torrent--show .thanks-title,
+main.page__torrent--show .desc-title,
+main.page__torrent--show .comments-header > span {
+    color: var(--pt-fg-3) !important;
+    font-family: var(--pt-sans) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+// ikony w nagłówkach: równe, wyciszone, bez własnych kolorów staffu
+main.page__torrent--show .tech-header-simple > i,
+main.page__torrent--show .desc-header i,
+main.page__torrent--show .comments-header > i,
+main.page__torrent--show .tools-title > i,
+main.page__torrent--show .modo-label > i,
+main.page__torrent--show .thanks-header > i {
+    margin-right: 4px !important;
+    color: var(--pt-fg-4) !important;
+    font-size: 11px !important;
+}
+
+// znaczniki przy nagłówkach (MEDIAINFO / UPRAWNIENIA ADMINISTRACYJNE)
+main.page__torrent--show .tech-file-badge,
+main.page__torrent--show .tools-badge {
+    padding: 1px 6px !important;
+    background: transparent !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    font-family: var(--pt-mono) !important;
+    font-size: 10px !important;
+    letter-spacing: 0.04em !important;
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--show .tools-badge {
+    color: var(--pt-warn) !important;
+}
+
+// kolorowe „akcenty” przy nagłówkach: cyjanowy pasek i pomarańczowa listwa
+main.page__torrent--show .header-accent {
+    width: 2px !important;
+    background: var(--pt-red) !important;
+}
+
+main.page__torrent--show .tools-side-indicator {
+    width: 2px !important;
+    flex: 0 0 2px !important;
+    background: var(--pt-warn) !important;
+}
+
+/* =====================================================================
+   3 · HERO — panel metadanych (section.meta)
+   Po co: silnik liczy kolumny z szerokości plakatu, więc siatka wychodziła
+   502px 716px 28px — plakat zajmował 37% panelu i miał 752 px wysokości
+   w kontenerze o max-height 540 px, czyli był ucinany. We wzorcu plakat ma
+   ~208 px. Reguła z _torrent.scss nie łapie, bo celuje w `> article > .meta`,
+   a na produkcji .meta siedzi w .hero-render-wrapper.
+   ===================================================================== */
+main.page__torrent--show section.meta {
+    padding: 12px 14px !important;
+    max-height: none !important;
+    gap: 8px 16px !important;
+    grid-template-columns: 190px minmax(0, 1fr) auto !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+main.page__torrent--show .meta__poster-link {
+    align-self: start;
+}
+
+// szara kropka-„dioda” przed tytułem paska hero: jedyny element w nagłówku
+// ustawionym na space-between, przez który podpis uciekał do prawej krawędzi
+main.page__torrent--show .tech-header-simple > div[style*='width: 10px'] {
+    display: none !important;
+}
+
+// kadr z filmu wisi pod treścią hero z kryciem 0.45 — w płaskim motywie
+// zjadał czytelność opisu i obsady; zostaje jako ślad, nie jako tapeta
+main.page__torrent--show .hero-render-wrapper .meta__backdrop {
+    opacity: 0.12;
+}
+
+main.page__torrent--show .meta__poster {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: cover;
+}
+
+// opis nie ma rozpychać hero — 5 wierszy wystarczy, reszta i tak jest w panelu opisu
+main.page__torrent--show .meta__description {
+    max-height: 104px;
+    overflow: hidden;
+}
+
+/* =====================================================================
+   4 · KARTA RELEASU — nazwa, pasek statystyk, akcje
+   Po co: nazwa releasu szła 23 px wersalikami w Rajdhani z cieniem tekstu,
+   pasek statystyk miał własną ramkę i padding 15 px, a przyciski były
+   rozciągnięte w siatkę 8 × 148 px (dwuwierszowe napisy, wysokość 46 px).
+   PT: nazwa 13 px monospace, staty jako kafle z pionowymi kreskami,
+   akcje jako płaskie prostokąty o szerokości treści.
+   ===================================================================== */
+// .tech-header-simple pełni tu rolę ciała panelu, nie nagłówka
+main.page__torrent--show .tech-header-simple:has(h1.torrent__name_new) {
+    display: block !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border-bottom: 0 !important;
+}
+
+main.page__torrent--show .tech-title-main:has(h1.torrent__name_new) {
+    padding: 10px 12px !important;
+    color: var(--pt-fg) !important;
+}
+
+main.page__torrent--show h1.torrent__name_new {
+    margin: 0 !important;
+    font-family: var(--pt-mono) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.45 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    text-shadow: none !important;
+    color: var(--pt-fg) !important;
+    overflow-wrap: anywhere;
+}
+
+// pasek statystyk: kontener przestaje być pudełkiem, ramkę bierze sama lista
+main.page__torrent--show .stats-row-container {
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+main.page__torrent--show ul.torrent__tags {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+// _torrent.scss rysuje kreskę nad każdym kaflem — przy własnej ramce paska
+// dawałoby to podwójną linię u góry; separatory pionowe zostają
+main.page__torrent--show ul.torrent__tags > li {
+    border-top: 0;
+}
+
+// akcje: z siatki 148 px z powrotem do rzędu prostokątów o szerokości napisu
+main.page__torrent--show .buttons-row-container {
+    margin: 10px 0 0 !important;
+}
+
+main.page__torrent--show menu.torrent__buttons {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style-type: none;
+}
+
+main.page__torrent--show menu.torrent__buttons > li {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+main.page__torrent--show menu.torrent__buttons .form__button {
+    width: auto !important;
+    height: 28px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    white-space: nowrap;
+    border-radius: var(--pt-radius);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =====================================================================
+   5 · PODZIĘKOWANIA
+   Po co: pigułki nicków miały promień 6 px i tło rgba(255,255,255,.02);
+   licznik siedział w owalu. PT: prostokąty 3 px na --pt-surface-2, liczba mono.
+   ===================================================================== */
+main.page__torrent--show .luxury-thanks-panel > .thanks-header {
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    background: var(--pt-surface-2) !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+}
+
+main.page__torrent--show .thanks-users-list {
+    gap: 6px;
+    padding: 8px 12px;
+}
+
+main.page__torrent--show .thank-user-pill {
+    padding: 3px 8px !important;
+    background: var(--pt-surface-2) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    font-size: 12px !important;
+}
+
+main.page__torrent--show .thank-user-pill:hover {
+    background: var(--pt-surface-3) !important;
+    border-color: var(--pt-red-fg) !important;
+}
+
+main.page__torrent--show .thanks-count {
+    padding: 1px 6px !important;
+    background: transparent !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    font-family: var(--pt-mono) !important;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px !important;
+    color: var(--pt-fg-3) !important;
+}
+
+/* =====================================================================
+   6 · NARZĘDZIA I MODERACJA — panel w panelu
+   Po co: staff wkłada silnikowe .panelV2 do własnych kart, przez co każdy
+   blok ma dwie ramki i dwa nagłówki. Wewnętrzny panel traci własną obudowę,
+   a jego nagłówek schodzi o poziom niżej w hierarchii (10.5 px, --pt-fg-4).
+   ===================================================================== */
+main.page__torrent--show .tools-content,
+main.page__torrent--show .modo-luxury-grid,
+main.page__torrent--show .desc-content-body,
+main.page__torrent--show .comments-body,
+main.page__torrent--show .tech-content-table-wrapper {
+    padding: 12px 14px !important;
+    background: transparent !important;
+}
+
+main.page__torrent--show .tools-content > .tools-header {
+    padding: 0 0 8px !important;
+    border-bottom: 1px solid var(--pt-line) !important;
+}
+
+main.page__torrent--show .tools-actions-wrapper > .panelV2,
+main.page__torrent--show .card-inner-content > .panelV2,
+main.page__torrent--show .meta-inner > .panelV2,
+main.page__torrent--show .desc-content-body > .panelV2,
+main.page__torrent--show .comments-body > .panelV2 {
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+main.page__torrent--show .tools-actions-wrapper > .panelV2 > .panel__heading,
+main.page__torrent--show .card-inner-content > .panelV2 > .panel__heading,
+main.page__torrent--show .meta-inner > .panelV2 > .panel__header,
+main.page__torrent--show .desc-content-body > .panelV2 > .panel__header,
+main.page__torrent--show .comments-body > .panelV2 > .panel__heading {
+    padding: 0 0 6px !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--pt-line) !important;
+    font-size: 10.5px !important;
+    letter-spacing: 0.08em;
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--show .tools-actions-wrapper > .panelV2 > .panel__body,
+main.page__torrent--show .card-inner-content > .panelV2 > .panel__body,
+main.page__torrent--show .meta-inner > .panelV2 > .panel__body,
+main.page__torrent--show .desc-content-body > .panelV2 > .panel__body,
+main.page__torrent--show .comments-body > .panelV2 > .panel__body {
+    padding: 10px 0 0 !important;
+}
+
+// karty terminala administracyjnego
+main.page__torrent--show .modo-luxury-grid {
+    gap: 12px !important;
+}
+
+main.page__torrent--show .modo-card {
+    padding: 8px 12px !important;
+    background: var(--pt-surface-2) !important;
+    border: 1px solid var(--pt-line) !important;
+    border-radius: var(--pt-radius) !important;
+}
+
+main.page__torrent--show .card-caption,
+main.page__torrent--show .meta-caption {
+    margin: 0 0 8px !important;
+    font-family: var(--pt-sans) !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+// semantyka nagłówków kart zostaje, ale w palecie PT
+main.page__torrent--show .card-caption { color: var(--pt-fg-3) !important; }
+
+main.page__torrent--show .card-caption.text-danger { color: var(--pt-red-fg) !important; }
+
+main.page__torrent--show .card-caption.text-info { color: var(--pt-fl) !important; }
+
+main.page__torrent--show .card-caption.text-primary { color: var(--pt-info) !important; }
+
+/* =====================================================================
+   7 · SPECYFIKACJA TECHNICZNA — własny renderer mediainfo staffu
+   Po co: cały blok to divy bez klas, z wyglądem w style="": tła #0f0f0f /
+   #161616 / #0d0d0d, promienie 4–8 px, gradient w pasku i niebieski #3498db
+   na etykietach i przyciskach. Kotwiczę się w literalnych wartościach
+   z atrybutów, bo innych uchwytów w tym markupie nie ma.
+   ===================================================================== */
+main.page__torrent--show .tech-content-table-wrapper > div {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+// pasek z tytułem i przyciskami RAW / Kopiuj (gradient 90deg)
+main.page__torrent--show .tech-content-table-wrapper div[style*='linear-gradient'] {
+    padding: 6px 0 8px !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--pt-line) !important;
+}
+
+// tytuł w tym pasku powtarza słowo w słowo nagłówek sekcji nad nim —
+// zostawiam sam zestaw przycisków, dosunięty do prawej krawędzi
+main.page__torrent--show .tech-content-table-wrapper div[style*='linear-gradient'] {
+    justify-content: flex-end !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper div[style*='linear-gradient'] > div:first-child {
+    display: none !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper button {
+    height: 22px !important;
+    padding: 0 10px !important;
+    background: transparent !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    font-family: var(--pt-sans) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+main.page__torrent--show .tech-content-table-wrapper button:hover {
+    border-color: var(--pt-red-fg) !important;
+    color: var(--pt-fg) !important;
+}
+
+// znaczniki ścieżek (PTTRG, 3840×1600, HDR10+, E-AC-3, Domyślna) staff maluje
+// pełnym tłem, a HDR10+ nawet gradientem. W PT to płaskie ramki, kolor niesie
+// wyłącznie tekst; barwy staffu mapuję na najbliższe tokeny semantyczne.
+main.page__torrent--show .tech-content-table-wrapper span[style*='background'] {
+    padding: 1px 6px !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    font-family: var(--pt-mono) !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    color: var(--pt-fg-3) !important;
+}
+
+// surowy zrzut MediaInfo — blok terminalowy, nie zielony log
+main.page__torrent--show .tech-content-table-wrapper pre {
+    max-height: 320px !important;
+    padding: 10px 12px !important;
+    background: var(--pt-bg) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    font-family: var(--pt-mono) !important;
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+    color: var(--pt-fg-3) !important;
+}
+
+/* =====================================================================
+   8 · OPIS I WSTĄŻKA
+   Po co: zrzuty ekranu miały promień 6 px, animowane powiększenie na hover
+   i cyjanową ramkę; wstążka „PTTrG RELEASE” przykrywa prawy górny róg panelu
+   razem z odnośnikiem „Copy”, więc odbieram jej przechwytywanie kliknięć.
+   ===================================================================== */
+main.page__torrent--show .desc-content-body {
+    font-size: 12.5px !important;
+    line-height: 1.65 !important;
+    color: var(--pt-fg-2) !important;
+}
+
+main.page__torrent--show .desc-content-body img {
+    margin: 6px 0 !important;
+    border: 1px solid var(--pt-line) !important;
+    border-radius: var(--pt-radius) !important;
+    transition: none !important;
+}
+
+main.page__torrent--show .desc-content-body img:hover {
+    transform: none !important;
+    border-color: var(--pt-red-fg) !important;
+}
+
+main.page__torrent--show .pttrg-flag-ribbon {
+    pointer-events: none;
+}
+
+/* =====================================================================
+   9 · SIATKA „NAPISY / RELACJE”
+   Po co: obie karty rozciągały się do równej wysokości 495 px, więc pod
+   krótką tabelą napisów zostawało 390 px pustki. Karta ma być panelem PT:
+   nagłówek na całą szerokość, treść w rytmie 12/14.
+   ===================================================================== */
+main.page__torrent--show .luxury-meta-grid {
+    align-items: flex-start !important;
+    gap: 12px !important;
+}
+
+main.page__torrent--show .luxury-meta-grid .meta-column {
+    flex: 1 1 0 !important;
+    min-width: 0;
+}
+
+main.page__torrent--show .meta-card {
+    padding: 0 !important;
+    background: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    overflow: hidden;
+}
+
+main.page__torrent--show .meta-card > .meta-caption {
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    background: var(--pt-surface-2) !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+    font-size: 11px !important;
+    letter-spacing: 0.06em !important;
+    color: var(--pt-fg-3) !important;
+}
+
+main.page__torrent--show .meta-inner {
+    padding: 12px 14px !important;
+}
+
+/* =====================================================================
+   10 · KOMENTARZE
+   Po co: formularz i lista siedzą w panelu w panelu; pole treści ma być
+   w rytmie pól PT, a wiersze komentarzy oddzielone jedną kreską.
+   ===================================================================== */
+main.page__torrent--show .comments-body .new-comment {
+    gap: 8px;
+}
+
+main.page__torrent--show .comments-body .comment-list > li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__torrent--show .comments-body .comment-list > li:last-child {
+    border-bottom: 0;
+}
+
+/* =====================================================================
+   11 · UPLOAD — ostrzeżenie, nagłówek i rail
+   Po co: ostrzeżenie miało promień 8 px, listwę 5 px i padding 20 px,
+   przycisk „Rozumiem” 39 px w kolorze spoza palety (#e74c3c), a boczne
+   panele szły literą 15 px przy 12.5 px w kolumnie formularza.
+   ===================================================================== */
+
+
+// akcje pod kaflami: przyciski o szerokości treści, pierwszy wypełniony
+main.page__torrent--show > article > menu.torrent__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 12px;
+    padding: 0;
+}
+
+main.page__torrent--show > article > menu.torrent__buttons > li {
+    display: flex;
+    gap: 6px;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 auto;
+}
+
+main.page__torrent--show > article > menu.torrent__buttons .form__button {
+    width: auto;
+    height: var(--pt-h-28);
+    padding: 0 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+main.page__torrent--show > article > ul.torrent__tags {
+    grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+}
+
+main.page__torrent--show > article > ul.torrent__tags > li {
+    min-width: 0;
+    overflow: hidden;
+}

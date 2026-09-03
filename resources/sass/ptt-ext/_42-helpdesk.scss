@@ -1,41 +1,99 @@
-/* ==== HELPDESK, KONTAKT, STRONY STATYCZNE, WIKI, ARTYKUŁY ====
-   Cel:     doprowadzić helpdesk i strony informacyjne do gęstego, płaskiego rytmu PT —
-            lista zgłoszeń jako zwarta tabela ze stanami w kolorach semantycznych,
-            zgłoszenie i strony statyczne w tej samej typografii co treść bbcode.
-   Kotwice: main.page__ticket--index / .page__ticket--show / .page__ticket--create /
-            .page__contact / .page__about-us--index / .page__blacklist--index /
-            .page__internal--index / .page__page--show, .panelV2 > .panel__header /
-            .panel__heading / .panel__actions / .panel__action, .panel__tabs /
-            .panel__tab / .panel__tab--full-width / .panel__tab--active,
-            .data-table (> tbody > tr > th|td), .data-table__actions,
-            .form / .form__group / .form__label--floating / .form__text /
-            .form__select / .form__textarea / .form__button(--filled|--text),
-            .panel__body (bez .bbcode-rendered), .key-value / .key-value__group,
-            .user-card-wrapper / .user-card / .user-card__username / .user-card__icon,
-            form[action$="/close"|"/reopen"|"/assignee"].
-   Ubytki:  – silnik nie oznacza zgłoszenia klasą stanu: „otwarte/zamknięte" siedzi
-              wyłącznie w TEKŚCIE komórki („N/A" albo data), a CSS treści nie czyta —
-              rozróżnienie zostaje na zakładkach Open/Closed nad tabelą;
-            – priorytet to nazwa i KOLOR Z BAZY wstawiony inline na ikonie
-              (zmierzone #FF9966 = wysoki, #FFFFFF = niski). Nie da się zmapować
-              tych kolorów na paletę bez wpisania hexów z bazy w arkusz, więc
-              gasimy tylko przypadek czystej bieli (najgłośniejszy kolor w ciemnym
-              motywie na NAJMNIEJ pilnym stanie) — reszta zostaje jak w bazie;
-            – „Otwarte/Zamknięte", „Unassigned", „My assigned tickets", „Staff",
-              „No notes", „Other tickets" i nagłówki tabeli notatek są zaszyte
-              po angielsku w blade'ach — CSS ich nie przetłumaczy;
-            – karty ekipy na /pages/internal niosą rangę WYŁĄCZNIE jako inline
-              background-color; gasimy je do wspólnej płaszczyzny (jak na /staff),
-              więc kolor rangi znika — CSS nie umie przepisać tła na obramowanie;
-            – BBCode [size] renderuje się jako inline `font-size: clamp(…)` (zmierzone
-              47 px na /pages/11). Ścięcie tego wymagałoby globalnego !important na
-              treści autorów — poza tym obszarem, świadomie nie ruszamy;
-            – załączników zgłoszenia (livewire attachment-upload) nie da się obejrzeć
-              bez wysłania pliku, więc panel „Dodaj" stylujemy tylko w stanie pustym;
-            – czarna lista klientów jest pusta (zmierzone: sama <thead>, zero wierszy),
-              więc reguły wierszy tej tabeli są pisane z markupu blade'a, nie z pomiaru.
-   ==================================================== */
+// =====================================================================
+// 42 · HELPDESK, KONTAKT, STRONY STATYCZNE, WEWNĘTRZNY, SPOŁECZNOŚĆ (staff)
+// =====================================================================
+@use '00-tokens' as *;
 
+// =====================================================================
+// 05 · STRONY POMOCY I STATYCZNE (pages.index, pages.show, staff)
+// =====================================================================
+
+main.page__page--index .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+}
+
+main.page__page--index .data-table > tbody > tr > td > a {
+    color: var(--pt-fg);
+    display: block;
+}
+
+main.page__page--index .data-table > tbody > tr:hover > td > a {
+    color: var(--pt-red-fg);
+}
+
+main.page__page--show .panel__body.bbcode-rendered {
+    padding: 14px 16px;
+}
+
+main.page__page--show .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__page--show .key-value dd time {
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// Karty ekipy: silnik wstawia kolor i efekt grupy jako inline style na <a>,
+// przez co siatka świeci pełnymi kolorami. PT jest płaskie — gasimy tło
+// (przynależność niesie nagłówek panelu nad siatką), stąd !important.
+main.page__staff--index .user-card-wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    padding: 12px;
+}
+
+main.page__staff--index .user-card {
+    background-color: var(--pt-surface-2) !important;
+    background-image: none !important;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    padding: 10px 12px;
+    align-items: flex-start;
+    row-gap: 2px;
+}
+
+main.page__staff--index .user-card:hover {
+    border-color: var(--pt-line-ui);
+}
+
+main.page__staff--index .user-card__username {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pt-fg);
+    margin: 0;
+}
+
+main.page__staff--index .user-card__title {
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+// ikona grupy była dekoracją na 84px — w gęstej karcie to znacznik w rogu
+main.page__staff--index .user-card__icon {
+    font-size: 22px;
+    right: 10px;
+    top: 10px;
+    color: var(--pt-line-ui);
+    opacity: 1;
+}
+
+main.page__staff--index .user-card:hover .user-card__icon {
+    opacity: 1;
+    transform: none;
+    color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// 06 · TREŚĆ BBCODE — typografia regulaminu, opisów i komentarzy
+//      Silnik pisze te reguły na podwojonej klasie (.bbcode-rendered.bbcode-rendered),
+//      więc dublujemy ją, żeby wygrać samą kolejnością arkuszy.
+// =====================================================================
+
+
+// --- helpdesk i strony (produkcja PT) ---
 $tk-idx: 'main.page__ticket--index';
 $tk-show: 'main.page__ticket--show';
 $tk-new: 'main.page__ticket--create';

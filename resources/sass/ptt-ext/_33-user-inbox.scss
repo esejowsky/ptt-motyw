@@ -1,43 +1,315 @@
-/* ==== WIADOMOŚCI I POWIADOMIENIA ====
-   Cel:     lista rozmów i lista powiadomień mają być gęstymi rejestrami z
-            czytelnym znacznikiem „nieprzeczytane", a wątek rozmowy — ciągiem
-            wpisów z nazwiskiem autora i czasem, nie stosem paneli-etykiet.
-   Kotwice: main.page__user-conversation--index, main.page__user-conversation--show,
-            main.page__user-notification--index, .data-table (thead/tbody/tr/td),
-            .notification--read / .notification--unread, .data-table__actions,
-            .data-table__action, .form__button--text[disabled],
-            .panelV2 > .panel__header / .panel__heading / .panel__actions /
-            .panel__action, .panel__body(.bbcode-rendered), .user-tag,
-            .user-tag__link, .bbcode-input, .bbcode-input__tab-pane,
-            .form__label--floating, .form__fieldset, article.sidebar2
-   Ubytki:  1) przy dzwonku i kopercie w nagłówku NIE MA licznika — silnik
-               wstawia tam wyłącznie pulsującą kropkę SVG (komponent
-               `animation.notification`, bez żadnej liczby). Samo CSS nie
-               policzy nieprzeczytanych, więc „7" przy kopercie wymagałoby
-               zmiany w blade. Kolor kropki jest już przestawiony na czerwień
-               PT w `_nav.scss` — tu tego nie dublujemy;
-            2) w wątku nie da się odróżnić własnych wypowiedzi od cudzych —
-               `conversations/show.blade.php` nie daje panelowi żadnej klasy
-               stanu, a jedyny wyróżnik (link do własnego profilu) zależy od
-               nazwy konta, więc nie da się go zapisać we wspólnym arkuszu.
-               Stąd bąbelki „lewo/prawo" odpadają; zostaje jednolity rejestr;
-            3) wiersz listy rozmów nie niesie klasy „nieprzeczytana" — stan
-               siedzi wyłącznie w ikonie w piątej kolumnie, więc akcent stawiamy
-               przez `tr:has(...)`. Na przeglądarce bez `:has()` wiersz po prostu
-               zostanie neutralny (ikona i tak zostaje);
-            4) temat rozmowy przycięty do jednej linii nie ma atrybutu `title`,
-               więc bardzo długiego tematu nie da się podejrzeć tooltipem —
-               widać go dopiero w wątku. CSS nie dopisze atrybutu;
-            5) akcje wiersza silnik odsłania dopiero na hoverze
-               (`.data-table__action > :not(.dialog) { visibility: hidden }`),
-               ale miejsce rezerwuje zawsze. Martwy przycisk „Oznacz jako
-               przeczytane" chowamy po atrybucie `disabled` — tam gdzie akcja
-               jest tylko wyszarzana BEZ tego atrybutu, CSS jej nie rozpozna;
-            6) wątek nie ma kotwicy „skocz do najnowszej" ani numeracji
-               wypowiedzi — przy 68 wiadomościach (rozmowa 283536) trzeba
-               przewijać; to wymaga zmiany w blade.
-   ==================================================================== */
+// =====================================================================
+// 33 · WIADOMOŚCI I POWIADOMIENIA — listy, wątek rozmowy, życzenia
+// =====================================================================
+@use '00-tokens' as *;
 
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE — ściana czerwieni w kolumnie tytułu
+// Globalne `a { color: var(--color-blue) }` (u nas --pt-red-fg) barwi każdy
+// tytuł w tabeli; przy 25 wierszach cała kolumna świeci na czerwono.
+// Czerwień zostaje na hoverze, gdzie faktycznie coś znaczy.
+// =====================================================================
+
+main.page__user-notification--index .data-table > tbody > tr > td > a,
+main.page__user-conversation--index .data-table > tbody > tr > td > a,
+main.page__user-wish--index .data-table > tbody > tr > td > a {
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+main.page__user-notification--index .data-table > tbody > tr > td > a:hover,
+main.page__user-conversation--index .data-table > tbody > tr > td > a:hover,
+main.page__user-wish--index .data-table > tbody > tr > td > a:hover {
+    color: var(--pt-red-fg);
+    text-decoration: none;
+}
+
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE / ŻYCZENIA — rytm tabeli jak w /requests
+// Zmierzone przed: padding 7px (tekst na x=48), gdy reszta serwisu ma 12 px
+// w poziomie; wiersz bez hoveru.
+// =====================================================================
+
+main.page__user-notification--index .data-table > thead > tr > th,
+main.page__user-conversation--index .data-table > thead > tr > th,
+main.page__user-wish--index .data-table > thead > tr > th {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-notification--index .data-table > tbody > tr > td,
+main.page__user-conversation--index .data-table > tbody > tr > td,
+main.page__user-wish--index .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+main.page__user-notification--index .data-table > tbody > tr:hover > td,
+main.page__user-conversation--index .data-table > tbody > tr:hover > td,
+main.page__user-wish--index .data-table > tbody > tr:hover > td {
+    background-color: var(--pt-surface-2);
+}
+
+// treść powiadomienia jest tłem informacyjnym, nie tytułem
+main.page__user-notification--index .data-table > tbody > tr > td:nth-child(2) {
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// data zawsze jedną linią i w monospace — inaczej „1 tydzień temu" łamie wiersz
+main.page__user-notification--index .data-table > tbody > tr > td time,
+main.page__user-conversation--index .data-table > tbody > tr > td time,
+main.page__user-transaction--create .data-table > tbody > tr > td time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--pt-fg-3);
+}
+
+// licznik odpowiedzi to liczba, nie zdanie
+main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(4) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// KONWERSACJE — zakładki panelu (defekt silnika)
+// `.panel__tab { background-color: var(--data-table-th-fg) }` bierze KOLOR
+// TEKSTU nagłówka tabeli jako TŁO zakładki: zmierzone rgb(150,150,150) na
+// jasnoszaro, tekst rgb(227,227,227) — pasek był nieczytelny. Do tego
+// `.panel__tab--active` ma zaszyte #b0b0b0/#888, więc aktywna zakładka
+// wyglądała na wygaszoną.
+// =====================================================================
+
+main.page__user-conversation--index .panel__tabs {
+    justify-content: flex-start;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+main.page__user-conversation--index .panel__tab {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+main.page__user-conversation--index .panel__tab:hover {
+    color: var(--pt-fg);
+}
+
+main.page__user-conversation--index .panel__tab--active {
+    color: var(--pt-fg);
+    border-bottom: 2px solid var(--pt-red);
+}
+
+// =====================================================================
+// KONWERSACJE / ŻYCZENIA — pola filtrów nie mogą rozpychać nagłówka panelu
+// Globalnie etykieta pływająca jest statyczna NAD polem (tak chce motyw),
+// ale w pasku nagłówka nie ma na to miejsca: zmierzone `.form__group`
+// urosło do 47 px i podniosło nagłówek z 36 na 55 px. W nagłówku wracamy
+// do zachowania jak w `.compact-search` — etykieta siedzi w polu.
+// =====================================================================
+
+main.page__user-conversation--index .panel__actions .form__group:has(> .form__label--floating),
+main.page__user-wish--index .panel__actions .form__group:has(> .form__label--floating) {
+    display: block;
+    position: relative;
+    gap: 0;
+}
+
+main.page__user-conversation--index .panel__actions .form__label--floating,
+main.page__user-wish--index .panel__actions .form__label--floating {
+    position: absolute;
+    top: 50%;
+    left: 7px;
+    transform: translateY(-50%);
+    order: 0;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+    pointer-events: none;
+}
+
+// pole wypełnione lub aktywne — etykieta wskakuje na krawędź, żeby nie
+// nakładała się na wpisywany tekst
+main.page__user-conversation--index .panel__actions .form__text:focus ~ .form__label--floating,
+main.page__user-conversation--index .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating,
+main.page__user-wish--index .panel__actions .form__text:focus ~ .form__label--floating,
+main.page__user-wish--index .panel__actions .form__text:not(:placeholder-shown) ~ .form__label--floating {
+    top: 0;
+    font-size: 10px;
+    color: var(--pt-red-fg);
+    background-color: var(--pt-surface-2);
+}
+
+main.page__user-conversation--index .panel__header,
+main.page__user-wish--index .panel__header {
+    align-items: center;
+    padding: 4px 8px 4px 0;
+}
+
+main.page__user-conversation--index .panel__actions,
+main.page__user-wish--index .panel__actions {
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+
+main.page__user-conversation--index .panel__action,
+main.page__user-wish--index .panel__action {
+    font-size: 12.5px;
+}
+
+// =====================================================================
+// POWIADOMIENIA / KONWERSACJE / SKLEP — panele boczne i ich przyciski
+// Silnikowe `.panel__body { padding: 20px; font-size: 15px }` rozpycha wąski
+// rail 290 px, a przyciski akcji stały bez odstępu jeden na drugim, z
+// line-height 12.5 px przy dwu- i trzywierszowym napisie (mierzone: 28/40/28
+// px wysokości, 0 px przerwy) — czytało się to jak jedna czerwona plama.
+// =====================================================================
+
+main.page__user-notification--index .panel__body,
+main.page__user-conversation--index .panel__body,
+main.page__user-transaction--create .panel__body {
+    padding: 10px 12px;
+    font-size: 12.5px;
+}
+
+main.page__user-notification--index .panel__body > form + form,
+main.page__user-notification--index .panel__body > form + p,
+main.page__user-notification--index .panel__body > p + form,
+main.page__user-conversation--index .panel__body > form + form,
+main.page__user-conversation--index .panel__body > form + p,
+main.page__user-conversation--index .panel__body > p + form {
+    margin-top: 7px;
+}
+
+main.page__user-notification--index .panel__body .form__button--filled,
+main.page__user-conversation--index .panel__body .form__button--filled {
+    height: auto;
+    min-height: 28px;
+    gap: 7px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal;
+    text-align: center;
+}
+
+// zestaw filtrów powiadomień: gęściej i bez uchwytu do rozciągania
+main.page__user-notification--index .form__fieldset {
+    padding: 6px 8px 8px;
+}
+
+main.page__user-notification--index .form__fieldset-checkbox-container {
+    padding: 4px 8px 8px;
+    resize: none;
+}
+
+main.page__user-notification--index .form__fieldset .form__label {
+    gap: 7px;
+    font-size: 12px;
+    color: var(--pt-fg-2);
+}
+
+// =====================================================================
+// STANY — warianty `.text-*`, których globalna mapa nie obejmuje
+// Zmierzone: `.text-success` na liście filtrów to rgb(0,188,99) — zieleń
+// bootstrapowa, obca palecie PT.
+// =====================================================================
+
+main[class*='page__stats--'] .text-success,
+main.page__request--index .text-success,
+main.page__user-notification--index .text-success,
+main.page__user-conversation--index .text-success,
+main.page__user-wish--index .text-success,
+main.page__user-transaction--create .text-success {
+    color: var(--pt-ok);
+}
+
+main[class*='page__stats--'] .text-danger,
+main.page__request--index .text-danger,
+main.page__user-notification--index .text-danger,
+main.page__user-conversation--index .text-danger,
+main.page__user-wish--index .text-danger,
+main.page__user-transaction--create .text-danger {
+    color: var(--pt-red-fg);
+}
+
+main[class*='page__stats--'] .text-info,
+main.page__request--index .text-info,
+main.page__user-notification--index .text-info,
+main.page__user-conversation--index .text-info,
+main.page__user-wish--index .text-info,
+main.page__user-transaction--create .text-info {
+    color: var(--pt-info);
+}
+
+main[class*='page__stats--'] .text-warning,
+main.page__request--index .text-warning,
+main.page__user-notification--index .text-warning,
+main.page__user-conversation--index .text-warning,
+main.page__user-wish--index .text-warning,
+main.page__user-transaction--create .text-warning {
+    color: var(--pt-warn);
+}
+
+// =====================================================================
+// AKCJE W WIERSZU TABELI — tekstowy przycisk ma czytać się jak etykieta
+// =====================================================================
+
+main.page__user-notification--index .data-table__actions,
+main.page__user-conversation--index .data-table__actions,
+main.page__user-wish--index .data-table__actions {
+    gap: 8px;
+}
+
+main.page__user-notification--index .data-table__actions .form__button--text,
+main.page__user-conversation--index .data-table__actions .form__button--text,
+main.page__user-wish--index .data-table__actions .form__button--text {
+    height: auto;
+    min-height: 22px;
+    padding: 2px 8px;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--pt-fg-3);
+}
+
+main.page__user-notification--index .data-table__actions .form__button--text:hover,
+main.page__user-conversation--index .data-table__actions .form__button--text:hover,
+main.page__user-wish--index .data-table__actions .form__button--text:hover {
+    color: var(--pt-red-fg);
+    border-color: var(--pt-line-ui);
+    background-color: var(--pt-surface-3);
+    filter: none;
+}
+
+// =====================================================================
+// SKLEP BON — ostrzeżenie i saldo w rytmie reszty railu
+// =====================================================================
+
+
+// --- rozmowy i powiadomienia (mierzone na PT) ---
 // ---------------------------------------------------------------------
 // Skrót do walki o specyficzność z regułami „konta"
 // `_pt-konto.scss` opisuje CAŁY dział /users regułami w kształcie

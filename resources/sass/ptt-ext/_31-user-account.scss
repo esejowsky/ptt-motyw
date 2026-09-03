@@ -1,48 +1,8 @@
-/* ==== PROFIL — PODSTRONY KONTA ====
-   Cel:     sprowadzić całą rodzinę podstron użytkownika (uploady, historia,
-            aktywne, bonusy, zakładki, osiągnięcia, ustawienia) do tego samego
-            gęstego, płaskiego rytmu, co przegląd profilu — jedna szerokość
-            kolumny, jeden pasek nagłówka panelu, jeden wiersz danych.
-   Kotwice: main[class^='page__user-'] (bez profilu i sklepu BON — te mają
-            własne partiale), .user-uploads/.user-torrents/.user-peers/
-            .user-resurrections wraz z ich *__filters, .panelV2, .panel__header,
-            .panel__heading, .panel__actions, .panel__action, .panel__body,
-            .key-value, .key-value__group, .data-table (thead/tbody/tfoot),
-            .data-table-wrapper, .achievement, .achievement__badge,
-            .achievement__description, .achievement__progress,
-            .form__fieldset, .form__legend, .form__fieldset-checkbox-container,
-            .form__group, .pagination.
-   Ubytki:  1) Kafli statystyk „PT” (pasek WYSŁANE/POBRANE/RATIO pod hero
-               ze wzorca) na podstronach nie ma — panel „Statystyki” jest
-               listą <dl class="key-value"> na dole strony i CSS nie przeniesie
-               go pod nagłówek ani nie zamieni <dt>/<dd> w kolumny siatki
-               obejmującej całą szerokość bez utraty par etykieta–wartość.
-            2) Rail /achievements ma parę „Odblokowane osiągnięcia: / 4”
-               rozbitą na DWA osobne <div class="key-value__group"> —
-               CSS nie połączy dwóch węzłów w jeden wiersz. Da się tylko
-               zdjąć kreskę między nimi i dosunąć wartość do prawej,
-               żeby czytały się jako całość.
-            3) /users/{nick}/achievements: nazwa odznaki siedzi wyłącznie
-               w atrybutach alt/title <img>, a postęp punktowy w title
-               <article>. Na karcie nie da się pokazać ani nazwy, ani
-               licznika „2 / 600” — zostaje ikona, opis i pasek postępu.
-            4) Kolumna „Postęp” na /active to gotowy tekst („48.20%”),
-               nie liczba w atrybucie — nie da się z niej zrobić paska.
-            5) Ustawienia: „Block order” to lista sortowalna (drag & drop
-               po JS) — zostaje jedną kolumną na całą szerokość, bo siatka
-               rozjeżdża podpowiedzi upuszczania.
-            6) /torrents ma 19 kolumn — po nadaniu nazwie czytelnej podłogi
-               200 px tabela ma 1656 px i przewija się poziomo WEWNĄTRZ
-               panelu. Bez usunięcia kolumn po stronie serwera nie zmieści
-               się w kolumnie 1360 px.
-            7) /bookmarks bez zakładek renderuje samą <thead> i puste <tbody>
-               — w markupie nie ma żadnego komunikatu, a CSS treści nie tworzy.
-               Stan pusty wymaga dopisania wiersza w Blade po stronie serwera.
-   ==================================================================== */
+// =====================================================================
+// 31 · KONTO — uploady, historia, aktywne, ustawienia, osiągnięcia, wiadomości (produkcja PT)
+// =====================================================================
+@use '00-tokens' as *;
 
-// Jeden przedrostek dla całej rodziny podstron. Wyłączone są dwie strony,
-// które mają już własne, dopracowane reguły w innych partialach:
-// profil (_profile.scss) i sklep BON (_misc.scss).
 $konto: 'main[class^="page__user-"]:not(.page__user-profile--show):not(.page__user-transaction--create)';
 
 /* =====================================================================
@@ -708,3 +668,23 @@ main.page__user-earning--index > article > aside > .panelV2:first-child > .panel
     font-size: 15px;
     color: var(--pt-fg);
 }
+
+
+// tabele konta nie wychodzą z kolumny; długie wartości łamią się w komórce
+main[class^='page__user-'] .data-table-wrapper {
+    overflow-x: auto;
+}
+
+main[class^='page__user-'] .data-table td {
+    overflow-wrap: anywhere;
+}
+
+main[class^='page__user-'] .user-torrents__ratio,
+main[class^='page__user-'] td[class*='ratio'] {
+    max-width: 160px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+

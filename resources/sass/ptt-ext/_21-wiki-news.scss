@@ -1,0 +1,218 @@
+// =====================================================================
+// 21 · WIKI, ARTYKUŁY, STRONY STATYCZNE
+// =====================================================================
+@use '00-tokens' as *;
+
+// =====================================================================
+// 07 · WIKI — spis artykułów
+// Ten sam markup co „Strony" (data-table z jedną kolumną linków),
+// więc i ten sam gęsty wiersz. Tło i podświetlenie siedzą na <tr>,
+// żeby nie rozjechały się po komórkach.
+// =====================================================================
+main.page__wiki--index .data-table > tbody > tr {
+    background-color: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+main.page__wiki--index .data-table > tbody > tr:last-child {
+    border-bottom: 0;
+}
+
+main.page__wiki--index .data-table > tbody > tr:hover {
+    background-color: var(--pt-surface-2);
+}
+
+main.page__wiki--index .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    background-color: transparent;
+    border-bottom: 0;
+}
+
+main.page__wiki--index .data-table > tbody > tr > td > a {
+    display: block;
+    color: var(--pt-fg);
+}
+
+main.page__wiki--index .data-table > tbody > tr:hover > td > a {
+    color: var(--pt-red-fg);
+}
+
+// =====================================================================
+// 08 · WIKI — treść artykułu i metryka w railu
+// =====================================================================
+main.page__wiki--show .panel__body.bbcode-rendered {
+    padding: 14px 16px;
+}
+
+main.page__wiki--show .sidebar2 > aside .key-value {
+    padding: 8px 12px;
+}
+
+main.page__wiki--show .sidebar2 > aside .key-value__group {
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 0;
+}
+
+main.page__wiki--show .sidebar2 > aside .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__wiki--show .sidebar2 > aside .key-value dd time {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// 09 · AKTUALNOŚCI — zapowiedź wpisu
+// Silnik robi z zapowiedzi kartę z cieniem, promieniem 5 px i tytułem
+// 22 px. PT jest płaskie: panel jak każdy inny, tytuł/data/miniatura
+// w jednej linii, zajawka drobniejsza, „czytaj dalej" jako mały guzik.
+// =====================================================================
+main.page__article--index .article-preview {
+    padding: 10px 12px 12px;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    background-color: var(--pt-surface);
+    box-shadow: none;
+}
+
+main.page__article--index .article-preview:hover {
+    border-color: var(--pt-line-ui);
+}
+
+main.page__article--index .article-preview__header {
+    margin: 0 0 6px;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: 'title date image';
+    align-items: center;
+    gap: 0 12px;
+}
+
+main.page__article--index .article-preview__title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    min-width: 0;
+}
+
+main.page__article--index .article-preview__link {
+    color: var(--pt-fg);
+}
+
+main.page__article--index .article-preview__link:hover {
+    color: var(--pt-red-fg);
+    text-decoration: none;
+}
+
+main.page__article--index .article-preview__published-date {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// miniatura jest ilustracją, nie bohaterem — znacznik przy dacie
+main.page__article--index .article-preview__image {
+    float: none;
+    width: 34px;
+    height: 34px;
+    max-height: 34px;
+    object-fit: cover;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+}
+
+// zajawka to zachęta, nie treść — dwa wiersze i wielokropek,
+// żeby wszystkie karty na liście miały ten sam rytm
+main.page__article--index .article-preview__content {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--pt-fg-3);
+}
+
+main.page__article--index .article-preview__read-more {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+main.page__article--index .article-preview__read-more:hover {
+    border-color: var(--pt-red-fg);
+    color: var(--pt-red-fg);
+    text-decoration: none;
+}
+
+// =====================================================================
+// 10 · AKTUALNOŚCI — pojedynczy wpis
+// =====================================================================
+main.page__article--show .panel__header > .panel__heading {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--pt-fg);
+    padding: 0;
+}
+
+main.page__article--show .panelV2 > .panel__header {
+    padding: 6px 12px;
+    gap: 12px;
+    align-items: center;
+}
+
+main.page__article--show .panel__actions {
+    padding: 0;
+}
+
+main.page__article--show .panel__action.page__published {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__article--show .panel__body.bbcode-rendered {
+    padding: 14px 16px;
+}
+
+// =====================================================================
+// 11 · WĄSKIE EKRANY
+// Poniżej progu silnika rail ląduje pod treścią — kolumna treści musi
+// wtedy odzyskać pełną szerokość, bo nasz calc() z sekcji 01 zostawiłby
+// 310 px pustego marginesu.
+// =====================================================================
+@media (max-width: 867px) {
+    main.page__forum--index .sidebar2 > div,
+    main.page__forum-topic--index .sidebar2 > div,
+    main.page__topic--index .sidebar2 > div,
+    main.page__topic--show .sidebar2 > div,
+    main.page__wiki--show .sidebar2 > div,
+    main.page__page--show .sidebar2 > div {
+        max-width: 100%;
+    }
+
+    main.page__article--index .article-preview__header {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: 'title image' 'date image';
+        row-gap: 2px;
+    }
+}

@@ -1,0 +1,1125 @@
+// =====================================================================
+// 02 · PRYMITYWY — formularze, przyciski, tabela, paginacja, klucz-wartość,
+//      alerty, znaczniki, użytkownik, zakładki panelu, edytor BBCode.
+//
+// To JEDYNE miejsce z tymi selektorami. Strony nadpisują je wyłącznie
+// przez podmianę tokenów na przodku, nigdy przez powtórzenie reguły.
+// =====================================================================
+@use '00-tokens' as *;
+
+// ---------------------------------------------------------------------
+// Formularz: etykieta 11 px NAD polem, pole 26 px, grupa = 45 px (Design 01)
+// ---------------------------------------------------------------------
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+}
+
+.form--horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 9px 12px;
+}
+
+.form__group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 0;
+    min-width: 0;
+}
+
+.form__group--horizontal,
+.form__group--short-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 9px 12px;
+}
+
+.form__group--horizontal > .form__group,
+.form__group--short-horizontal > .form__group {
+    flex: 1 1 148px;
+}
+
+.form__group--short-horizontal > .form__group {
+    flex: 0 1 220px;
+}
+
+.form__label {
+    order: -1;
+    position: static;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    transform: none;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.45;
+    color: var(--pt-fg-4);
+    background: none;
+    pointer-events: auto;
+    white-space: nowrap;
+    overflow: visible;
+    clip-path: none;
+}
+
+// silnik unosi etykietę transformacją po fokusie — etykieta stoi, więc zerujemy
+.form__text:focus ~ .form__label--floating,
+.form__text:not(:placeholder-shown) ~ .form__label--floating,
+.form__textarea:focus ~ .form__label--floating,
+.form__textarea:not(:placeholder-shown) ~ .form__label--floating,
+.form__select ~ .form__label--floating,
+.form__label--floating,
+.form__label--pinned {
+    position: static;
+    transform: none;
+    top: auto;
+    left: auto;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+    background: none;
+}
+
+.form__group:focus-within > .form__label {
+    color: var(--pt-fg-2);
+}
+
+.form__hint {
+    margin: 0;
+    font-size: 11px;
+    color: var(--pt-fg-4);
+}
+
+.form__text,
+.form__textarea,
+.form__select,
+.form__file,
+.form__group input:not([type='checkbox']):not([type='radio']):not([type='file']) {
+    width: 100%;
+    height: var(--pt-h-26);
+    margin: 0;
+    padding: 0 8px;
+    background-color: var(--pt-surface-2);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+    color: var(--pt-fg);
+    font-family: var(--pt-sans);
+    font-size: 12.5px;
+    line-height: 24px;
+    outline: none;
+    transition: border-color 0.12s ease;
+}
+
+.form__text::placeholder,
+.form__textarea::placeholder {
+    color: var(--pt-fg-4);
+}
+
+.form__text:hover,
+.form__textarea:hover,
+.form__select:hover {
+    border-color: var(--pt-line-ui);
+}
+
+.form__text:focus,
+.form__textarea:focus,
+.form__select:focus,
+.form__select:focus:hover {
+    border-color: var(--pt-red-fg);
+    box-shadow: none;
+}
+
+.form__text[type='number'] {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.form__text:disabled,
+.form__select:disabled,
+.form__textarea:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.form__text:user-invalid,
+.form__textarea:user-invalid,
+.form__group--error .form__text {
+    border-color: var(--pt-red-fg);
+}
+
+.form__textarea {
+    height: auto;
+    min-height: 88px;
+    padding: 6px 8px;
+    line-height: 1.45;
+    resize: vertical;
+}
+
+.form__textarea[name='bdinfo'],
+.form__textarea[name='mediainfo'] {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+}
+
+.form__select {
+    padding-right: 24px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23969696' stroke-width='1.4'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    cursor: pointer;
+}
+
+.form__select option {
+    background-color: var(--pt-surface);
+    color: var(--pt-fg);
+}
+
+.form__select[multiple] {
+    height: auto;
+    padding: 4px;
+    background-image: none;
+}
+
+.form__file {
+    padding: 0;
+    line-height: 24px;
+    cursor: pointer;
+}
+
+.form__file::file-selector-button {
+    height: 24px;
+    margin: 0 8px 0 0;
+    padding: 0 10px;
+    background-color: var(--pt-surface-3);
+    border: 0;
+    border-right: 1px solid var(--pt-border);
+    color: var(--pt-fg-2);
+    font-size: 11.5px;
+    cursor: pointer;
+}
+
+.form__file::file-selector-button:hover {
+    color: var(--pt-fg);
+}
+
+// pola wyboru — natywne, w kolorze akcentu, etykieta obok
+.form__checkbox,
+.form__radio {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: var(--pt-red);
+    vertical-align: -2px;
+    cursor: pointer;
+}
+
+.form__group:has(> .form__checkbox),
+.form__group:has(> .form__radio),
+.form__label:has(> .form__checkbox),
+.form__label:has(> .form__radio) {
+    flex-direction: row;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    letter-spacing: 0;
+    color: var(--pt-fg-2);
+    white-space: normal;
+    overflow: visible;
+}
+
+.form__group:has(> .form__checkbox) > .form__label,
+.form__group:has(> .form__radio) > .form__label {
+    order: 0;
+    font-size: 12.5px;
+    letter-spacing: 0;
+    color: var(--pt-fg-2);
+}
+
+.form__fieldset {
+    margin: 0;
+    padding: 9px 10px 10px;
+    background: transparent;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    min-width: 0;
+}
+
+.form__legend {
+    padding: 0 5px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--pt-fg-4);
+}
+
+.form__fieldset-checkbox-container,
+.form__fieldset-checkbox-container--shrink {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    height: auto;
+    max-height: none;
+    resize: none;
+    overflow: visible;
+}
+
+.form__fieldset:has(> .form__fieldset-checkbox-container--shrink) {
+    height: auto;
+    max-height: none;
+    resize: none;
+    overflow: visible;
+}
+
+// ---------------------------------------------------------------------
+// Przyciski: 26 px, płaskie; wypełniony = czerwień flagi z białym tekstem
+// ---------------------------------------------------------------------
+.form__button,
+button.form__button,
+a.form__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: var(--pt-h-26);
+    margin: 0;
+    padding: 0 12px;
+    background-color: var(--pt-surface-3);
+    border: 1px solid var(--pt-line-ui);
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+    color: var(--pt-fg);
+    font-family: var(--pt-sans);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: none;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.form__button:hover {
+    background-color: var(--pt-surface-2);
+    border-color: var(--pt-fg-4);
+    color: var(--pt-fg);
+    text-decoration: none;
+    filter: none;
+}
+
+.form__button + .form__button {
+    margin-left: 6px;
+}
+
+.form__button--filled {
+    background-color: var(--pt-red);
+    border-color: var(--pt-red);
+    color: #fff;
+    font-weight: 600;
+}
+
+.form__button--filled:hover {
+    background-color: #b91b27;
+    border-color: #b91b27;
+    color: #fff;
+}
+
+.form__button--outlined {
+    background-color: transparent;
+    border-color: var(--pt-border);
+    color: var(--pt-fg-2);
+}
+
+.form__button--outlined:hover {
+    background-color: var(--pt-surface-2);
+    border-color: var(--pt-line-ui);
+}
+
+.form__button--text {
+    background: transparent;
+    border-color: transparent;
+    color: var(--pt-fg-2);
+    padding: 0 6px;
+}
+
+.form__button--text:hover {
+    background-color: var(--pt-surface-2);
+    border-color: transparent;
+    color: var(--pt-fg);
+}
+
+.form__button:disabled,
+.form__button[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+// mały przycisk-ikona (akcje w wierszu, w nagłówku panelu): 22 px
+.form__standard-icon-button,
+.form__contained-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--pt-h-22);
+    height: var(--pt-h-22);
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--pt-radius);
+    box-shadow: none;
+    color: var(--pt-fg-3);
+    font-size: 11.5px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.form__standard-icon-button:hover,
+.form__contained-icon-button:hover {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-border);
+    color: var(--pt-fg);
+}
+
+.form__contained-icon-button--filled {
+    background-color: var(--pt-red);
+    border-color: var(--pt-red);
+    color: #fff;
+}
+
+.form__standard-icon-button--short,
+.form__standard-icon-button--skinny {
+    width: auto;
+    padding: 0 6px;
+}
+
+// ---------------------------------------------------------------------
+// Tabela danych: nagłówek 11 px wersalikami, komórki 6/10/12, linia na TR
+// ---------------------------------------------------------------------
+.data-table-wrapper {
+    overflow-x: auto;
+    border-radius: 0 0 var(--pt-radius) var(--pt-radius);
+}
+
+.data-table {
+    width: 100%;
+    margin: 0;
+    background-color: transparent;
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: var(--pt-fg);
+    font-size: 13px;
+}
+
+.data-table > thead > tr,
+.data-table > tfoot > tr {
+    background-color: transparent;
+}
+
+.data-table > thead > tr > th,
+.data-table > tfoot > tr > th {
+    padding: 6px 10px;
+    background-color: transparent;
+    border: 0;
+    color: var(--pt-fg-3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.45;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.data-table > thead > tr > th:first-child,
+.data-table > tbody > tr > td:first-child {
+    padding-left: 12px;
+}
+
+.data-table > thead > tr {
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.data-table > thead > tr > th a {
+    color: inherit;
+}
+
+.data-table > thead > tr > th a:hover {
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+.data-table > tbody > tr {
+    background-color: transparent;
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.data-table > tbody > tr:last-child {
+    border-bottom: 0;
+}
+
+.data-table > tbody > tr:nth-child(odd),
+.data-table > tbody > tr:nth-child(even) {
+    background-color: transparent;
+}
+
+.data-table > tbody > tr:hover {
+    background-color: var(--pt-surface-2);
+}
+
+.data-table > tbody > tr > td {
+    padding: 6px 10px;
+    background-color: transparent;
+    border: 0;
+    color: var(--pt-fg-2);
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+.data-table > tbody > tr > td a {
+    color: var(--pt-fg);
+}
+
+.data-table > tbody > tr > td a:hover {
+    color: var(--pt-red-fg);
+}
+
+// liczby: zawsze mono, tabelarycznie
+.data-table td[class*='size'],
+.data-table td[class*='seeders'],
+.data-table td[class*='leechers'],
+.data-table td[class*='completed'],
+.data-table td[class*='age'],
+.data-table td[class*='ratio'],
+.data-table td[class*='count'],
+.data-table td[class*='date'],
+.data-table time,
+.data-table td:has(> time:only-child) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+}
+
+.data-table > tfoot > tr > td {
+    padding: 6px 10px;
+    border-top: 1px solid var(--pt-border);
+    color: var(--pt-fg-4);
+    font-size: 12px;
+}
+
+// ---------------------------------------------------------------------
+// Klucz-wartość (profil, strona torrenta, statystyki)
+// ---------------------------------------------------------------------
+.key-value {
+    margin: 0;
+    padding: 0;
+    --key-value-odd-bg: transparent;
+    --key-value-even-bg: transparent;
+}
+
+.key-value__group {
+    display: grid;
+    grid-template-columns: minmax(96px, 34%) minmax(0, 1fr);
+    gap: 0 12px;
+    padding: 5px 0;
+    background: transparent;
+    border-bottom: 1px solid var(--pt-line);
+    font-size: 12.5px;
+}
+
+.key-value__group:last-child {
+    border-bottom: 0;
+}
+
+.key-value__key {
+    margin: 0;
+    color: var(--pt-fg-4);
+    font-size: 12px;
+}
+
+.key-value__value {
+    margin: 0;
+    color: var(--pt-fg);
+    overflow-wrap: anywhere;
+}
+
+.key-value__value:has(> time),
+.key-value__value--mono {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+// ---------------------------------------------------------------------
+// Paginacja: przyciski 24 px, bieżąca strona wypełniona
+// ---------------------------------------------------------------------
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--pt-fg-4);
+}
+
+.pagination__items {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pagination__page-wrapper,
+.pagination__pages {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pagination__pages > li,
+.pagination__previous,
+.pagination__next {
+    list-style: none;
+    margin: 0;
+}
+
+.pagination__link,
+.pagination__current,
+.pagination__ellipsis,
+.pagination__previous > a,
+.pagination__next > a,
+.pagination__previous > span,
+.pagination__next > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--pt-h-24);
+    height: var(--pt-h-24);
+    padding: 0 7px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-3);
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.pagination__link:hover,
+.pagination__previous > a:hover,
+.pagination__next > a:hover {
+    background-color: var(--pt-surface-2);
+    border-color: var(--pt-border);
+    color: var(--pt-fg);
+    text-decoration: none;
+}
+
+.pagination__current {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-line-ui);
+    color: var(--pt-fg);
+    font-weight: 600;
+}
+
+.pagination__ellipsis {
+    color: var(--pt-fg-4);
+    min-width: 0;
+}
+
+.pagination__previous--disabled,
+.pagination__next--disabled {
+    opacity: 0.4;
+}
+
+// silnik dorysowuje strzałki pseudo-elementami — zostawiamy tekstowe
+.pagination__previous::before,
+.pagination__next::after,
+li.pagination__next:not(.pagination__next--disabled):not(:hover)::before,
+li.pagination__previous--disabled::before,
+li.pagination__next--disabled::after {
+    content: none;
+}
+
+// ---------------------------------------------------------------------
+// Alert: jedna linia, ramka, kolor tylko na ikonie/krawędzi
+// ---------------------------------------------------------------------
+// kontener alertów nad nagłówkiem (cookies) — bez własnego tła
+.alerts {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+.cookie-consent.cookie-consent {
+    margin: 0;
+    padding: 0 max(var(--pt-gutter), calc((100% - var(--pt-col)) / 2 + var(--pt-gutter)));
+    min-height: 30px;
+    background-color: var(--pt-surface-2);
+    border: 0;
+    border-bottom: 1px solid var(--pt-line);
+    border-radius: 0;
+    color: var(--pt-fg-3);
+    font-size: 12px;
+}
+
+.cookie-consent .alert__content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+}
+
+.cookie-consent .form__button,
+.cookie-consent button {
+    height: var(--pt-h-22);
+    padding: 0 9px;
+    font-size: 11.5px;
+}
+
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 var(--pt-gap);
+    padding: 7px 12px;
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-left: 3px solid var(--pt-fg-4);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg-2);
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+.alert a {
+    color: var(--pt-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.alert--info {
+    border-left-color: var(--pt-info);
+}
+
+.alert--success {
+    border-left-color: var(--pt-ok);
+}
+
+.alert--warning {
+    border-left-color: var(--pt-warn);
+}
+
+.alert--danger,
+.alert--error {
+    border-left-color: var(--pt-red);
+}
+
+.alert__title,
+.alert strong {
+    color: var(--pt-fg);
+    font-weight: 600;
+}
+
+.alert .form__button {
+    height: var(--pt-h-22);
+    padding: 0 9px;
+    font-size: 11.5px;
+    margin-left: auto;
+}
+
+// ---------------------------------------------------------------------
+// Znaczniki: 10 px, wersaliki, promień 1 px (Design 09)
+// ---------------------------------------------------------------------
+%badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 16px;
+    padding: 0 5px;
+    border: 1px solid var(--pt-border);
+    border-radius: 1px;
+    background-color: transparent;
+    color: var(--pt-fg-3);
+    font-family: var(--pt-sans);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 14px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.badge-extra,
+.badge-user,
+.badge-group,
+.torrent__badge,
+.forum-tag,
+.request__badge,
+.user-badge {
+    @extend %badge;
+}
+
+.badge-extra a,
+.badge-user a {
+    color: inherit;
+}
+
+.badge-extra--freeleech,
+.torrent__badge--freeleech {
+    border-color: var(--pt-fl);
+    color: var(--pt-fl);
+}
+
+.badge-extra--double-upload,
+.torrent__badge--double-upload {
+    border-color: var(--pt-x2);
+    color: var(--pt-x2);
+}
+
+.badge-extra--new,
+.torrent__badge--new {
+    background-color: var(--pt-red);
+    border-color: var(--pt-red);
+    color: #fff;
+}
+
+.badge-extra--internal {
+    font-family: var(--pt-mono);
+    line-height: 16px;
+}
+
+.badge-extra--danger,
+.badge-extra--reported {
+    border-color: var(--pt-red-fg);
+    color: var(--pt-red-fg);
+}
+
+// ---------------------------------------------------------------------
+// Użytkownik: nick + awatar w rytmie 12,5 px; kolory grup zostają
+// ---------------------------------------------------------------------
+.user-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    vertical-align: middle;
+}
+
+.user-tag__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.user-tag__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.user-tag__image {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--pt-radius);
+    object-fit: cover;
+}
+
+.user-tag__image--large {
+    width: 36px;
+    height: 36px;
+}
+
+// ---------------------------------------------------------------------
+// Zakładki panelu (upload, ustawienia, wiadomości)
+// ---------------------------------------------------------------------
+.panel__tabs,
+.nav-tabsV2--panel {
+    display: flex;
+    gap: 2px;
+    margin: 0;
+    padding: 0 8px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    list-style: none;
+}
+
+.panel__tab {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 10px;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: var(--pt-fg-3);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.panel__tab:hover {
+    color: var(--pt-fg);
+    background: transparent;
+}
+
+.panel__tab--active {
+    border-bottom-color: var(--pt-red);
+    color: var(--pt-fg);
+    background: transparent;
+}
+
+// ---------------------------------------------------------------------
+// Edytor BBCode: zakładki Write/Podgląd jako radio-tabs, pasek ikon 24 px
+// ---------------------------------------------------------------------
+.bbcode-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    background-color: var(--pt-surface-2);
+    overflow: hidden;
+}
+
+.bbcode-input__tabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 4px 6px 0;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+.bbcode-input__tab-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.bbcode-input__tab-label {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    margin: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--pt-fg-3);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.bbcode-input__tab-label:hover {
+    color: var(--pt-fg);
+}
+
+.bbcode-input__tab-input:checked + .bbcode-input__tab-label {
+    border-bottom-color: var(--pt-red);
+    color: var(--pt-fg);
+}
+
+.bbcode-input__tab-input:focus-visible + .bbcode-input__tab-label {
+    outline: 2px solid var(--pt-red-fg);
+    outline-offset: -2px;
+}
+
+.bbcode-input__icon-bar-toggle {
+    margin: 0;
+    padding: 3px 6px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-line);
+}
+
+.bbcode-input__icon-bar-toggle .form__button {
+    height: var(--pt-h-22);
+    padding: 0 8px;
+    font-size: 11.5px;
+    font-weight: 500;
+}
+
+.bbcode-input__icon-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 4px 6px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-line);
+    list-style: none;
+}
+
+.bbcode-input__icon-bar > li {
+    margin: 0;
+    list-style: none;
+}
+
+.bbcode-input__icon-bar .form__standard-icon-button {
+    width: 24px;
+    height: 24px;
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+}
+
+.bbcode-input__icon-bar .form__standard-icon-button:hover {
+    background-color: var(--pt-surface-3);
+    border-color: var(--pt-border);
+    color: var(--pt-fg);
+}
+
+.bbcode-input__icon-separator {
+    width: 1px;
+    height: 16px;
+    margin: 0 4px;
+    background-color: var(--pt-border);
+}
+
+.bbcode-input__tab-pane {
+    padding: 0;
+}
+
+.bbcode-input__input,
+.bbcode-input .form__textarea {
+    min-height: 160px;
+    border: 0;
+    border-radius: 0;
+    background-color: var(--pt-surface-2);
+    font-family: var(--pt-mono);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.bbcode-input .form__group {
+    gap: 0;
+}
+
+.bbcode-input .form__label {
+    padding: 4px 8px 0;
+}
+
+.bbcode-input__preview {
+    min-height: 160px;
+    padding: 10px 12px;
+    color: var(--pt-fg-2);
+}
+
+// ---------------------------------------------------------------------
+// Okna dialogowe i podpowiedzi — jedyne elementy „nad" stroną
+// ---------------------------------------------------------------------
+.dialog,
+dialog {
+    background-color: var(--pt-surface);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    box-shadow: 0 8px 28px rgb(0 0 0 / 55%);
+    color: var(--pt-fg);
+}
+
+.dialog__header {
+    padding: 7px 12px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pt-fg-3);
+}
+
+.dialog__body,
+.dialog__form {
+    padding: 12px;
+}
+
+[data-tooltip]::after,
+.tooltip {
+    background-color: var(--pt-surface-3);
+    border: 1px solid var(--pt-border);
+    border-radius: var(--pt-radius);
+    color: var(--pt-fg);
+    font-size: 11.5px;
+}
+
+// ---------------------------------------------------------------------
+// Wyszukiwarka kompaktowa (nad listami): pole + przycisk w jednej linii
+// ---------------------------------------------------------------------
+.compact-search {
+    display: block;
+    height: auto;
+    margin: 0 0 var(--pt-gap);
+    padding: 0;
+    overflow: visible;
+}
+
+.compact-search__visible-default {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    height: auto;
+    overflow: visible;
+}
+
+.compact-search__visible-default > .form__group {
+    flex: 1 1 auto;
+}
+
+.compact-search__visible-default > .form__standard-icon-button,
+.compact-search__visible-default .form__group > .form__standard-icon-button {
+    height: var(--pt-h-26);
+    width: var(--pt-h-26);
+    flex: 0 0 auto;
+}
+
+.compact-search__expanded,
+.compact-search__hidden {
+    padding-top: 10px;
+}
+
+// ---------------------------------------------------------------------
+// Pasek stanu / pusty stan / spinner
+// ---------------------------------------------------------------------
+.empty-state,
+.panel__body > p:only-child:empty {
+    padding: 18px 12px;
+    color: var(--pt-fg-4);
+    font-size: 12.5px;
+    text-align: center;
+}
+
+.progress-bar,
+.progress__bar {
+    height: 6px;
+    background-color: var(--pt-surface-3);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.progress-bar__fill,
+.progress__fill {
+    height: 100%;
+    background-color: var(--pt-red);
+}

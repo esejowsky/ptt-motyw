@@ -1,0 +1,265 @@
+// =====================================================================
+// 40 · REQ — filtry, tabela, stany prośby, strona prośby
+// =====================================================================
+@use '00-tokens' as *;
+
+// =====================================================================
+// 01 · REQ — filtry (compact-search)
+// =====================================================================
+
+// Silnik rozpycha wyszukiwarkę poza kolumnę treści ujemnymi marginesami
+// liczonymi z vw — w PT wszystko ma siedzieć w tej samej kolumnie co nawigacja.
+.page__requests.request-search__component,
+.request-search__filters {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.page__requests.request-search__component {
+    row-gap: 12px;
+}
+
+.compact-search.request-search__filters {
+    border: 1px solid var(--pt-border);
+    padding: 10px 12px;
+}
+
+// pole szukania + przycisk filtrów w jednym rzędzie, bez rozstrzelenia
+.request-search__filters .compact-search__visible-default {
+    gap: 8px;
+    align-items: center;
+}
+
+.request-search__filters .form__text {
+    font-size: 12.5px;
+}
+
+// fieldsety filtrów: cieńsze ramki, niższe listy checkboxów
+.request-search__filters .form__fieldset {
+    padding: 6px 10px 10px;
+    font-size: 12.5px;
+}
+
+.request-search__filters .form__fieldset-checkbox-container {
+    height: 118px;
+    margin: -6px -10px -10px;
+    padding: 6px 10px 10px;
+}
+
+.request-search__filters .form__legend {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.request-search__filters .form__label {
+    font-size: 12px;
+}
+
+.request-search__filters .form__group--short-horizontal,
+.request-search__filters .form__group--horizontal {
+    gap: 10px;
+}
+
+// =====================================================================
+// 02 · REQ — tabela wyników
+// =====================================================================
+
+.page__requests .panel__body,
+.page__requests .data-table-wrapper {
+    background-color: var(--pt-surface);
+}
+
+.page__requests .data-table > thead > tr > th {
+    padding: 6px 12px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__requests .data-table > tbody > tr > td {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    vertical-align: middle;
+}
+
+// tytuł prośby to jedyna kolumna, która ma się rozciągać — reszta zostaje
+// wąska (nowrap niżej), więc wolna szerokość ląduje na nazwie
+.page__requests .data-table > tbody > tr > td:first-child {
+    width: 100%;
+    line-height: 1.4;
+}
+
+.page__requests .data-table > tbody > tr > td:first-child > a {
+    color: var(--pt-fg);
+    font-weight: 600;
+}
+
+.page__requests .data-table > tbody > tr:hover > td:first-child > a {
+    color: var(--pt-red-fg);
+}
+
+// kategoria / typ / rozdzielczość — meta drugiego planu
+.page__requests .data-table > tbody > tr > td:nth-child(2),
+.page__requests .data-table > tbody > tr > td:nth-child(3),
+.page__requests .data-table > tbody > tr > td:nth-child(4) {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__requests .data-table .user-tag__link {
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+// głosy, komentarze, bounty — wszystkie liczby mono i wyrównane do prawej
+.page__requests .data-table > thead > tr > th:nth-child(6),
+.page__requests .data-table > thead > tr > th:nth-child(7),
+.page__requests .data-table > thead > tr > th:nth-child(8),
+.page__requests .data-table > tbody > tr > td:nth-child(6),
+.page__requests .data-table > tbody > tr > td:nth-child(7),
+.page__requests .data-table > tbody > tr > td:nth-child(8) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.page__requests .data-table > tbody > tr > td:nth-child(6),
+.page__requests .data-table > tbody > tr > td:nth-child(7),
+.page__requests .data-table > tbody > tr > td:nth-child(8) {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+}
+
+.page__requests .data-table > tbody > tr > td:nth-child(8) {
+    color: var(--pt-warn);
+}
+
+.page__requests .data-table > tbody > tr > td:nth-child(9) time {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+.page__requests .data-table > tbody > tr > td:last-child {
+    font-size: 11.5px;
+    color: var(--pt-fg-3);
+    white-space: nowrap;
+}
+
+// panel statystyk pod listą — wartości mono
+.page__requests .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.page__requests .key-value dd {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12.5px;
+    color: var(--pt-fg);
+}
+
+// =====================================================================
+// 03 · REQ — stany prośby i strona pojedynczej prośby
+// =====================================================================
+
+// Stan to <i class="fas fa-circle text-*"> + tekst. Domyślna kropka jest
+// wielkości litery i krzyczy — w PT ma być znacznikiem, nie plamą.
+.page__requests .fa-circle,
+main.page__request--show .fa-circle {
+    font-size: 6px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+// zajęte = w toku (bursztyn), oczekuje = fiolet, niezrealizowane = czerwień,
+// zrealizowane = zieleń — mapowanie stanów na semantykę PT
+.page__requests .fa-circle.text-blue,
+main.page__request--show .fa-circle.text-blue {
+    color: var(--pt-warn);
+}
+
+.page__requests .fa-circle.text-purple,
+main.page__request--show .fa-circle.text-purple {
+    color: var(--pt-x2);
+}
+
+.page__requests .fa-circle.text-red,
+main.page__request--show .fa-circle.text-red {
+    color: var(--pt-red-fg);
+}
+
+.page__requests .fa-circle.text-green,
+main.page__request--show .fa-circle.text-green {
+    color: var(--pt-ok);
+}
+
+// pasek tagów prośby: do lewej, drobnym pismem, jak overline
+main.page__request--show .request__tags {
+    justify-content: flex-start;
+    font-size: 11.5px;
+    padding: 6px 0;
+}
+
+main.page__request--show .request__tags > li > span,
+main.page__request--show .request__tags > li > time {
+    padding: 2px 8px;
+    color: var(--pt-fg-3);
+}
+
+main.page__request--show .request__tags li:not(:last-child)::after {
+    color: var(--pt-line-ui);
+    margin-left: 0;
+}
+
+main.page__request--show .request__created-at time {
+    font-family: var(--pt-mono);
+    color: var(--pt-fg-4);
+}
+
+// Silnik daje <menu class="torrent__buttons form__group--short-horizontal">,
+// więc przyciski wchodzą w siatkę auto-fit i rozjeżdżają się na całą szerokość.
+main.page__request--show menu.torrent__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+main.page__request--show menu.torrent__buttons .form__button {
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: var(--pt-radius);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+main.page__request--show .key-value dt {
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+main.page__request--show .key-value dd {
+    font-size: 12.5px;
+}
+
+main.page__request--show .key-value dd time {
+    font-family: var(--pt-mono);
+    color: var(--pt-fg-3);
+}
+
+// =====================================================================
+// 04 · SKLEP BON (users.transactions.create)
+// =====================================================================

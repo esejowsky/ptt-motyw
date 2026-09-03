@@ -3,27 +3,26 @@
 //
 // Wkleja się jako adres w polu „External CSS" w ustawieniach konta.
 // Nie wymaga żadnych plików na serwerze, więc przeżywa aktualizacje silnika.
-//
-// Wygląd dopięty pod motyw bazowy Galactic (tego używa PT).
-// Nie wypełniaj pola „Standalone CSS" — wtedy ten arkusz się nie załaduje.
+// Jedna warstwa: każdy selektor żyje w dokładnie jednym pliku.
 // =====================================================================
 
-@use 'tokens';
-@use 'base';
-@use 'brand';
-@use 'nav';
-@use 'torrents';
-@use 'torrent';
-@use 'forum';
-@use 'stats';
-@use 'profile';
-@use 'forms';
-@use 'misc';
-
-// --- korekty z produkcji (PolishTorrent) ---
-@use 'pt-chrom';
-@use 'pt-listy';
-@use 'pt-torrent';
-@use 'pt-konto';
-@use 'pt-spolecznosc';
-@use 'pt-reszta';
+@use '00-tokens' as *;
+@use '01-reset' as *;
+@use '02-primitives' as *;
+@use '02b-bbcode' as *;
+@use '03-chrome' as *;
+@use '10-torrents-list' as *;
+@use '11-torrent-show' as *;
+@use '12-upload' as *;
+@use '44-home' as *;
+@use '20-forum' as *;
+@use '21-wiki-news' as *;
+@use '30-user-profile' as *;
+@use '31-user-account' as *;
+@use '32-user-economy' as *;
+@use '33-user-inbox' as *;
+@use '40-requests' as *;
+@use '41-stats' as *;
+@use '42-helpdesk' as *;
+@use '43-community' as *;
+@use '45-misc' as *;

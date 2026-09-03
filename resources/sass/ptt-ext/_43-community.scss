@@ -1,52 +1,194 @@
-/* ==== KOLEKCJE · ANKIETY · ZAKŁADKI ====
-   Cel:     sprowadzić karty kolekcji, ankiety i tabelę zakładek do rytmu PT —
-            płaskie kafle 3 px bez cieni, jedna wysokość karty w rzędzie,
-            paski wyników w barwie akcentu i pasek filtrów, który nie rośnie.
-   Kotwice: main.page__playlist--index, main.page__playlist--show,
-            main.page__poll--index, main.page__poll--show, main.page__poll--result,
-            main.page__user-bookmark--index, .panel__body.playlists,
-            .playlists__playlist wraz z -image-link(--none)/-image(--none)/
-            -author/-link/-name/-link-titles/-titles, .playlist__backdrop,
-            .playlist__backdrop-filter, .playlist__author-link/-avatar/-author,
-            .playlist__description, .playlist__torrents, .playlist__torrent-container,
-            .data-table (thead/tbody/tr/td), .form__meter, .form__radio,
-            .form__checkbox, .form__label, .form__group, .panel__header,
-            .panel__action, .form__label--floating, .form__text, .form__select,
-            .user-bookmarks, .user-bookmarks__name/-size/-seeders/-leechers/
-            -times-completed/-actions, .torrent__seeder-count/-leecher-count.
-   Ubytki:  1) /polls to sama lista tytułów — markup nie niesie ani liczby
-               głosów, ani daty zamknięcia, ani informacji „już głosowałeś”.
-               Kolumny stanu nie da się dorobić CSS-em; wejście w ankietę,
-               w której już się głosowało, silnik przekierowuje na /votes.
-            2) Na stronie wyników nazwa opcji i procent siedzą w JEDNYM węźle
-               tekstowym <label> („Opcja (30.85%)”) — nie da się wypchnąć
-               procentu na prawo ani podać go monospace’em. Sam <meter> nie
-               ma widocznej wartości liczbowej, tylko długość paska.
-            3) Ankieta jednokrotnego wyboru używa layoutu z bocznym railem,
-               ale nie wypełnia go (rail dostaje treść tylko przy multiple
-               choice). Zmierzone: pusty <aside> 290 px, a kolumna treści ma
-               sztywne width: 1060px — schowanie raila NIE poszerza kolumny,
-               więc 300 px strony zostaje puste. Wymaga zmiany layoutu w Blade.
-            4) /users/{nick}/bookmarks bez zakładek renderuje samą <thead>
-               i puste <tbody>, bez żadnego komunikatu. CSS potrafi tylko
-               schować osierocony nagłówek — tekstu „brak zakładek” nie stworzy.
-            5) Karta kolekcji nie ma w markupie ani opisu, ani daty, ani
-               kategorii — zostaje okładka, nazwa, licznik tytułów i autor.
-               Okładka jest surowym uploadem o dowolnych proporcjach, więc
-               jedynym sposobem na równy rząd jest kadrowanie do 16:9.
-            6) /playlists/{id}: gdy pierwszy tytuł kolekcji nie ma backdropu
-               z TMDB, silnik wstawia adres https://via.placeholder.com/1280x350
-               (domena martwa) i tło nie wczytuje się wcale. CSS może podłożyć
-               pod spód neutralny kolor, ale nie podmieni adresu obrazka.
-            7) Kafle osiągnięć są już domknięte w _pt-konto.scss (sekcja 7)
-               — tu ich nie ruszamy, żeby nie dublować reguł. Tam też opisano,
-               że nazwa odznaki i licznik „2 / 600” żyją wyłącznie w atrybutach
-               alt/title, więc na kafelku ich nie widać.
-            8) Lista życzeń na koncie testowym była pusta („No wishes”), a jej
-               tabelę obsługują już reguły .data-table z _pt-konto.scss —
-               własnych reguł nie dokładamy.
-   ==================================================================== */
+// =====================================================================
+// 43 · SPOŁECZNOŚĆ — komentarze, playlisty, ankiety, zakładki, kolekcje
+// =====================================================================
+@use '00-tokens' as *;
 
+// =====================================================================
+// 07 · KOMENTARZE (livewire:comments, blok „ostatnie komentarze")
+// =====================================================================
+
+#comments > .panel__body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--pt-surface);
+}
+
+// formularz nowego komentarza pod listą — najpierw treść, potem pisanie
+#comments .comment-list {
+    order: 1;
+    row-gap: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#comments .new-comment {
+    order: 2;
+    padding: 10px 14px;
+    border-top: 1px solid var(--pt-line);
+}
+
+#comments .comment-list > li:not(.comment__list-item) {
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--pt-fg-4);
+    list-style-type: none;
+}
+
+.comment__list-item {
+    list-style-type: none;
+    margin: 0;
+}
+
+// Domyślnie komentarz to karta z kolumną autora na 153px. W PT autor,
+// czas i akcje siedzą w jednym pasku nad treścią — treść bierze pełną szerokość.
+.comment {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    grid-template-areas:
+        'aside header'
+        'content content';
+    border-radius: 0;
+    box-shadow: none;
+    background-color: var(--pt-surface);
+    border-bottom: 1px solid var(--pt-line);
+    overflow: visible;
+}
+
+.comment:hover {
+    background-color: var(--pt-surface-2);
+}
+
+.comment__aside {
+    flex-direction: row;
+    align-items: center;
+    column-gap: 8px;
+    padding: 7px 12px 3px;
+    background-color: transparent;
+    min-width: 0;
+}
+
+// figure niesie inline text-align, a <img> inline width:50% — stąd !important
+.comment__figure {
+    margin: 0;
+    flex: 0 0 auto;
+    line-height: 0;
+    text-align: left !important;
+}
+
+.comment__avatar {
+    width: 26px !important;
+    height: 26px;
+    object-fit: cover;
+    border: 1px solid var(--pt-border);
+    border-radius: 2px;
+}
+
+// nick: rozmiar i waga nasze, koloru nie ruszamy — niesie go inline styl grupy
+.comment__author {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    justify-content: flex-start;
+}
+
+.comment__author .user-tag__link {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.comment__author-title {
+    margin: 0;
+    font-size: 10.5px;
+    color: var(--pt-fg-4);
+    text-align: left;
+}
+
+.comment__header {
+    padding: 7px 12px 3px 0;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    background-color: transparent;
+}
+
+.comment__datetime {
+    font-family: var(--pt-mono);
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+    white-space: nowrap;
+}
+
+// wariant z bloku „ostatnie komentarze" — dopisek „On <torrent>"
+.comment__topic {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.comment__toolbar {
+    background-color: transparent;
+    border-bottom-left-radius: 0;
+    font-size: 11.5px;
+    color: var(--pt-fg-4);
+}
+
+.comment__reply,
+.comment__edit,
+.comment__delete-button {
+    min-width: 0;
+    height: auto;
+    padding: 2px 7px;
+    border-radius: var(--pt-radius);
+    font-size: 11.5px;
+}
+
+.comment__reply:hover,
+.comment__edit:hover,
+.comment__delete-button:hover {
+    background-color: var(--pt-surface-3);
+    color: var(--pt-fg);
+}
+
+.comment__delete-button:hover {
+    color: var(--pt-red-fg);
+}
+
+.comment__content {
+    padding: 0 12px 9px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--pt-fg-2);
+}
+
+.comment__content img {
+    max-width: 320px;
+    max-height: 320px;
+}
+
+// odpowiedzi: zamiast wcięcia na 155px cienka linia rodowodu
+.comment__reply-list {
+    margin: 0 0 0 24px;
+    padding: 0;
+    row-gap: 0;
+    border-left: 1px solid var(--pt-line);
+}
+
+.reply-comment,
+.edit-comment {
+    margin: 0;
+    padding: 10px 14px 10px 24px;
+}
+
+// =====================================================================
+// 08 · EDYTOR BBCODE — pasek narzędzi i podgląd
+// =====================================================================
+
+
+// --- playlisty / ankiety / zakładki (mierzone na PT) ---
 /* =====================================================================
    1 · KOLEKCJE — SIATKA KART
    Po co: silnik daje siatce grid-gap: 2rem i kolumny minmax(220px, 1fr),
