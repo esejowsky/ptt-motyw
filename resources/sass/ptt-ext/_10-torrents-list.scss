@@ -1654,43 +1654,6 @@ main.page__torrent-pending--index .torrent--rejected {
     font-size: 11.5px !important;
 }
 
-// ocena: neutralna — procent fg-2, opis fg-4, gwiazdka wyciszona
-.torrent-search--list__rating span,
-.torrent-search--list__rating div {
-    color: var(--pt-fg-2) !important;
-    font-weight: 500 !important;
-    text-shadow: none !important;
-}
-
-.torrent-search--list__rating svg {
-    width: 10px !important;
-    height: 10px !important;
-    opacity: 0.5;
-}
-
-.torrent-search--list__rating svg,
-.torrent-search--list__rating svg * {
-    fill: var(--pt-fg-4) !important;
-    color: var(--pt-fg-4) !important;
-}
-
-.torrent-search--list__rating .ptt-mega-super,
-.torrent-search--list__rating span + span,
-.torrent-search--list__rating div > span:last-child:not(:only-child) {
-    color: var(--pt-fg-4) !important;
-    font-weight: 400 !important;
-    font-size: 10px !important;
-}
-
-// druga linia: inline kolory staffu (#5b7ba3, #a0825a…) → neutralne; grupa uploadera zostaje
-.torrent-search--list__overview > div > div:last-child [style*='color'] {
-    color: var(--pt-fg-4) !important;
-}
-
-.torrent-search--list__overview > div > div:last-child .user-tag__link {
-    color: var(--pt-fg-3) !important;
-}
-
 // ikony liczb w komórkach: wyciszone, bez kolorów staffu
 .torrent-search--list__size svg,
 .torrent-search--list__seeders svg,
@@ -1723,190 +1686,15 @@ main.page__torrent-pending--index .torrent--rejected {
     gap: 0 !important;
 }
 
-.torrent-search--list__size svg,
-.torrent-search--list__seeders svg,
-.torrent-search--list__leechers svg,
-.torrent-search--list__completed svg,
-.torrent-search--list__age svg,
-.torrent-search--list__rating svg {
-    display: none !important;
-}
 
 .torrent-search--list__row > .torrent-search--list__rating > div {
     align-items: flex-end !important;
-}
-
-// ocena: sama wartość procentowa; słowny opis staffu (Mega Super / Dobry / Brak oceny) znika
-.torrent-search--list__rating .ptt-mega-super,
-.torrent-search--list__rating > div > span:last-child:not(:only-child),
-.torrent-search--list__rating > div > div + span {
-    display: none !important;
-}
-
-.torrent-search--list__row > .torrent-search--list__rating {
-    padding: 6px 10px !important;
-}
-
-// format: sama rozdzielczość mono, bez chipa i ikony kategorii (kategoria jest w drugiej linii)
-.torrent-search--list__format > div > div {
-    border: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    color: var(--pt-fg-3) !important;
-    text-transform: lowercase;
-}
-
-.torrent-search--list__format img {
-    display: none !important;
-}
-
-// „PTTrG" w nazwie i gwiazdki wyróżnienia: bez własnego koloru
-.ptt-pttrg-badge {
-    color: var(--pt-fg-2) !important;
-    font-weight: 500 !important;
-}
-
-.torrent-search--list__name img[src*='star'],
-.torrent-search--list__name > img {
-    height: 12px !important;
-    width: auto !important;
-    vertical-align: -1px;
-    opacity: 0.8;
 }
 
 // druga linia: łagodne wygaszenie na prawej krawędzi zamiast ucięcia w pół słowa
 .torrent-search--list__overview > div > div:last-child {
     -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
     mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
-}
-
-// słowny opis oceny zagnieżdżony poziom głębiej (Dobry / Przeciętny / Brak oceny)
-.torrent-search--list__rating > div > div > span,
-.torrent-search--list__rating > div > div > div + span {
-    display: none !important;
-}
-
-.torrent-search--list__rating > div > div > div > span {
-    display: inline !important;
-}
-
-
-// =====================================================================
-// DESIGN 01 — kolory zmierzone z renderu mockupu (próbkowanie pikseli)
-// tytuł #e3e3e3 · linia 2 #969696 · uploader #34b5e9 · format/liczby #b5b5b5
-// S #6ecf8b · L #e8b45c · ukończenia #34b5e9 · ikony akcji #969696 · th #969696
-// badge: tekst w kolorze + tło tego koloru ~14 %, bez ramki
-// Kolumna plakatu zostaje (decyzja Konrada: „była fajna").
-// =====================================================================
-.torrent-search--list__headers > th,
-.torrent-search--list__no-poster-headers > th {
-    color: var(--pt-fg-4);
-}
-
-.torrent-search--list__overview {
-    padding-left: 12px !important;
-}
-
-.torrent-search--list__overview > div > div:last-child,
-.torrent-search--list__overview > div > div:last-child > div,
-.torrent-search--list__overview > div > div:last-child [style*='color'],
-.torrent-search--list__uploader {
-    color: var(--pt-fg-4) !important;
-}
-
-.torrent-search--list__overview > div > div:last-child .user-tag__link,
-.torrent-search--list__uploader .user-tag__link {
-    color: var(--pt-info) !important;
-    font-weight: 500 !important;
-}
-
-.torrent-search--list__resolution,
-.torrent-search--list__format > div > div {
-    color: var(--pt-fg-2) !important;
-}
-
-.torrent-search--list__type {
-    color: var(--pt-fg-4);
-}
-
-.torrent-search--list__rating,
-.torrent-search--list__rating > span,
-.torrent-search--list__rating span,
-.torrent-search--list__rating div,
-.torrent-search--list__size,
-.torrent-search--list__size span,
-.torrent-search--list__age,
-.torrent-search--list__age span {
-    color: var(--pt-fg-2) !important;
-}
-
-.torrent-search--list__completed,
-.torrent-search--list__completed span,
-.torrent-search--list__completed a {
-    color: var(--pt-info) !important;
-}
-
-.torrent-search--list__buttons .form__standard-icon-button {
-    color: var(--pt-fg-4);
-}
-
-// badge: kolor tekstu + tło w tym kolorze, bez ramki (jak w mockupie)
-.torrent-icons > i,
-.torrent-icons > a > i,
-.torrent-icons > span > i,
-.ptt-label-klasyk,
-.ptt-label-nowos,
-.ptt-badge-new,
-.ptt-badge-hit,
-.ptt-badge-rec,
-.ptt-badge-seed,
-.ptt-badge-vip {
-    border-color: transparent !important;
-    background-color: color-mix(in srgb, currentColor 14%, transparent) !important;
-    color: var(--pt-fg-3);
-}
-
-.torrent-icons__freeleech { color: var(--pt-fl) !important; }
-.torrent-icons__double-upload { color: var(--pt-x2) !important; }
-.torrent-icons__internal { color: var(--pt-info) !important; }
-.torrent-icons__personal-release { color: var(--pt-ok) !important; }
-.torrent-icons__sticky { color: var(--pt-accent) !important; }
-.torrent-icons__featured,
-.torrent-icons__bumped { color: var(--pt-warn) !important; }
-.torrent-icons__refundable { color: var(--pt-warn) !important; }
-.torrent-icons__comments { color: var(--pt-fg-4) !important; background: transparent !important; }
-.ptt-label-nowos, .ptt-badge-new { color: var(--pt-accent) !important; }
-.ptt-label-klasyk { color: var(--pt-warn) !important; }
-.ptt-badge-hit, .ptt-badge-rec { color: var(--pt-fl) !important; }
-.ptt-badge-seed { color: var(--pt-ok) !important; }
-.ptt-badge-vip { color: var(--pt-x2) !important; }
-
-// przypięte: tylko badge PIN, bez tła i paska (jak w mockupie)
-.torrent-search--list__sticky-row {
-    background-color: transparent;
-    box-shadow: none;
-}
-
-.torrent-search--list__sticky-row:hover {
-    background-color: var(--pt-surface-2);
-}
-
-.torrent-search--list__row:has(.torrent-icons__double-upload),
-.torrent-search--list__row:has(.torrent-icons__freeleech):not(.torrent-search--list__sticky-row),
-.torrent-search--list__sticky-row:has(.torrent-icons__freeleech) {
-    box-shadow: none;
-}
-
-@media (max-width: $bp-m) {
-    .torrent-search--list__row,
-    .torrent-search--list__no-poster-row {
-        grid-template-columns: minmax(0, 1fr) $col-size $col-num $col-num 80px;
-        grid-template-areas:
-            'overview overview overview overview buttons'
-            'format size seeders leechers buttons';
-    }
 }
 
 // „Wkrótce na trackerze" (markup staffu, czerwień #e74c3c inline) → panel i chipy w palecie
@@ -2041,4 +1829,152 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
     background-color: var(--pt-surface) !important;
     border: 1px solid var(--pt-border) !important;
     border-radius: var(--pt-radius) !important;
+}
+
+// =====================================================================
+// KOLORY LISTY — przywrócone (Konrad: wersja z pierwszego dostrojenia na
+// produkcji „wyglądała lepiej kolorystycznie"): znaczniki z kolorową ramką
+// i tłem, ocena w kolorze, druga linia z kolorami staffu i grup, przypięte
+// z paskiem akcentu, chip formatu z ikoną kategorii. Liczby do prawej zostają.
+// =====================================================================
+.torrent-icons > i,
+.torrent-icons > a > i,
+.torrent-icons > span > i,
+.ptt-label-klasyk,
+.ptt-label-nowos,
+.ptt-badge-new,
+.ptt-badge-hit,
+.ptt-badge-rec,
+.ptt-badge-seed,
+.ptt-badge-vip,
+.fl-star-badge {
+    border: 1px solid currentColor !important;
+    background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+}
+
+.torrent-icons__freeleech { color: var(--pt-fl) !important; }
+.torrent-icons__double-upload { color: var(--pt-x2) !important; }
+.torrent-icons__internal { color: var(--pt-warn) !important; }
+.torrent-icons__personal-release { color: var(--pt-info) !important; }
+.torrent-icons__sticky { color: var(--pt-accent) !important; }
+.torrent-icons__featured,
+.torrent-icons__bumped,
+.torrent-icons__refundable { color: var(--pt-warn) !important; }
+.torrent-icons__highspeed { color: var(--pt-accent) !important; }
+.torrent-icons__comments { color: var(--pt-fg-3) !important; border-color: var(--pt-border) !important; background: transparent !important; }
+.ptt-label-nowos, .ptt-badge-new { color: var(--pt-accent) !important; }
+.ptt-label-klasyk { color: var(--pt-warn) !important; }
+.ptt-badge-hit, .ptt-badge-rec { color: var(--pt-fl) !important; }
+.ptt-badge-seed { color: var(--pt-ok) !important; }
+.ptt-badge-vip { color: var(--pt-x2) !important; }
+
+// „PTTrG" w nazwie: akcent (bez neonu)
+.ptt-pttrg-badge {
+    color: var(--pt-accent) !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+    animation: none !important;
+}
+
+// przypięte: pasek akcentu i lekki podkład
+.torrent-search--list__sticky-row {
+    background-color: var(--pt-red-a12) !important;
+    box-shadow: inset 2px 0 0 var(--pt-accent);
+}
+
+.torrent-search--list__sticky-row:hover {
+    background-color: var(--pt-red-a18) !important;
+}
+
+// ocena: procent w kolorze staffu (zielony/bursztyn/czerwień → tokeny), opis widoczny, mały
+.torrent-search--list__rating span,
+.torrent-search--list__rating div {
+    color: var(--pt-ok) !important;
+    font-weight: 600 !important;
+}
+
+.torrent-search--list__rating [style*='#e67e22'],
+.torrent-search--list__rating [style*='#f39c12'],
+.torrent-search--list__rating [style*='#f1c40f'] {
+    color: var(--pt-warn) !important;
+}
+
+.torrent-search--list__rating [style*='#e74c3c'],
+.torrent-search--list__rating [style*='#c0392b'] {
+    color: var(--pt-accent) !important;
+}
+
+.torrent-search--list__rating [style*='#95a5a6'],
+.torrent-search--list__rating [style*='#7f8c8d'],
+.torrent-search--list__rating [style*='#888'] {
+    color: var(--pt-fg-4) !important;
+}
+
+.torrent-search--list__rating .ptt-mega-super,
+.torrent-search--list__rating > div > div > span,
+.torrent-search--list__rating > div > div > div + span {
+    display: inline !important;
+    font-size: 9.5px !important;
+    font-weight: 500 !important;
+    opacity: 0.85;
+}
+
+.torrent-search--list__rating svg,
+.torrent-search--list__rating svg * {
+    fill: currentColor !important;
+    color: inherit !important;
+    opacity: 0.8;
+}
+
+// druga linia: kolory staffu zostają (niebieskie źródło, złota kategoria, grupa uploadera);
+// tylko rozmiar i rytm w naszym stylu
+.torrent-search--list__overview > div > div:last-child > div {
+    color: var(--pt-fg-3) !important;
+}
+
+.torrent-search--list__overview > div > div:last-child .user-tag__link {
+    font-weight: 600 !important;
+}
+
+// format: chip z ramką + ikona kategorii 16 px
+.torrent-search--list__format img {
+    display: inline-block !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.torrent-search--list__format > div > div {
+    border: 1px solid var(--pt-border) !important;
+    padding: 0 4px !important;
+    background: var(--pt-surface-2) !important;
+    color: var(--pt-fg-2) !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+}
+
+// ikonki przy liczbach: małe, w kolorze wartości
+.torrent-search--list__size svg,
+.torrent-search--list__seeders svg,
+.torrent-search--list__leechers svg,
+.torrent-search--list__completed svg,
+.torrent-search--list__age svg {
+    display: inline-block !important;
+    width: 10px !important;
+    height: 10px !important;
+    margin-right: 3px !important;
+    opacity: 0.6;
+}
+
+.torrent-search--list__size > div,
+.torrent-search--list__seeders > a,
+.torrent-search--list__leechers > a,
+.torrent-search--list__completed > a,
+.torrent-search--list__age > div {
+    gap: 3px !important;
+}
+
+.torrent-search--list__completed span,
+.torrent-search--list__completed a {
+    color: var(--pt-info) !important;
+    font-weight: 600 !important;
 }

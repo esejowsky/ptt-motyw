@@ -9,9 +9,9 @@
 :root {
     // --- paleta PT ---------------------------------------------------
     --pt-red: #d4212e;        // czerwień flagi: TYLKO pas na górze i marka
-    --pt-accent: #ff6b74;     // akcent Design: linki, badge, aktywna pozycja, wypełnienia
-    --pt-accent-on: #1a0d0e;  // tekst na wypełnieniu akcentem
-    --pt-accent-dim: #8f3038; // przygaszony akcent (tło odznaki grupy, obrys)
+    --pt-accent: #d4212e;     // pełna czerwień flagi: linki, badge, aktywna pozycja, wypełnienia (decyzja Konrada)
+    --pt-accent-on: #ffffff;  // tekst na wypełnieniu akcentem
+    --pt-accent-dim: #8f1e27; // przygaszony akcent (tło odznaki grupy, obrys)
     --pt-red-fg: var(--pt-accent); // (alias z poprzedniej wersji)
     --pt-white: #f2f2f2;      // pas flagi, górna połowa orła
 
@@ -41,10 +41,10 @@
     --pt-gap: 12px;           // odstęp między panelami
 
     // --- akcent z przezroczystością (jedno miejsce) -------------------
-    --pt-red-a12: rgb(255 107 116 / 10%);
-    --pt-red-a18: rgb(255 107 116 / 16%);
-    --pt-red-a26: rgb(255 107 116 / 24%);
-    --pt-red-a50: rgb(255 107 116 / 50%);
+    --pt-red-a12: rgb(212 33 46 / 12%);
+    --pt-red-a18: rgb(212 33 46 / 18%);
+    --pt-red-a26: rgb(212 33 46 / 26%);
+    --pt-red-a50: rgb(212 33 46 / 50%);
 
     // --- wysokości kontrolek (Design 09) -----------------------------
     --pt-h-stats: 30px;       // pasek statystyk

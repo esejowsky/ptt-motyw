@@ -719,8 +719,8 @@ body::before {
 
 .nav-tab__link[href$='/torrents/create']:hover,
 .nav-tab__link[href$='/upload']:hover {
-    background-color: #ff8189;
-    border-color: #ff8189;
+    background-color: #b91b27;
+    border-color: #b91b27;
     color: var(--pt-accent-on);
 }
 
@@ -1176,7 +1176,7 @@ body > a[style] > :last-child {
 
 .secondary-nav .nav-tabsV2 .nav-tab__link[href$='/torrents/create']:hover,
 .secondary-nav .nav-tabsV2 .nav-tab__link[href$='/upload']:hover {
-    background-color: #ff8189;
-    border-color: #ff8189;
+    background-color: #b91b27;
+    border-color: #b91b27;
     color: var(--pt-accent-on);
 }
