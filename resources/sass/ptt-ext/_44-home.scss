@@ -551,3 +551,162 @@ main.page__home > article {
         display: none;
     }
 }
+
+// =====================================================================
+// PRODUKCJA PT — dodatki staffu na stronie głównej (style inline, id mqw-*)
+// =====================================================================
+main.page__home > article {
+    width: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+}
+
+// karta transmisji: jedna linia 30 px w rytmie alertu
+#live-stream-offline-card,
+#live-stream-online-banner {
+    margin: 0 0 var(--pt-gap) !important;
+    padding: 6px 12px !important;
+    background: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-left: 3px solid var(--pt-fg-4) !important;
+    border-radius: var(--pt-radius) !important;
+    color: var(--pt-fg-4) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-align: left !important;
+}
+
+#live-stream-online-banner {
+    border-left-color: var(--pt-red) !important;
+    color: var(--pt-fg) !important;
+}
+
+// skrzynie: kafle jak panele, emoji w rozmiarze ikony, wartość mono
+main.page__home > article > div[style*='justify-content:center'] {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: var(--pt-gap) !important;
+    margin: 0 0 var(--pt-gap) !important;
+}
+
+main.page__home > article > div[style*='justify-content:center'] > a {
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) !important;
+    grid-template-areas: 'ico title' 'ico value' !important;
+    align-items: center !important;
+    column-gap: 10px !important;
+    padding: 9px 12px !important;
+    background: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    transition: border-color 0.12s ease !important;
+}
+
+main.page__home > article > div[style*='justify-content:center'] > a:hover {
+    border-color: var(--pt-line-ui) !important;
+    transform: none !important;
+}
+
+main.page__home > article > div[style*='justify-content:center'] > a > div:nth-child(1) {
+    grid-area: ico;
+    font-size: 20px !important;
+    line-height: 1 !important;
+}
+
+main.page__home > article > div[style*='justify-content:center'] > a > div:nth-child(2) {
+    grid-area: title;
+    margin: 0 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: var(--pt-fg-3) !important;
+}
+
+main.page__home > article > div[style*='justify-content:center'] > a > div:nth-child(3) {
+    grid-area: value;
+    margin: 0 !important;
+    font-family: var(--pt-mono) !important;
+    font-variant-numeric: tabular-nums;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--pt-fg) !important;
+}
+
+// premiery kinowe: nagłówek panelu bez Orbitrona, treść to iframe (nie do ostylowania)
+.blocks__premieres > .panel__heading {
+    font-family: var(--pt-sans) !important;
+    padding: 7px 12px;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+}
+
+// cytat dnia: panel jak reszta, złoto → akcent
+#movie-quote-widget {
+    margin: 0 0 var(--pt-gap) !important;
+}
+
+#mqw-panel {
+    background: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+}
+
+#mqw-header {
+    padding: 7px 12px !important;
+    background: var(--pt-surface-2) !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+}
+
+#mqw-header > span:first-child {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    color: var(--pt-fg-3) !important;
+}
+
+#mqw-arrow {
+    color: var(--pt-fg-4) !important;
+}
+
+#mqw-body {
+    padding: 11px 12px 12px !important;
+}
+
+#mqw-quote {
+    font-size: 13px !important;
+    color: var(--pt-fg-2) !important;
+    border-left: 2px solid var(--pt-red) !important;
+    padding-left: 10px !important;
+}
+
+#mqw-input {
+    height: var(--pt-h-26) !important;
+    padding: 0 8px !important;
+    background: var(--pt-surface-2) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    color: var(--pt-fg) !important;
+    font-size: 12.5px !important;
+}
+
+#mqw-btn {
+    height: var(--pt-h-26) !important;
+    padding: 0 12px !important;
+    background: var(--pt-red) !important;
+    border: 1px solid var(--pt-red) !important;
+    border-radius: var(--pt-radius) !important;
+    color: #fff !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+
+#mqw-solved-info,
+#mqw-winners,
+#mqw-user-result,
+#mqw-loading {
+    font-size: 11.5px !important;
+    color: var(--pt-fg-4) !important;
+}

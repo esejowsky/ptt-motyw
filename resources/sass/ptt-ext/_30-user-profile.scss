@@ -480,3 +480,227 @@
 .page__user-profile--show .key-value > table.data-table > tbody > tr > td:first-child {
     text-align: left;
 }
+
+// =====================================================================
+// PRODUKCJA PT — profil ma własny markup staffu z klasami profile-*
+// =====================================================================
+main.page__user-profile--show .profile-hero .panel__body {
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr) auto;
+    gap: 6px 14px;
+    align-items: start;
+    padding: 12px !important;
+}
+
+main.page__user-profile--show .profile-hero__avatar-shell,
+main.page__user-profile--show .profile-hero__avatar {
+    width: 74px !important;
+    height: 74px !important;
+    border-radius: var(--pt-radius) !important;
+    border: 1px solid var(--pt-border) !important;
+    box-shadow: none !important;
+    object-fit: cover;
+}
+
+main.page__user-profile--show .profile-hero__status-dot {
+    width: 9px !important;
+    height: 9px !important;
+    border: 2px solid var(--pt-surface) !important;
+    box-shadow: none !important;
+}
+
+// nick: 19 px / 600, kolor grupy staffu (#52011C) jest nieczytelny na ciemnym tle
+main.page__user-profile--show .profile-hero__username {
+    font-size: 19px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+}
+
+main.page__user-profile--show .profile-hero__username .user-tag__link {
+    color: var(--pt-fg) !important;
+    font-size: 19px !important;
+    font-weight: 600 !important;
+    text-shadow: none !important;
+}
+
+main.page__user-profile--show .profile-hero__username .user-tag__link::before {
+    font-size: 13px;
+    margin-right: 6px;
+    color: var(--pt-fg-4);
+}
+
+main.page__user-profile--show .profile-hero__identity {
+    font-size: 12.5px !important;
+    color: var(--pt-fg-3) !important;
+}
+
+main.page__user-profile--show .profile-hero__identity strong,
+main.page__user-profile--show .profile-hero__identity b {
+    font-family: var(--pt-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    color: var(--pt-fg);
+}
+
+main.page__user-profile--show .profile-hero .form__button {
+    height: var(--pt-h-26) !important;
+    font-size: 12.5px !important;
+}
+
+main.page__user-profile--show .profile-hero .form__button--filled,
+main.page__user-profile--show .profile-hero a[class*='button'][style*='background'] {
+    background-color: var(--pt-red) !important;
+    border-color: var(--pt-red) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+// wstęga statystyk: kafle w siatce, wartość mono 14 px, etykieta 11 px
+main.page__user-profile--show .profile-stats-ribbon .panel__body {
+    padding: 0 !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__primary,
+main.page__user-profile--show .profile-stats-ribbon__secondary,
+main.page__user-profile--show [class^='profile-stats-ribbon__'][class$='list'] {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 9px 12px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-right: 1px solid var(--pt-line) !important;
+    border-bottom: 1px solid var(--pt-line) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__item:nth-child(4n) {
+    border-right: 0 !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__icon {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: var(--pt-fg-4) !important;
+    font-size: 12px !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__icon i {
+    color: var(--pt-fg-4) !important;
+    font-size: 12px !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__value {
+    font-family: var(--pt-mono) !important;
+    font-variant-numeric: tabular-nums;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--pt-fg) !important;
+}
+
+main.page__user-profile--show .profile-stats-ribbon__label {
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: var(--pt-fg-4) !important;
+}
+
+// tytuły paneli: staff owija je w ramkę — ma być zwykły pasek panelu
+main.page__user-profile--show .profile-panel-title {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--pt-fg-3) !important;
+}
+
+main.page__user-profile--show .profile-panel-title__icon {
+    color: var(--pt-fg-4) !important;
+    font-size: 11px !important;
+}
+
+main.page__user-profile--show .profile-panel > .panel__heading,
+main.page__user-profile--show .profile-feature-panel > .panel__heading {
+    padding: 7px 12px !important;
+    background-color: var(--pt-surface-2) !important;
+    border-bottom: 1px solid var(--pt-border) !important;
+}
+
+// zwijane sekcje: pasek 32 px, podpowiedź 11 px
+main.page__user-profile--show .profile-disclosure-panel__summary {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    min-height: 32px !important;
+    padding: 6px 12px !important;
+    background-color: var(--pt-surface-2) !important;
+    border: 0 !important;
+    cursor: pointer;
+    list-style: none;
+}
+
+main.page__user-profile--show details[open] > .profile-disclosure-panel__summary {
+    border-bottom: 1px solid var(--pt-border) !important;
+}
+
+main.page__user-profile--show .profile-disclosure-panel__hint {
+    font-size: 11px !important;
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__user-profile--show .profile-disclosure-panel__body {
+    padding: 11px 12px 12px !important;
+}
+
+main.page__user-profile--show .profile-summary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: var(--pt-gap) !important;
+    align-items: start !important;
+    margin: 0 0 var(--pt-gap) !important;
+}
+
+main.page__user-profile--show .profile-summary-grid > .panelV2 {
+    margin: 0 !important;
+}
+
+// stan portu / odznaki statusu
+main.page__user-profile--show [class*='status'][style*='background'],
+main.page__user-profile--show .profile-panel .text-green {
+    background: transparent !important;
+    border: 1px solid var(--pt-ok) !important;
+    border-radius: 1px !important;
+    padding: 0 6px !important;
+    color: var(--pt-ok) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+}

@@ -1300,3 +1300,318 @@ main.page__torrent-pending--index .torrent--rejected {
 .torrent-search--grouped__torrents a:not(.form__standard-icon-button):hover {
     color: var(--pt-red-fg);
 }
+
+// =====================================================================
+// PRODUKCJA PT — komórka nazwy niesie własny markup staffu bez klas
+// (style inline), plus znaczniki .ptt-* z animacjami i „portal" szukajki.
+// Struktura: overview > div(kolumna) > [div(nazwa), div(separator 2px), div(meta)]
+// !important tylko tam, gdzie staff wpisuje style="" lub własne @keyframes.
+// =====================================================================
+.torrent-search--list__overview > div {
+    gap: 0 !important;
+    line-height: 1.25 !important;
+}
+
+// nazwa: staff daje 17 px / 600 inline
+.torrent-search--list__overview .torrent-search--list__name {
+    margin: 0 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    color: var(--pt-fg) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.torrent-search--list__overview .torrent-search--list__name:hover {
+    color: var(--pt-red-fg) !important;
+}
+
+.torrent-search--list__overview .torrent-search--list__name > i {
+    font-size: 10px !important;
+    margin-right: 5px !important;
+    color: var(--pt-red-fg) !important;
+    transform: none !important;
+}
+
+// pusty separator z gradientem i marginesem 8 px — to on rozpychał wiersz
+.torrent-search--list__overview > div > div:empty,
+.torrent-search--list__overview > div > div[style*='height: 2px'] {
+    display: none !important;
+}
+
+// druga linia: jeden rząd, 11 px, kolor tylko tam, gdzie niesie znaczenie
+.torrent-search--list__overview > div > div:last-child {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 9px !important;
+    align-items: center !important;
+    margin-top: 2px !important;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--list__overview > div > div:last-child > div {
+    flex: 0 0 auto;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 3px !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    opacity: 1 !important;
+    color: var(--pt-fg-4) !important;
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+}
+
+.torrent-search--list__overview > div > div:last-child > div > div {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 3px !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+.torrent-search--list__overview > div > div:last-child span {
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    opacity: 1 !important;
+}
+
+.torrent-search--list__overview > div > div:last-child i {
+    font-size: 9px !important;
+    opacity: 0.7 !important;
+    color: var(--pt-fg-4) !important;
+}
+
+// flagi języków: 14×10, bez ramek
+.torrent-search--list__overview > div > div:last-child img {
+    width: 14px !important;
+    height: 10px !important;
+    border: 0 !important;
+    border-radius: 1px !important;
+    opacity: 0.9;
+}
+
+// uploader: kolor grupy zostaje (to informacja), reszta w rytmie
+.torrent-search--list__overview > div > div:last-child .user-tag {
+    font-size: 11px !important;
+    opacity: 1 !important;
+}
+
+.torrent-search--list__overview > div > div:last-child .user-tag__link {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+}
+
+// znaczniki staffu: płaskie ramki w tokenach, bez animacji i poświat
+.ptt-label-klasyk,
+.ptt-label-nowos,
+.ptt-badge-new,
+.ptt-badge-hit,
+.ptt-badge-rec,
+.ptt-badge-seed,
+.ptt-badge-vip {
+    display: inline-flex !important;
+    align-items: center;
+    height: 16px !important;
+    margin: 0 !important;
+    padding: 0 5px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 1px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    animation: none !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    line-height: 14px !important;
+    text-transform: uppercase !important;
+    vertical-align: middle;
+}
+
+.ptt-label-nowos,
+.ptt-badge-new {
+    border-color: var(--pt-red-fg) !important;
+    color: var(--pt-red-fg) !important;
+}
+
+.ptt-label-klasyk {
+    border-color: var(--pt-warn) !important;
+    color: var(--pt-warn) !important;
+}
+
+.ptt-badge-hit,
+.ptt-badge-rec {
+    border-color: var(--pt-fl) !important;
+    color: var(--pt-fl) !important;
+}
+
+.ptt-badge-seed {
+    border-color: var(--pt-ok) !important;
+    color: var(--pt-ok) !important;
+}
+
+.ptt-badge-vip {
+    border-color: var(--pt-x2) !important;
+    color: var(--pt-x2) !important;
+}
+
+// „PTTrG" w nazwie: akcent bez neonu i migania
+.ptt-pttrg-badge {
+    color: var(--pt-red-fg) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    text-shadow: none !important;
+    animation: none !important;
+}
+
+// ocena: procent mono + opis słowny bez migania
+.ptt-mega-super {
+    animation: none !important;
+    text-shadow: none !important;
+    color: var(--pt-ok) !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+}
+
+.torrent-search--list__rating > span,
+.torrent-search--list__rating > div {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    text-shadow: none !important;
+}
+
+// „portal" wyszukiwarki staffu: zwykły panel, bez ozdobnego nagłówka
+.search-portal-box {
+    margin: 0 0 var(--pt-gap) !important;
+    padding: 11px 12px 12px !important;
+    background: var(--pt-surface) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+}
+
+.portal-top-row {
+    display: none !important;
+}
+
+.portal-input-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.search-portal-box .torrent-search__filters.compact-search {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+// reklama sponsorowana nad listą: podpis 10 px, obraz w kolumnie, bez ramek
+.ad-compact-center {
+    margin: 0 0 var(--pt-gap) !important;
+    text-align: center;
+}
+
+.ad-label-min {
+    margin: 0 0 4px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: var(--pt-fg-4) !important;
+}
+
+.ad-img-border {
+    max-width: 100% !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+}
+
+// komórka formatu: staff wpisuje inline padding 25px i obrazek kategorii 28 px w kolumnie
+.torrent-search--list__row > .torrent-search--list__format {
+    padding: 6px 10px !important;
+}
+
+.torrent-search--list__format > div {
+    flex-direction: row !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.torrent-search--list__format img {
+    width: 16px !important;
+    height: 16px !important;
+    max-height: 16px !important;
+    object-fit: contain;
+    opacity: 0.85;
+}
+
+.torrent-search--list__format > div > div {
+    margin: 0 !important;
+    padding: 0 3px !important;
+    height: auto !important;
+    line-height: 1.25 !important;
+    font-size: 11px !important;
+    background: transparent !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: 1px !important;
+    color: var(--pt-fg-3) !important;
+    font-family: var(--pt-mono) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+}
+
+// ocena: dwie linie 10,5 px w 38 px
+.torrent-search--list__row > .torrent-search--list__rating {
+    padding: 4px 10px !important;
+}
+
+.torrent-search--list__rating > div,
+.torrent-search--list__rating > div > * {
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+}
+
+// liczby na PT mają ikonki SVG przed wartością — mniejsze, wyciszone
+.torrent-search--list__size svg,
+.torrent-search--list__seeders svg,
+.torrent-search--list__leechers svg,
+.torrent-search--list__completed svg,
+.torrent-search--list__age svg {
+    width: 10px !important;
+    height: 10px !important;
+    margin-right: 3px !important;
+    opacity: 0.5;
+}
+
+// wyróżnione wiersze: staff daje większy plakat — w liście każdy plakat 30×44
+.torrent-search--list__poster img,
+.torrent-search--list__poster .torrent-search--list__poster-img {
+    width: 30px !important;
+    height: 44px !important;
+    max-height: 44px !important;
+}
+
+.torrent-search--list__poster > div,
+.torrent-search--list__poster > a {
+    height: 44px !important;
+    line-height: 0;
+}
