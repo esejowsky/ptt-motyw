@@ -1706,3 +1706,88 @@ main.page__torrent-pending--index .torrent--rejected {
     stroke: var(--pt-fg-4) !important;
     color: var(--pt-fg-4) !important;
 }
+
+// =====================================================================
+// PRODUKCJA PT — wyrównanie kolumn liczbowych do Design (staff centruje
+// wartości z ikonką SVG przed liczbą; Design: sama liczba, do prawej)
+// =====================================================================
+.torrent-search--list__size > div,
+.torrent-search--list__seeders > a,
+.torrent-search--list__leechers > a,
+.torrent-search--list__completed > a,
+.torrent-search--list__age > div,
+.torrent-search--list__rating > div,
+.torrent-search--list__rating > div > div {
+    justify-content: flex-end !important;
+    align-items: flex-end !important;
+    gap: 0 !important;
+}
+
+.torrent-search--list__size svg,
+.torrent-search--list__seeders svg,
+.torrent-search--list__leechers svg,
+.torrent-search--list__completed svg,
+.torrent-search--list__age svg,
+.torrent-search--list__rating svg {
+    display: none !important;
+}
+
+.torrent-search--list__row > .torrent-search--list__rating > div {
+    align-items: flex-end !important;
+}
+
+// ocena: sama wartość procentowa; słowny opis staffu (Mega Super / Dobry / Brak oceny) znika
+.torrent-search--list__rating .ptt-mega-super,
+.torrent-search--list__rating > div > span:last-child:not(:only-child),
+.torrent-search--list__rating > div > div + span {
+    display: none !important;
+}
+
+.torrent-search--list__row > .torrent-search--list__rating {
+    padding: 6px 10px !important;
+}
+
+// format: sama rozdzielczość mono, bez chipa i ikony kategorii (kategoria jest w drugiej linii)
+.torrent-search--list__format > div > div {
+    border: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: var(--pt-fg-3) !important;
+    text-transform: lowercase;
+}
+
+.torrent-search--list__format img {
+    display: none !important;
+}
+
+// „PTTrG" w nazwie i gwiazdki wyróżnienia: bez własnego koloru
+.ptt-pttrg-badge {
+    color: var(--pt-fg-2) !important;
+    font-weight: 500 !important;
+}
+
+.torrent-search--list__name img[src*='star'],
+.torrent-search--list__name > img {
+    height: 12px !important;
+    width: auto !important;
+    vertical-align: -1px;
+    opacity: 0.8;
+}
+
+// druga linia: łagodne wygaszenie na prawej krawędzi zamiast ucięcia w pół słowa
+.torrent-search--list__overview > div > div:last-child {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+}
+
+// słowny opis oceny zagnieżdżony poziom głębiej (Dobry / Przeciętny / Brak oceny)
+.torrent-search--list__rating > div > div > span,
+.torrent-search--list__rating > div > div > div + span {
+    display: none !important;
+}
+
+.torrent-search--list__rating > div > div > div > span {
+    display: inline !important;
+}
