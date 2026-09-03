@@ -1111,3 +1111,15 @@ body > a[style] > :last-child {
 .ratio-bar__leeching i {
     color: var(--pt-warn) !important;
 }
+
+// logo PT to czarna sylwetka orła (PNG) — na ciemnym tle ma być jasna, jak w Design
+.top-nav__branding img,
+.footer__section:first-child .footer__section-title img,
+.footer__section:first-child img {
+    filter: brightness(0) invert(0.92);
+    opacity: 1;
+}
+
+.top-nav__branding:hover img {
+    filter: brightness(0) invert(1);
+}
