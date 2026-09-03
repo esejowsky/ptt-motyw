@@ -252,30 +252,11 @@ main.page__torrent--create .upload-form .form__group > small {
     color: var(--pt-fg-4) !important;
 }
 
-main.page__torrent--show section.meta {
-        grid-template-columns: 110px minmax(0, 1fr) auto !important;
-        gap: 6px 12px !important;
-    }
 
-main.page__torrent--show ul.torrent__tags {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 
-main.page__torrent--show ul.torrent__tags > li {
-        border-top: 1px solid var(--pt-line);
-    }
 
-main.page__torrent--show ul.torrent__tags > li:nth-child(-n + 2) {
-        border-top: 0;
-    }
 
-main.page__torrent--show .luxury-meta-grid {
-        flex-direction: column;
-    }
 
-main.page__torrent--show menu.torrent__buttons .form__button {
-        width: 100% !important;
-    }
 
 // przycisk wysyłki jako główne CTA
 .upload-form .form__button[type='submit'],
