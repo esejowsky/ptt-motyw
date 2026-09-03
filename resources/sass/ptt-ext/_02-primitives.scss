@@ -265,9 +265,14 @@
     flex-wrap: wrap;
     gap: 6px 18px;
     height: auto;
-    max-height: none;
     resize: none;
-    overflow: visible;
+}
+
+// długie listy (typy powiadomień, filtry historii): przewijane, nie wylewają się z panelu
+.form__fieldset-checkbox-container--shrink {
+    max-height: 240px;
+    overflow: auto;
+    scrollbar-width: thin;
 }
 
 .form__fieldset:has(> .form__fieldset-checkbox-container--shrink) {
