@@ -1791,3 +1791,207 @@ main.page__torrent-pending--index .torrent--rejected {
 .torrent-search--list__rating > div > div > div > span {
     display: inline !important;
 }
+
+
+// =====================================================================
+// DESIGN 01 — kolory zmierzone z renderu mockupu (próbkowanie pikseli)
+// tytuł #e3e3e3 · linia 2 #969696 · uploader #34b5e9 · format/liczby #b5b5b5
+// S #6ecf8b · L #e8b45c · ukończenia #34b5e9 · ikony akcji #969696 · th #969696
+// badge: tekst w kolorze + tło tego koloru ~14 %, bez ramki
+// Mockup listy NIE ma kolumny plakatu.
+// =====================================================================
+.torrent-search--list__headers,
+.torrent-search--list__row {
+    grid-template-columns: minmax(0, 1fr) $col-format $col-rating $col-size $col-num $col-num $col-completed $col-age $col-buttons;
+    grid-template-areas: 'overview format rating size seeders leechers completed age buttons';
+}
+
+.torrent-search--list__poster,
+.torrent-search--list__poster-header {
+    display: none !important;
+}
+
+.torrent-search--list__headers > th,
+.torrent-search--list__no-poster-headers > th {
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--list__name-header,
+.torrent-search--list__overview {
+    padding-left: 12px !important;
+}
+
+.torrent-search--list__overview > div > div:last-child,
+.torrent-search--list__overview > div > div:last-child > div,
+.torrent-search--list__overview > div > div:last-child [style*='color'],
+.torrent-search--list__uploader {
+    color: var(--pt-fg-4) !important;
+}
+
+.torrent-search--list__overview > div > div:last-child .user-tag__link,
+.torrent-search--list__uploader .user-tag__link {
+    color: var(--pt-info) !important;
+    font-weight: 500 !important;
+}
+
+.torrent-search--list__resolution,
+.torrent-search--list__format > div > div {
+    color: var(--pt-fg-2) !important;
+}
+
+.torrent-search--list__type {
+    color: var(--pt-fg-4);
+}
+
+.torrent-search--list__rating,
+.torrent-search--list__rating > span,
+.torrent-search--list__rating span,
+.torrent-search--list__rating div,
+.torrent-search--list__size,
+.torrent-search--list__size span,
+.torrent-search--list__age,
+.torrent-search--list__age span {
+    color: var(--pt-fg-2) !important;
+}
+
+.torrent-search--list__completed,
+.torrent-search--list__completed span,
+.torrent-search--list__completed a {
+    color: var(--pt-info) !important;
+}
+
+.torrent-search--list__buttons .form__standard-icon-button {
+    color: var(--pt-fg-4);
+}
+
+// badge: kolor tekstu + tło w tym kolorze, bez ramki (jak w mockupie)
+.torrent-icons > i,
+.torrent-icons > a > i,
+.torrent-icons > span > i,
+.ptt-label-klasyk,
+.ptt-label-nowos,
+.ptt-badge-new,
+.ptt-badge-hit,
+.ptt-badge-rec,
+.ptt-badge-seed,
+.ptt-badge-vip {
+    border-color: transparent !important;
+    background-color: color-mix(in srgb, currentColor 14%, transparent) !important;
+    color: var(--pt-fg-3);
+}
+
+.torrent-icons__freeleech { color: var(--pt-fl) !important; }
+.torrent-icons__double-upload { color: var(--pt-x2) !important; }
+.torrent-icons__internal { color: var(--pt-info) !important; }
+.torrent-icons__personal-release { color: var(--pt-ok) !important; }
+.torrent-icons__sticky { color: var(--pt-accent) !important; }
+.torrent-icons__featured,
+.torrent-icons__bumped { color: var(--pt-warn) !important; }
+.torrent-icons__refundable { color: var(--pt-warn) !important; }
+.torrent-icons__comments { color: var(--pt-fg-4) !important; background: transparent !important; }
+.ptt-label-nowos, .ptt-badge-new { color: var(--pt-accent) !important; }
+.ptt-label-klasyk { color: var(--pt-warn) !important; }
+.ptt-badge-hit, .ptt-badge-rec { color: var(--pt-fl) !important; }
+.ptt-badge-seed { color: var(--pt-ok) !important; }
+.ptt-badge-vip { color: var(--pt-x2) !important; }
+
+// przypięte: tylko badge PIN, bez tła i paska (jak w mockupie)
+.torrent-search--list__sticky-row {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.torrent-search--list__sticky-row:hover {
+    background-color: var(--pt-surface-2);
+}
+
+.torrent-search--list__row:has(.torrent-icons__double-upload),
+.torrent-search--list__row:has(.torrent-icons__freeleech):not(.torrent-search--list__sticky-row),
+.torrent-search--list__sticky-row:has(.torrent-icons__freeleech) {
+    box-shadow: none;
+}
+
+@media (max-width: $bp-m) {
+    .torrent-search--list__row,
+    .torrent-search--list__no-poster-row {
+        grid-template-columns: minmax(0, 1fr) $col-size $col-num $col-num 80px;
+        grid-template-areas:
+            'overview overview overview overview buttons'
+            'format size seeders leechers buttons';
+    }
+}
+
+// „Wkrótce na trackerze" (markup staffu, czerwień #e74c3c inline) → panel i chipy w palecie
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) {
+    margin: 0 0 var(--pt-gap) !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__heading {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 7px 12px !important;
+    background-color: var(--pt-surface-2);
+    border-bottom: 1px solid var(--pt-border);
+    font-size: 12px !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__heading > i {
+    color: var(--pt-fg-4) !important;
+    font-size: 11px !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__heading > span {
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    opacity: 1 !important;
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__heading > a {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    color: var(--pt-accent) !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body {
+    padding: 11px 12px 12px !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div {
+    gap: 8px !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 26px !important;
+    padding: 0 10px !important;
+    background: var(--pt-surface-2) !important;
+    border: 1px solid var(--pt-border) !important;
+    border-radius: var(--pt-radius) !important;
+    box-shadow: none !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div > span:first-child {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    color: var(--pt-fg-4) !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div > span:not(:first-child) {
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    color: var(--pt-fg) !important;
+}
+
+main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div > span:last-child {
+    font-family: var(--pt-mono);
+    font-size: 11px !important;
+    color: var(--pt-fg-4) !important;
+}

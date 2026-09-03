@@ -195,10 +195,26 @@ body::before {
     text-decoration: none;
 }
 
-// wysokość ikony jest w atrybucie style="height: 35px"
-.top-nav__branding img {
-    height: 30px !important;
-    width: auto;
+// silnik wstawia <img src="/favicon.ico"> — czarną bitmapę, która na ciemnym
+// tle znika; chowamy ją i rysujemy sylwetkę jako maskę na barwach flagi
+.top-nav__branding > img {
+    display: none;
+}
+
+.top-nav__branding::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    background-image: linear-gradient(180deg, var(--pt-white) 0 50%, var(--pt-red) 50% 100%);
+    -webkit-mask-image: var(--pt-eagle);
+    mask-image: var(--pt-eagle);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
 }
 
 // logotyp silnika to tekst wypełniony gradientem (background-clip: text)
@@ -771,8 +787,23 @@ body::before {
 }
 
 .footer__section:first-child .footer__section-title img {
-    height: 20px !important; // wysokość siedzi w atrybucie style
-    width: auto;
+    display: none;
+}
+
+.footer__section:first-child .footer__section-title::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 21px;
+    height: 21px;
+    background-image: linear-gradient(180deg, var(--pt-white) 0 50%, var(--pt-red) 50% 100%);
+    -webkit-mask-image: var(--pt-eagle);
+    mask-image: var(--pt-eagle);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
 }
 
 .footer__section:first-child .top-nav__site-logo {
@@ -1112,14 +1143,3 @@ body > a[style] > :last-child {
     color: var(--pt-warn) !important;
 }
 
-// logo PT to czarna sylwetka orła (PNG) — na ciemnym tle ma być jasna, jak w Design
-.top-nav__branding img,
-.footer__section:first-child .footer__section-title img,
-.footer__section:first-child img {
-    filter: brightness(0) invert(0.92);
-    opacity: 1;
-}
-
-.top-nav__branding:hover img {
-    filter: brightness(0) invert(1);
-}
