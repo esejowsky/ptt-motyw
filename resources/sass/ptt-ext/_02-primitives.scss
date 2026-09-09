@@ -433,6 +433,41 @@ a.form__button {
     background-attachment: local, local, scroll, scroll;
 }
 
+// ---------------------------------------------------------------------
+// Kolory grup użytkowników — czytelne, ale nadal swoje
+// ---------------------------------------------------------------------
+// Staff wpisuje barwę rangi stylem liniowym przy każdym nicku. Część z nich
+// na ciemnym tle jest nie do przeczytania: czarny daje kontrast 1.27, bordowy
+// 1.08, granatowy 1.24, a najczęstszy niebieski 3.58 przy 126 wystąpieniach.
+// Gaszenie ich do szarości zabiłoby informację o randze, więc każdemu
+// podnosimy wyłącznie jasność, zostawiając odcień i nasycenie.
+// Reguła z !important wygrywa ze stylem liniowym, dlatego to działa.
+// Lista zebrana pomiarowo z dziesięciu stron: 23 nieczytelne na 63 używane.
+// Obie pisownie i flaga „i”, bo staff miesza wielkość liter i skróty.
+[style*="color: #1976D2" i], [style*="color:#1976D2" i] { color: #328de7 !important; } // 3.58 → 4.78
+[style*="color: #5b7ba3" i], [style*="color:#5b7ba3" i] { color: #728db0 !important; } // 3.77 → 4.84
+[style*="color: #e74c3c" i], [style*="color:#e74c3c" i] { color: #e95d4e !important; } // 4.31 → 4.82
+[style*="color: #000000" i], [style*="color:#000000" i] { color: #8a8a8a !important; } // 1.27 → 4.76
+[style*="color: #D500F9" i], [style*="color:#D500F9" i] { color: #e12dff !important; } // 4.08 → 4.72
+[style*="color: #e63950" i], [style*="color:#e63950" i] { color: #ea596c !important; } // 3.98 → 4.81
+[style*="color: #FC0000" i], [style*="color:#FC0000" i] { color: #ff3f3f !important; } // 4.03 → 4.74
+[style*="color: #52011C" i], [style*="color:#52011C" i] { color: #fd3c7c !important; } // 1.08 → 4.79
+[style*="color: #FF1744" i], [style*="color:#FF1744" i] { color: #ff3b61 !important; } // 4.28 → 4.74
+[style*="color: #ef4444" i], [style*="color:#ef4444" i] { color: #f05252 !important; } // 4.38 → 4.74
+[style*="color: #9e5d2d" i], [style*="color:#9e5d2d" i] { color: #c7773c !important; } // 3.18 → 4.82
+[style*="color: #009688" i], [style*="color:#009688" i] { color: #009b8d !important; } // 4.49 → 4.77
+[style*="color: #555" i], [style*="color:#555" i] { color: #8b8b8b !important; } // 2.21 → 4.81
+[style*="color: #757575" i], [style*="color:#757575" i] { color: #898989 !important; } // 3.58 → 4.74
+[style*="color: #006666" i], [style*="color:#006666" i] { color: #009999 !important; } // 2.43 → 4.72
+[style*="color: #1a1a1a" i], [style*="color:#1a1a1a" i] { color: #8a8a8a !important; } // 1.06 → 4.79
+[style*="color: #FF3300" i], [style*="color:#FF3300" i] { color: #ff4314 !important; } // 4.49 → 4.77
+[style*="color: #777" i], [style*="color:#777" i] { color: #898989 !important; } // 3.68 → 4.7
+[style*="color: #000" i], [style*="color:#000" i] { color: #8a8a8a !important; } // 1.27 → 4.76
+[style*="color: #8B4513" i], [style*="color:#8B4513" i] { color: #d76b1d !important; } // 2.32 → 4.72
+[style*="color: #663300" i], [style*="color:#663300" i] { color: #db6e00 !important; } // 1.6 → 4.9
+[style*="color: #1a237e" i], [style*="color:#1a237e" i] { color: #7781e3 !important; } // 1.24 → 4.72
+[style*="color: #388E3C" i], [style*="color:#388E3C" i] { color: #3e9d42 !important; } // 4.01 → 4.77
+
 // Pasek przewijania tabeli ma być widoczny, bo to on mówi „przesuń mnie”.
 .data-table-wrapper::-webkit-scrollbar {
     height: 8px;
