@@ -728,3 +728,27 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     font-size: 9px !important;
     text-shadow: none !important;
 }
+
+// Blok najnowszych komentarzy na telefonie.
+// Siatka nagłówka komentarza ściskała się tu do 42 px, przez co data
+// dostawała 14 px szerokości, a jej tekst z zakazem zawijania wylewał się
+// na 97 px poza własne pudełko i rozciągał dokument do 406 px przy oknie 390.
+// Reguła celuje wyłącznie w blok na stronie głównej; listę komentarzy pod
+// wydaniem opisuje _43-community i tam zostaje bez zmian.
+@media (max-width: $bp-s) {
+    .blocks__comments .comment {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .blocks__comments .comment__header {
+        width: auto !important;
+        min-width: 0 !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .blocks__comments .comment__datetime {
+        min-width: 0 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+}

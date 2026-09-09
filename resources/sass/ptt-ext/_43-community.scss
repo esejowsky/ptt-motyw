@@ -131,6 +131,11 @@
         min-width: 0;
         margin-left: 0;
     }
+
+    .comment__toolbar {
+        flex-wrap: wrap;
+        min-width: 0;
+    }
 }
 
 // wariant z bloku „ostatnie komentarze" — dopisek „On <torrent>"
