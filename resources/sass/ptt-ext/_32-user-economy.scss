@@ -191,13 +191,12 @@ $aktywne: 'main.page__user-peers--index.page__user-peers--index';
     font-size: 12px;
 }
 
-// --- tabela torrentów: piętnaście kolumn musi zmieścić się bez przewijania
-// Zmierzone: padding 6px 10px dawał 1073,5 px. Ścięcie go do 7 px po bokach
-// zwalnia 15 × 6 px = 90 px — tabela schodzi do 1048 px, a kolumna nazwy
-// rośnie z 200 px (podłoga z _pt-konto) do 240 px.
+// --- tabela torrentów: piętnaście kolumn musi zmieścić się bez przewijania.
+// Po zwężeniu poziomego paddingu 7 -> 4 px i ograniczeniu drugorzędnej kolumny
+// wieku nazwa na 1440 rośnie z 239 do 379 px, bez poszerzenia tabeli.
 #{$zarobki} > article > div > .panelV2:nth-child(2) .data-table > thead > tr > th,
 #{$zarobki} > article > div > .panelV2:nth-child(2) .data-table > tbody > tr > td {
-    padding: 6px 7px;
+    padding: 6px 4px;
 }
 
 // liczniki peerów i stawki godzinowe: liczba czyta się od prawej
@@ -214,6 +213,10 @@ $aktywne: 'main.page__user-peers--index.page__user-peers--index';
 // czas seedowania i wiek torrentu to kontekst, nie wynik — ciszej od stawki
 #{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__seedtime'],
 #{$zarobki} .data-table > tbody > tr > td[class*='user-earnings__age'] {
+    max-width: 105px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 11.5px;
     color: var(--pt-fg-3);
 }

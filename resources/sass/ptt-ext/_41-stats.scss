@@ -12,6 +12,7 @@
 // gap, bo chipy z ramkami muszą mieć oddech — bez tego stykają się bokami
 .nav-tabsV2 {
     align-items: center;
+    flex-wrap: wrap;
     gap: 6px;
     padding: 7px 0;
 }

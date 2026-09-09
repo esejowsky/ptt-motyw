@@ -338,7 +338,7 @@ main.page__user-conversation--index .data-table {
 }
 
 main.page__user-conversation--index .data-table > thead > tr > th:nth-child(1) {
-    width: 14%; // nadawcy
+    width: 12%; // nadawcy
 }
 
 main.page__user-conversation--index .data-table > thead > tr > th:nth-child(3) {
@@ -352,11 +352,11 @@ main.page__user-conversation--index .data-table > thead > tr > th:nth-child(3) {
 // zmierzone [123, 362, 124, 118, 114, 218] px przy tabeli 1058 px —
 // stąd 12% / 11% / 21% jako minimum, które te napisy mieści.
 main.page__user-conversation--index .data-table > thead > tr > th:nth-child(4) {
-    width: 12%; // odpowiedzi
+    width: 10%; // odpowiedzi
 }
 
 main.page__user-conversation--index .data-table > thead > tr > th:nth-child(5) {
-    width: 11%; // stan
+    width: 9%; // stan
 }
 
 // „Nieprzeczytane" + „Usuń" to zmierzone 198 px paska akcji — kolumna musi je
@@ -370,6 +370,14 @@ main.page__user-conversation--index .data-table > tbody > tr > td:nth-child(2) >
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+// Na desktopie nowy podział daje tematowi 356 zamiast 293 px. Na telefonie
+// tabela dostaje lokalny scroll i 720 px podłogi, więc temat ma 239 zamiast 81 px.
+@media (max-width: $bp-s) {
+    main.page__user-conversation--index .data-table {
+        min-width: 720px;
+    }
 }
 
 // nadawcy w pierwszej kolumnie: przy rozmowie wieloosobowej znaczniki

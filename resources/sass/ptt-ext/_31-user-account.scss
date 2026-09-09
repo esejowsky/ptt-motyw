@@ -365,6 +365,15 @@ $konto: 'main[class^="page__user-"]:not(.page__user-profile--show):not(.page__us
     color: var(--pt-fg);
 }
 
+// Tabele na telefonie przewijają się lokalnie, więc nie ma sensu ścinać
+// najważniejszej informacji do 180 px. Dokument nadal trzyma 390 px.
+@media (max-width: $bp-s) {
+    #{$konto} .data-table > tbody > tr > td:has(> .user-uploads__name),
+    #{$konto} .data-table > tbody > tr > td:has(> .user-earnings__name) {
+        min-width: 320px;
+    }
+}
+
 // klasy kolumn niosą wyłącznie liczby, czas i adresy IP — poza kolumną
 // klienta (.user-*__agent) i rodzaju (.user-earnings__type), które są tekstem
 #{$konto} .data-table > tbody > tr > td[class*='user-']:not([class*='__agent']):not([class*='__type']) {

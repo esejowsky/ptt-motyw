@@ -480,6 +480,31 @@ a.form__button {
 [style*="color: #7760de" i], [style*="color:#7760de" i] { color: #8d79e3 !important; } // 3.54 → 4.7
 [style*="color: #333" i], [style*="color:#333" i] { color: #8a8a8a !important; } // 1.3 → 4.76
 [style*="color: #888888" i], [style*="color:#888888" i] { color: #8b8b8b !important; } // 4.65 → 4.81
+// Kolory wpisane liniowo w zapisie rgb(), których nie łapie mapa szesnastkowa.
+// Staff miesza oba zapisy, a selektor atrybutu porównuje dosłowny tekst, więc
+// trzeba wymienić obie pisownie: ze spacjami po przecinkach i bez.
+[style*="color: rgb(85, 85, 85)" i], [style*="color:rgb(85, 85, 85)" i], [style*="color: rgb(85,85,85)" i], [style*="color:rgb(85,85,85)" i] { color: #909090 !important; } // 2.21 → 5.14
+[style*="color: rgb(0,102,0)" i], [style*="color:rgb(0,102,0)" i], [style*="color: rgb(0, 102, 0)" i], [style*="color:rgb(0, 102, 0)" i] { color: #00a800 !important; } // 2.28 → 5.2
+[style*="color: rgb(102, 102, 102)" i], [style*="color:rgb(102, 102, 102)" i], [style*="color: rgb(102,102,102)" i], [style*="color:rgb(102,102,102)" i] { color: #8f8f8f !important; } // 2.87 → 5.08
+[style*="color: #444" i], [style*="color:#444" i] { color: #8e8e8e !important; } // 1.61 → 5.03
+
+
+// Ten kolor nie jest wpisany liniowo, tylko siedzi w klasie staffu, więc mapa
+// go nie widziała. Napis „System Status” miał kontrast 1.9 przy piśmie 10 px.
+.modo-system-info {
+    color: #8b939c !important;
+}
+
+
+// Czysta czerwień z edytora treści: użytkownicy wpisują ją w komentarzach
+// i opisach, a na ciemnym tle daje 4.12 przy progu 4.5. Podnosimy jasność
+// najmniej jak się da, żeby zachować intencję piszącego.
+[style*="color: #ff0000" i], [style*="color:#ff0000" i],
+[style*="color: #f00" i], [style*="color:#f00" i],
+[style*="color: rgb(255, 0, 0)" i], [style*="color:rgb(255,0,0)" i] {
+    color: #ff3b3b !important;
+}
+
 
 // Pasek przewijania tabeli ma być widoczny, bo to on mówi „przesuń mnie”.
 .data-table-wrapper::-webkit-scrollbar {

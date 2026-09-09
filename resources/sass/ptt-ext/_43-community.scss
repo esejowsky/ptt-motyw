@@ -122,9 +122,20 @@
 // Na telefonie data i toolbar nie mieszczą się obok autora. Zawijamy cały
 // nagłówek zamiast pozwalać dacie rozpychać dokument poza viewport.
 @media (max-width: $bp-s) {
+    // Długi nick nie może zostawić nagłówkowi kilkunastu pikseli drugiej
+    // kolumny. Na telefonie autor, meta i treść dostają osobne wiersze.
+    .comment {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            'aside'
+            'header'
+            'content';
+    }
+
     .comment__header {
         flex-wrap: wrap;
         row-gap: 4px;
+        padding-left: 12px;
     }
 
     .comment__datetime {
