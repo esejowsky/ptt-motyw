@@ -13,10 +13,10 @@
     --pt-accent-on: #ffffff;  // tekst na wypełnieniu akcentem
     --pt-accent-dim: #8f1e27; // przygaszony akcent (tło odznaki grupy, obrys)
     // Czerwień JAKO TEKST na ciemnym tle. Pełna #d4212e daje kontrast 3.2,
-    // poniżej progu czytelności 4.5 dla drobnego pisma — zmierzone na 182
-    // miejscach samej listy. Ten odcień daje 5.7 na tle strony, 5.4 na panelu
-    // i 5.0 na nagłówku panelu, a nadal czyta się jako czerwień, nie koral.
-    // ⛔ Nie stosować na wypełnieniach — tam zostaje pełna flagowa czerwień.
+    // czyli poniżej progu czytelności 4.5 dla drobnego pisma. Ten odcień daje
+    // 5.7 na tle strony, 5.4 na panelu i 5.0 na nagłówku panelu, a nadal czyta
+    // się jako czerwień, nie koral.
+    // Nie stosować na wypełnieniach — tam zostaje pełna flagowa czerwień.
     --pt-red-text: #ff5a63;
     --pt-red-fg: var(--pt-red-text); // alias: każdy napis w akcencie
     --pt-white: #f2f2f2;      // pas flagi, górna połowa orła
