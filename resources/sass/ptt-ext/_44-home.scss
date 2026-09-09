@@ -697,6 +697,16 @@ main.page__home > article > div[style*='justify-content:center'] > a > div:nth-c
     font-size: 11.5px !important;
 }
 
+// Przyciski gotowych zwrotów w czacie: staff daje im mocne, jasne tła
+// (cyan, róż, limonka, pomarańcz) i kładzie na nich biały napis, przez co
+// kontrast spada do 1.98 przy piśmie 11,5 px. Barwa przycisku zostaje, bo to
+// znak rozpoznawczy czatu; ciemnieje wyłącznie napis i wychodzi 5.2 do 7.6.
+// Sprawdzone na wszystkich czterech: każdy ma jasne tło, więc nic nie odwracamy.
+.ptt-phrase-btn {
+    color: #10141a !important;
+    font-weight: 600 !important;
+}
+
 // złota gwiazdka FL w nazwie: kolor zostaje, bez poświaty, w rytmie badge
 .fl-star-badge {
     display: inline-flex !important;

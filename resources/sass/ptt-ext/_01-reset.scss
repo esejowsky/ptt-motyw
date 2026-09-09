@@ -166,6 +166,30 @@ main[class*='page'] {
     width: auto;
 }
 
+// Telefon: nagłówek panelu stał w jednej linii, a lista rozwijana brała
+// szerokość swojej najdłuższej opcji. Na stronie głównej sięgała 409 px przy
+// oknie 390 i włączała poziomy pasek przewijania całej strony.
+@media (max-width: $bp-s) {
+    .panel__header {
+        flex-wrap: wrap;
+        row-gap: 6px;
+    }
+
+    .panel__actions,
+    .panel__action,
+    .panel__header .form__group {
+        flex-wrap: wrap;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .panel__header .form__select,
+    .panel__header .form__text {
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
 .panel__body {
     padding: 11px 12px 12px;
     background-color: transparent;
