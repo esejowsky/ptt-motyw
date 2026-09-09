@@ -73,6 +73,9 @@ body::before {
     font-size: 12px;
     text-decoration: none;
     white-space: nowrap;
+    // Sam napis dawał 17 px wysokości celu. Pismo zostaje bez zmian, rośnie
+    // tylko obszar do trafienia, a mieści się w 30-pikselowym pasie statystyk.
+    min-height: 24px;
 }
 
 .top-nav__ratio-bar a:hover {
@@ -917,6 +920,39 @@ body::before {
 @media (max-width: $bp-s) {
     .footer__wrapper {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    // Telefon 390 px: dokument rozpychał się do 473 px i strona dostawała
+    // poziomy pasek przewijania. Winne były dwa pasy z zakazem zawijania:
+    // pasek ikon w nagłówku i wiersz statystyk w stopce.
+    .footer__stats {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 4px;
+        text-align: center;
+    }
+
+    .top-nav__wrapper,
+    .top-nav__right {
+        flex-wrap: wrap;
+        min-width: 0;
+        row-gap: 4px;
+    }
+
+    .top-nav__icon-bar {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        min-width: 0;
+    }
+
+    // nick obok ikon potrafił wejść na logo; niech się skraca zamiast nachodzić
+    .top-nav__right .user-tag,
+    .top-nav__right .user-tag__link {
+        min-width: 0;
+        max-width: 38vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 

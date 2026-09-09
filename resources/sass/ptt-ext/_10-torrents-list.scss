@@ -1730,7 +1730,7 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
     font-size: 11px !important;
     font-weight: 600 !important;
     letter-spacing: 0.05em !important;
-    color: var(--pt-accent) !important;
+    color: var(--pt-red-fg) !important;
 }
 
 main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body {
@@ -1770,6 +1770,33 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
     font-family: var(--pt-mono);
     font-size: 11px !important;
     color: var(--pt-fg-4) !important;
+}
+
+// Telefon: nazwa wydania to jedno długie słowo sklejone kropkami, więc nie ma
+// gdzie się złamać i rozpychała chip poza ekran (zmierzone: 422 px przy 390).
+// Chip dostaje prawo do kurczenia się i zawijania, nazwa łamie się gdziekolwiek.
+@media (max-width: $bp-s) {
+    main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div {
+        display: flex !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        padding: 5px 10px !important;
+        align-items: flex-start !important;
+    }
+
+    // Etykieta kategorii nie może się kurczyć: ściśnięta do 46 px wylewała
+    // swój tekst poza własne pudełko i nachodziła na nazwę wydania.
+    // Łamie się tylko nazwa, bo tylko ona ma zapas treści.
+    main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div > span:first-child {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+    }
+
+    main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .fa-film) > .panel__body > div > div > span:not(:first-child) {
+        min-width: 0 !important;
+        overflow-wrap: anywhere !important;
+    }
 }
 
 // =====================================================================
@@ -1856,13 +1883,13 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
 .torrent-icons__double-upload { color: var(--pt-x2) !important; }
 .torrent-icons__internal { color: var(--pt-warn) !important; }
 .torrent-icons__personal-release { color: var(--pt-info) !important; }
-.torrent-icons__sticky { color: var(--pt-accent) !important; }
+.torrent-icons__sticky { color: var(--pt-red-fg) !important; }
 .torrent-icons__featured,
 .torrent-icons__bumped,
 .torrent-icons__refundable { color: var(--pt-warn) !important; }
-.torrent-icons__highspeed { color: var(--pt-accent) !important; }
+.torrent-icons__highspeed { color: var(--pt-red-fg) !important; }
 .torrent-icons__comments { color: var(--pt-fg-3) !important; border-color: var(--pt-border) !important; background: transparent !important; }
-.ptt-label-nowos, .ptt-badge-new { color: var(--pt-accent) !important; }
+.ptt-label-nowos, .ptt-badge-new { color: var(--pt-red-fg) !important; }
 .ptt-label-klasyk { color: var(--pt-warn) !important; }
 .ptt-badge-hit, .ptt-badge-rec { color: var(--pt-fl) !important; }
 .ptt-badge-seed { color: var(--pt-ok) !important; }
@@ -1870,7 +1897,7 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
 
 // „PTTrG" w nazwie: akcent (bez neonu)
 .ptt-pttrg-badge {
-    color: var(--pt-accent) !important;
+    color: var(--pt-red-fg) !important;
     font-weight: 700 !important;
     text-shadow: none !important;
     animation: none !important;
@@ -1901,7 +1928,7 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
 
 .torrent-search--list__rating [style*='#e74c3c'],
 .torrent-search--list__rating [style*='#c0392b'] {
-    color: var(--pt-accent) !important;
+    color: var(--pt-red-fg) !important;
 }
 
 .torrent-search--list__rating [style*='#95a5a6'],

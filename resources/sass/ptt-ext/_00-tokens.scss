@@ -12,7 +12,13 @@
     --pt-accent: #d4212e;     // pełna czerwień flagi: linki, badge, aktywna pozycja, wypełnienia (decyzja Konrada)
     --pt-accent-on: #ffffff;  // tekst na wypełnieniu akcentem
     --pt-accent-dim: #8f1e27; // przygaszony akcent (tło odznaki grupy, obrys)
-    --pt-red-fg: var(--pt-accent); // (alias z poprzedniej wersji)
+    // Czerwień JAKO TEKST na ciemnym tle. Pełna #d4212e daje kontrast 3.2,
+    // poniżej progu czytelności 4.5 dla drobnego pisma — zmierzone na 182
+    // miejscach samej listy. Ten odcień daje 5.7 na tle strony, 5.4 na panelu
+    // i 5.0 na nagłówku panelu, a nadal czyta się jako czerwień, nie koral.
+    // ⛔ Nie stosować na wypełnieniach — tam zostaje pełna flagowa czerwień.
+    --pt-red-text: #ff5a63;
+    --pt-red-fg: var(--pt-red-text); // alias: każdy napis w akcencie
     --pt-white: #f2f2f2;      // pas flagi, górna połowa orła
 
     --pt-bg: #191919;         // tło strony
@@ -36,7 +42,17 @@
     --pt-info: #34b5e9;
 
     --pt-radius: 2px;         // jedyny promień (badge: 1px)
-    --pt-col: 1240px;         // szerokość kolumny treści (Design)
+    // Sufit kolumny treści, nie sztywna szerokość: max-width sam schodzi
+    // w dół razem z oknem. Zmierzone na liście 25 wydań, licząc ucięte nazwy:
+    // 1240 ucinało 8 na 25, 1360 ucinało 4, 1480 ucina 1. Przy 1600 wynik jest
+    // identyczny jak przy 1480, więc to jest punkt nasycenia — dalej rosną
+    // tylko puste marginesy.
+    // Oddech przy krawędzi. Musi być mały na telefonie, gdzie każdy piksel
+    // idzie na treść, i większy na monitorze, gdzie strona bez marginesu
+    // wygląda na wciśniętą w brzeg. Stała wartość psuła jedno albo drugie:
+    // przy sztywnych 32 px na oknie 768 ucięć nazw przybywało z 5 na 7.
+    --pt-edge: clamp(8px, 2vw, 32px);
+    --pt-col: min(1480px, calc(100% - 2 * var(--pt-edge)));
     --pt-gutter: 18px;        // margines boczny poniżej progu kolumny
     --pt-gap: 12px;           // odstęp między panelami
 
