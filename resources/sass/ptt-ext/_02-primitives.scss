@@ -1234,3 +1234,24 @@ dialog {
 .form__label--floating {
     border-radius: 0;
 }
+
+// ---------------------------------------------------------------------
+// Obszar trafienia w gęstych listach
+// ---------------------------------------------------------------------
+// Nicki, gatunki i liczniki to linki wysokie na 11 do 16 px. Powiększenie
+// samego pisma zniszczyłoby gęstość, która na trackerze jest zaletą, więc
+// rośnie tylko pole kliknięcia: odstęp wewnętrzny w pionie skompensowany
+// ujemnym zewnętrznym. Zmierzone: nick z 11 px na 25 px, wiersz listy
+// niezmiennie 50 px, liczba zbyt małych celów na liście z 68 na 43,
+// a na stronie głównej z 226 na 105.
+// ⛔ Nie dopisywać tu nazwy wydania — ta jest elementem blokowym i odstęp
+// rozpycha jej wiersz z 50 px na 55 px.
+.user-tag__link,
+.torrent-card__genre,
+.torrent-card__completed,
+.torrent-card__seeds,
+.torrent-card__leechers,
+.topic-listing__link {
+    padding-block: 7px !important;
+    margin-block: -7px !important;
+}
