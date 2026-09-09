@@ -18,7 +18,7 @@ $col-rating: 72px;
 $col-size: 84px;
 $col-num: 46px;
 $col-completed: 52px;
-$col-age: 118px;
+$col-age: 132px;   // 118 ucinało „temu” w „13 godzin temu” (treść 129 px)
 $col-buttons: 84px;
 
 // ---------------------------------------------------------------------
@@ -1797,6 +1797,31 @@ main.page__torrent--index > article > section.panelV2:has(> .panel__heading > .f
         min-width: 0 !important;
         overflow-wrap: anywhere !important;
     }
+}
+
+// Wielokropek w nazwie wydania.
+// Link ma już overflow hidden i text-overflow ellipsis, ale nigdy się nie
+// odpalały: opakowanie staffu miało min-width auto, czyli nie kurczyło się
+// poniżej swojej treści i wymuszało na linku 1002 px przy komórce 810.
+// Link nie wiedział, że jest za szeroki, więc zamiast wielokropka tekst
+// znikał twardo za krawędzią komórki, ucięty w połowie słowa.
+// Samo min-width: 0 nie wystarczyło, bo staff wpisuje linkowi styl liniowy
+// z font-size 17px i word-break, a opakowania i tak rozpychały się do treści.
+// Dopiero max-width ze ścięciem na każdym ogniwie zamyka łańcuch.
+td.torrent-search--list__overview > div,
+td.torrent-search--list__overview > div > div {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+a.torrent-search--list__name {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
 }
 
 // =====================================================================
