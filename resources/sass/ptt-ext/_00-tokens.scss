@@ -42,19 +42,35 @@
     --pt-info: #34b5e9;
 
     --pt-radius: 2px;         // jedyny promień (badge: 1px)
-    // Sufit kolumny treści, nie sztywna szerokość: max-width sam schodzi
-    // w dół razem z oknem. Zmierzone na liście 25 wydań, licząc ucięte nazwy:
-    // 1240 ucinało 8 na 25, 1360 ucinało 4, 1480 ucina 1. Przy 1600 wynik jest
-    // identyczny jak przy 1480, więc to jest punkt nasycenia — dalej rosną
-    // tylko puste marginesy.
-    // Oddech przy krawędzi. Musi być mały na telefonie, gdzie każdy piksel
-    // idzie na treść, i większy na monitorze, gdzie strona bez marginesu
-    // wygląda na wciśniętą w brzeg. Stała wartość psuła jedno albo drugie:
-    // przy sztywnych 32 px na oknie 768 ucięć nazw przybywało z 5 na 7.
+
+    // Oddech przy krawędzi. Mały na telefonie, gdzie każdy piksel idzie na
+    // treść, większy na monitorze, gdzie strona bez marginesu wygląda na
+    // wciśniętą w brzeg. Stała wartość psuła jedno albo drugie: przy sztywnych
+    // 32 px na oknie 768 ucięć nazw przybywało z 5 na 7.
     --pt-edge: clamp(8px, 2vw, 32px);
+
+    // Sufit kolumny treści, nie sztywna szerokość: max-width sam schodzi w dół
+    // razem z oknem. Zmierzone na liście 25 wydań, licząc ucięte nazwy: 1240
+    // ucinało 8 na 25, 1360 ucinało 4, 1480 ucina 1. Przy 1600 wynik jest
+    // identyczny jak przy 1480, więc to punkt nasycenia — dalej rosną już
+    // tylko puste marginesy.
     --pt-col: min(1480px, calc(100% - 2 * var(--pt-edge)));
     --pt-gutter: 18px;        // margines boczny poniżej progu kolumny
     --pt-gap: 12px;           // odstęp między panelami
+
+    // --- kolory nazwane silnika ---------------------------------------
+    // Silnik sięga po nie w kilku miejscach, a arkusz ich nie wypełniał, więc
+    // przeciekały z motywu bazowego użytkownika i wygląd zależał od tego, co
+    // ktoś ma ustawione. Mapujemy je na naszą semantykę.
+    --color-blue: var(--pt-info);
+    --color-dark-blue: #1f7fae;
+    --color-light-blue: #6fd0f5;
+    --color-green: var(--pt-ok);
+    --color-light-green: #96e0ac;
+    --color-light-orange: var(--pt-warn);
+    --color-light-red: var(--pt-red-text);
+    --color-400: var(--pt-fg-3);
+    --message-bubble-bg: var(--pt-surface-2);
 
     // --- akcent z przezroczystością (jedno miejsce) -------------------
     --pt-red-a12: rgb(212 33 46 / 12%);
