@@ -310,6 +310,16 @@ main.page__torrent--show ul.torrent__tags > li:last-child {
     border-right: 0;
 }
 
+// Wartość w kaflu miała zakaz zawijania i znikała za krawędzią: data dodania
+// potrzebuje 126 px, nick uploadera 134, a mieści się 117. Kafel jest wysoki
+// na 110 px, więc pionu jest w nadmiarze — niech wartość zejdzie do drugiej
+// linii, zamiast zostawiać użytkownika z uciętym tekstem.
+main.page__torrent--show ul.torrent__tags > li > * {
+    min-width: 0;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+}
+
 // etykieta kafla — silnik jej nie renderuje, dokładamy ją tutaj
 main.page__torrent--show ul.torrent__tags > li::before {
     font-family: var(--pt-sans);
